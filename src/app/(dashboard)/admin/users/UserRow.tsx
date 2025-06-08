@@ -34,7 +34,7 @@ export default function UserRow({ user }: UserRowProps) {
                 setRole(newRole);
                 toast.success(`Role updated to ${newRole}`, { id: toastId });
             }
-        } catch (err) {
+        } catch {
             toast.error('Something went wrong', { id: toastId });
         } finally {
             setLoading(false);

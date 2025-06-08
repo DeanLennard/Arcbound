@@ -8,9 +8,17 @@ interface User {
     profileImage?: string;
 }
 
+interface Chat {
+    _id: string;
+    isGroup: boolean;
+    members: Array<{ _id: string; characterName: string; profileImage: string }>;
+    groupName?: string;
+    groupImage?: string;
+}
+
 interface Props {
     onClose: () => void;
-    onChatCreated: (chat: any) => void;
+    onChatCreated: (chat: Chat) => void;
 }
 
 export default function NewChatForm({ onClose, onChatCreated }: Props) {

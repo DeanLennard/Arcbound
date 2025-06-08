@@ -11,7 +11,7 @@ export default async function ChatsPage() {
     return (
         <div>
             <h1 className="text-2xl font-bold mb-4">Manage Chats</h1>
-            <p>Coming soon! Here you'll be able to view chats.</p>
+            <p>Coming soon! Here you&apos;ll be able to view chats.</p>
         </div>
     );
 }

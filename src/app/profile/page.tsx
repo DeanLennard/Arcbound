@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import toast from 'react-hot-toast';
+import Image from "next/image";
 
 export default function ProfilePage() {
     const { data: session, status } = useSession();
@@ -48,7 +49,7 @@ export default function ProfilePage() {
                 setProfileImage(data.url);
                 toast.success('Image uploaded!');
             }
-        } catch (err) {
+        } catch {
             toast.error('An error occurred during upload');
         }
     };
@@ -71,7 +72,7 @@ export default function ProfilePage() {
             } else {
                 toast.error('Failed to update profile');
             }
-        } catch (err) {
+        } catch {
             toast.error('Something went wrong');
         }
         setLoading(false);
@@ -101,7 +102,15 @@ export default function ProfilePage() {
                 <div>
                     <label className="block mb-1">Profile Image</label>
                     {profileImage && (
-                        <img src={profileImage} alt="Profile" className="w-32 h-32 object-cover rounded mb-2" />
+                        <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                            <Image
+                                src={profileImage}
+                                alt="Profile"
+                                fill
+                                style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                        </div>
                     )}
                     <input
                         type="file"

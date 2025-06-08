@@ -6,6 +6,7 @@ import ChatWindow from './ChatWindow';
 import socket from '@/socket/socket';
 import NewChatForm from './NewChatForm';
 import { useSession } from 'next-auth/react';
+import Image from "next/image";
 
 interface Chat {
     _id: string;
@@ -182,11 +183,15 @@ export default function ChatDock() {
                                             className="flex items-center gap-2 cursor-pointer hover:bg-gray-700 p-2 rounded"
                                         >
                                             {chatImage && (
-                                                <img
-                                                    src={chatImage}
-                                                    alt={chatName}
-                                                    className="w-8 h-8 object-cover rounded-full"
-                                                />
+                                                <div style={{ position: 'relative', width: '20%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                                                    <Image
+                                                        src={chatImage}
+                                                        alt={chatName}
+                                                        fill
+                                                        style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                    />
+                                                </div>
                                             )}
                                             <span>{chatName}</span>
                                             {chat.unreadCount > 0 && (

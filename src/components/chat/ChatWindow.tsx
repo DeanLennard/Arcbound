@@ -4,6 +4,7 @@ import socket from '@/socket/socket';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
+import Image from "next/image";
 
 interface Chat {
     _id: string;
@@ -24,6 +25,10 @@ interface Props {
     chat: Chat;
     onClose: () => void;
     currentUserId: string;
+}
+
+interface Emoji {
+    native: string;
 }
 
 export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
@@ -153,7 +158,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     };
 
-    const handleEmojiSelect = (emoji: any) => {
+    const handleEmojiSelect = (emoji: Emoji) => {
         if (!emoji?.native) {
             console.error('Emoji native not found:', emoji);
             return;
@@ -197,9 +202,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                             className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} mb-2`}
                         >
                             {!isOwnMessage && (
-                                <img
+                                <Image
                                     src={msg.senderId.profileImage}
                                     alt={msg.senderId.characterName}
+                                    width={24}
+                                    height={24}
                                     className="w-6 h-6 object-cover rounded-full mr-2"
                                 />
                             )}
@@ -219,10 +226,12 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 </div>
                             </div>
                             {isOwnMessage && (
-                                <img
+                                <Image
                                     src={msg.senderId.profileImage}
                                     alt={msg.senderId.characterName}
-                                    className="w-6 h-6 object-cover rounded-full ml-2"
+                                    width={24}
+                                    height={24}
+                                    className="w-6 h-6 object-cover rounded-full mr-2"
                                 />
                             )}
                         </div>

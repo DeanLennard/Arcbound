@@ -20,9 +20,6 @@ export default function DashboardLayout({
                     <Link href="/admin/users" className="hover:underline">
                         Manage Users
                     </Link>
-                    <Link href="/admin/groups" className="hover:underline">
-                        Manage Groups
-                    </Link>
                     <Link href="/admin/categories" className="hover:underline">
                         Manage Categories
                     </Link>

@@ -6,6 +6,15 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextApiRequest, NextApiResponse } from 'next';
 import Notification from '@/models/Notification';
 import Post from '@/models/Post';
+import mongoose from 'mongoose';
+
+interface NestedComment {
+    _id: string;
+    likesCount: number;
+    author: { characterName?: string; profileImage?: string };
+    children: NestedComment[];
+    [key: string]: any; // fallback for any additional properties
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -43,7 +52,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
                 // Notify subscribers, excluding the commenter
                 if (post.subscribers) {
-                    post.subscribers.forEach((subscriberId: any) => {
+                    post.subscribers.forEach((subscriberId: mongoose.Types.ObjectId) => {
                         if (subscriberId.toString() !== session.user.id) {
                             recipients.add(subscriberId.toString());
                         }
@@ -86,7 +95,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .lean();
 
             // Nest replies under their parents
-            const commentMap: { [key: string]: any } = {};
+            const commentMap: Record<string, NestedComment> = {};
             comments.forEach(comment => {
                 comment._id = comment._id.toString();
                 comment.likesCount = comment.likes?.length || 0;

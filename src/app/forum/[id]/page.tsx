@@ -6,6 +6,7 @@ import LikesAndComments from './LikesAndComments';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
 import { GET as getPost } from '@/app/api/admin/posts/[id]/route';
+import Image from "next/image";
 
 interface Post {
     _id: string;
@@ -44,11 +45,15 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                 <main className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
                         {post.author?.profileImage && (
-                            <img
-                                src={post.author.profileImage}
-                                alt={post.author.characterName || 'Author'}
-                                className="w-8 h-8 object-cover rounded-full"
-                            />
+                            <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                                <Image
+                                    src={post.author.profileImage}
+                                    alt={post.author.characterName || 'Author'}
+                                    fill
+                                    style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
                         )}
                         <span className="text-sm text-gray-300">
                             {post.author?.characterName || 'Unknown'}

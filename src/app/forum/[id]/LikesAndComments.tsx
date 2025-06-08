@@ -7,6 +7,7 @@ const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
 import toast from 'react-hot-toast';
 import {formatTimestamp} from "@/lib/formatTimestamp";
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
+import Image from "next/image";
 
 interface Props {
     postId: string;
@@ -78,7 +79,7 @@ export default function LikesAndComments({ postId, initialLikes, initialComments
             } else {
                 toast.error('Failed to post comment.');
             }
-        } catch (err) {
+        } catch {
             toast.error('An error occurred.');
         }
         setLoading(false);
@@ -114,11 +115,15 @@ export default function LikesAndComments({ postId, initialLikes, initialComments
             <div key={comment._id} className="bg-gray-800 p-5 rounded mb-2 ml-4">
                 <div className="flex items-center gap-2 mt-2">
                     {comment.author?.profileImage && (
-                        <img
-                            src={comment.author.profileImage}
-                            alt={comment.author.characterName || 'Author'}
-                            className="w-6 h-6 object-cover rounded-full"
-                        />
+                        <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                            <Image
+                                src={comment.author.profileImage}
+                                alt={comment.author.characterName || 'Author'}
+                                fill
+                                style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                            />
+                        </div>
                     )}
                     <span className="text-xs text-gray-400">
                         {comment.author?.characterName || 'Unknown'} ({formatTimestamp(comment.createdAt, comment.updatedAt)})

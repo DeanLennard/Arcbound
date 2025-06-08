@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Message from '@/models/Message';
 import { requireAuth } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -15,8 +16,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'GET') {
         try {
             const before = req.query.before as string | undefined;
-            const filter: any = { chatId: id };
-            if (before) {
+            const filter: { chatId: mongoose.Types.ObjectId; createdAt?: { $lt: Date } } = { chatId: new mongoose.Types.ObjectId(id as string) };
+            if (before && !isNaN(Date.parse(before))) {
                 filter.createdAt = { $lt: new Date(before) };
             }
 

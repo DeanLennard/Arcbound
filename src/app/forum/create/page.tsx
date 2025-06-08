@@ -65,7 +65,7 @@ export default function CreatePostPage() {
                 toast.success('Post created', { id: toastId });
                 router.push(`/forum/${data.post._id}`);
             }
-        } catch (err) {
+        } catch {
             toast.error('Something went wrong', { id: toastId });
         } finally {
             setLoading(false);

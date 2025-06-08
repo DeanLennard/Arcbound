@@ -4,15 +4,22 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import Editor from '@/components/Editor';
+import Image from "next/image";
 
 interface Post {
     _id: string;
     title: string;
-    content: any;
+    content: string;
     previewImage?: string;
     category?: { name: string; _id: string };
     createdAt?: string;
     updatedAt?: string;
+}
+
+interface Category {
+    _id: string;
+    name: string;
+    image: string;
 }
 
 export default function PostsClient() {
@@ -20,7 +27,7 @@ export default function PostsClient() {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [categoryId, setCategoryId] = useState('');
-    const [categories, setCategories] = useState<any[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(false);
     const [editingPostId, setEditingPostId] = useState<string | null>(null);
     const [search, setSearch] = useState('');
@@ -32,13 +39,13 @@ export default function PostsClient() {
 
     const fetchPosts = async () => {
         const res = await fetch('/api/admin/posts');
-        const data = await res.json();
+        const data: { posts: Post[] } = await res.json();
         setPosts(data.posts || []);
     };
 
     const fetchCategories = async () => {
         const res = await fetch('/api/admin/categories');
-        const data = await res.json();
+        const data: { categories: Category[] } = await res.json();
         setCategories(data.categories || []);
     };
 
@@ -73,7 +80,7 @@ export default function PostsClient() {
                 setEditingPostId(null);
                 fetchPosts();
             }
-        } catch (err) {
+        } catch {
             toast.error('Something went wrong', { id: toastId });
         } finally {
             setLoading(false);
@@ -94,7 +101,7 @@ export default function PostsClient() {
                 toast.success('Post deleted');
                 fetchPosts();
             }
-        } catch (err) {
+        } catch {
             toast.error('Something went wrong');
         }
     };
@@ -161,11 +168,15 @@ export default function PostsClient() {
                 {filteredPosts.map((post) => (
                     <div key={post._id} className="border rounded shadow-sm p-4 flex flex-col">
                         {post.previewImage && (
-                            <img
-                                src={post.previewImage}
-                                alt={post.title}
-                                className="w-full h-40 object-cover rounded mb-2"
-                            />
+                            <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                                <Image
+                                    src={post.previewImage}
+                                    alt={post.title}
+                                    fill
+                                    style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
                         )}
                         <h3 className="font-bold text-lg mb-1">{post.title}</h3>
                         <p className="text-sm text-gray-600 mb-2">

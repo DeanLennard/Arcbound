@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import {useSession} from "next-auth/react";
+import Image from 'next/image';
 
 interface Post {
     _id: string;
@@ -14,13 +15,17 @@ interface Post {
     createdAt?: string;
     updatedAt?: string;
     author?: { characterName?: string; profileImage?: string };
-    comments?: { content: string }[];
+    comments?: Comment[];
 }
 
 interface Category {
     _id: string;
     name: string;
     image: string;
+}
+
+interface Comment {
+    content: string;
 }
 
 function stripHtml(html: string): string {
@@ -77,7 +82,7 @@ export default function ForumPage() {
                 strippedContent.toLowerCase().includes(searchLower);
 
             // Search in comments (if they exist)
-            const matchesComment = post.comments?.some((comment: any) =>
+            const matchesComment = post.comments?.some((comment: Comment) =>
                 comment.content.toLowerCase().includes(searchLower)
             );
 
@@ -177,11 +182,15 @@ export default function ForumPage() {
                             onClick={() => setSelectedCategoryId(cat._id)}
                             className={`border rounded shadow-sm p-4 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors`}
                         >
-                            <img
-                                src={cat.image}
-                                alt={cat.name}
-                                className="w-full h-40 object-cover rounded mb-2"
-                            />
+                            <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                                <Image
+                                    src={cat.image}
+                                    alt={cat.name}
+                                    fill
+                                    style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                />
+                            </div>
                             <h3 className="font-bold text-lg">{cat.name}</h3>
                         </div>
                     ))}
@@ -200,30 +209,38 @@ export default function ForumPage() {
                             >
                                 <div className="flex items-center gap-2 mb-2">
                                     {post.author?.profileImage && (
-                                        <img
-                                            src={post.author.profileImage}
-                                            alt={post.author.characterName || 'Author'}
-                                            className="w-8 h-8 object-cover rounded-full"
-                                        />
+                                        <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                                            <Image
+                                                src={post.author.profileImage}
+                                                alt={post.author.characterName || 'Author'}
+                                                fill
+                                                style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
+                                        </div>
                                     )}
                                     <span className="text-sm text-gray-400">
                                         {post.author?.characterName || 'Unknown'}
                                     </span>
                                 </div>
                                 <h3 className="font-bold text-lg mb-1">{post.title}</h3>
+                                <p className="text-sm text-gray-100 mb-2">
+                                    Category: {post.category?.name || 'Uncategorized'}
+                                </p>
                                 <p className="text-xs text-gray-400 mb-2">
                                     {formatTimestamp(post.createdAt, post.updatedAt)}
                                 </p>
                                 {post.previewImage && (
-                                    <img
-                                        src={post.previewImage}
-                                        alt={post.title}
-                                        className="w-full h-40 object-cover rounded mb-2"
-                                    />
+                                    <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                                        <Image
+                                            src={post.previewImage}
+                                            alt={post.title}
+                                            fill
+                                            style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        />
+                                    </div>
                                 )}
-                                <p className="text-sm text-gray-100 mb-2">
-                                    Category: {post.category?.name || 'Uncategorized'}
-                                </p>
                                 <p className="text-sm text-gray-100 line-clamp-3">
                                     {stripHtml(post.content)}
                                 </p>
@@ -256,11 +273,15 @@ export default function ForumPage() {
                                         {formatTimestamp(post.createdAt, post.updatedAt)}
                                     </p>
                                     {post.previewImage && (
-                                        <img
-                                            src={post.previewImage}
-                                            alt={post.title}
-                                            className="w-full h-24 object-cover rounded mb-2"
-                                        />
+                                        <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                                            <Image
+                                                src={post.previewImage}
+                                                alt={post.title}
+                                                fill
+                                                style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                            />
+                                        </div>
                                     )}
                                     <p className="text-xs text-gray-100 mb-2">
                                         Category: {post.category?.name || 'Uncategorized'}

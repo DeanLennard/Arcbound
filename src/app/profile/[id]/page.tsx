@@ -5,6 +5,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { notFound } from 'next/navigation';
 import { GET as getUser } from '@/pages/api/users/[id]';
 import { NextRequest } from 'next/server';
+import Image from "next/image";
 
 async function fetchUser(id: string) {
     const req = new NextRequest(`http://localhost/api/users/${id}`);
@@ -27,11 +28,15 @@ export default async function ProfilePage({ params }: { params: { id: string } }
             <h1 className="text-3xl font-bold mb-4">{user.playerName || user.email}</h1>
             <p>Character: {user.characterName || 'N/A'}</p>
             {user.profileImage && (
-                <img
-                    src={user.profileImage}
-                    alt={user.playerName}
-                    className="w-40 h-40 object-cover rounded-full mt-4"
-                />
+                <div style={{ position: 'relative', width: '20%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                    <Image
+                        src={user.profileImage}
+                        alt={user.playerName}
+                        fill
+                        style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                </div>
             )}
             {/* Add "Edit Profile" button if it's the same user */}
             {session?.user?.id === user._id && (

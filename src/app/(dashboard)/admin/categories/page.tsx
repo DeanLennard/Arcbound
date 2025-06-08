@@ -3,9 +3,16 @@
 
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import Image from 'next/image';
+
+interface Category {
+    _id: string;
+    name: string;
+    image: string;
+}
 
 export default function CategoriesPage() {
-    const [categories, setCategories] = useState<any[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [name, setName] = useState('');
     const [image, setImage] = useState<File | ''>('');
     const [loading, setLoading] = useState(false);
@@ -38,7 +45,7 @@ export default function CategoriesPage() {
                 formData.append('image', image as Blob);
             }
 
-            let res, data;
+            let res: Response;
             if (editingId) {
                 // Edit mode
                 res = await fetch(`/api/admin/categories/${editingId}`, {
@@ -53,7 +60,7 @@ export default function CategoriesPage() {
                 });
             }
 
-            data = await res.json();
+            const data = await res.json();
             if (!res.ok) {
                 toast.error(data.error || 'Failed to save category', { id: toastId });
             } else {
@@ -63,7 +70,7 @@ export default function CategoriesPage() {
                 setEditingId(null);
                 fetchCategories();
             }
-        } catch (err) {
+        } catch {
             toast.error('Something went wrong', { id: toastId });
         } finally {
             setLoading(false);
@@ -131,7 +138,13 @@ export default function CategoriesPage() {
                 {categories.map((cat) => (
                     <li key={cat._id} className="flex items-center gap-2 border p-2 rounded justify-between">
                         <div className="flex items-center gap-2">
-                            <img src={cat.image} alt={cat.name} className="w-10 h-10 object-cover rounded" />
+                            <Image
+                                src={cat.image}
+                                alt={cat.name}
+                                width={400}
+                                height={300}
+                                className="w-10 h-10 object-cover rounded"
+                            />
                             <span>{cat.name}</span>
                         </div>
                         <div className="flex gap-2">
