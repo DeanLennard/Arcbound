@@ -37,18 +37,6 @@ export default function Sidebar({ currentPostId }: SidebarProps) {
             });
     }, [currentPostId]);
 
-    const handleFollow = async () => {
-        const res = await fetch(`/api/posts/${currentPostId}/follow`, {
-            method: 'POST'
-        });
-        if (res.ok) {
-            const data = await res.json();
-            setIsFollowing(data.isFollowing);
-        } else {
-            toast.error('Failed to follow.ts post.');
-        }
-    };
-
     return (
         <aside className="rounded shadow-sm p-6">
             <div className="border rounded shadow-sm p-6 mb-4">
