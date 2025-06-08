@@ -4,7 +4,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { dbConnect } from '@/lib/mongodb';
 import Post from '@/models/Post';
-import Category from '@/models/Category';
 import Comment from '@/models/Comment';
 
 export async function GET() {

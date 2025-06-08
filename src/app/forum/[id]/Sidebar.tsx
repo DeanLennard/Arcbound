@@ -17,7 +17,6 @@ export default function Sidebar({ currentPostId }: SidebarProps) {
     const [latestPosts, setLatestPosts] = useState<Post[]>([]);
     const [views, setViews] = useState(0);
     const [commentsCount, setCommentsCount] = useState(0);
-    const [isFollowing, setIsFollowing] = useState(false);
 
     useEffect(() => {
         fetch('/api/admin/posts')

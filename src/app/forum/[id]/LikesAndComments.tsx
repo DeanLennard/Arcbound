@@ -25,7 +25,7 @@ interface CommentType {
     children?: CommentType[];
 }
 
-export default function LikesAndComments({ postId, initialLikes, initialCommentsCount }: Props) {
+export default function LikesAndComments({ postId, initialLikes }: Props) {
     const [likes, setLikes] = useState(initialLikes ?? 0);
     const [comments, setComments] = useState<CommentType[]>([]);
     const [newComment, setNewComment] = useState('');

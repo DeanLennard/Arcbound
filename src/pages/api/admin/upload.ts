@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
 
         try {
-            const { fields, files } = await parseForm(req, form);
+            const { files } = await parseForm(req, form);
             const file = Array.isArray(files.file) ? files.file[0] : files.file;
 
             if (!file) {

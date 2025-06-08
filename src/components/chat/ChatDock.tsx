@@ -215,7 +215,7 @@ export default function ChatDock() {
                             flex justify-center md:justify-end
                             gap-x-2"
                     >
-                        {activeChats.map((chat, idx) => (
+                        {activeChats.map((chat) => (
                             <div key={chat._id} className="relative">
                                 <ChatWindow
                                     key={chat._id}

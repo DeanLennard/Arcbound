@@ -193,7 +193,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 onScroll={handleScroll}
                 className="flex-1 overflow-y-auto mb-2 scrollbar-hide"
             >
-            {messages.map((msg, index) => {
+            {messages.map((msg) => {
                     const isOwnMessage = msg.senderId._id === currentUserId;
 
                     return (

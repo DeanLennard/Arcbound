@@ -50,8 +50,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             await post.save();
 
-            let likesArray = Array.isArray(post.likes) ? post.likes : [];
-
             return res.status(200).json({ likes: (Array.isArray(post.likes) ? post.likes : []).length });
         } catch (error) {
             console.error(error);

@@ -22,7 +22,7 @@ export default function ProfilePage() {
                     setCharacterName(data.characterName || '');
                     setProfileImage(data.profileImage || '');
                 })
-                .catch(err => toast.error('Failed to load profile'));
+                .catch(() => toast.error('Failed to load profile'));
         }
     }, [session]);
 

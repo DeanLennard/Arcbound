@@ -12,7 +12,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    const { password, ...safeUser } = user;
+    const { password: _, ...safeUser } = user;
     return NextResponse.json({ user: safeUser });
 }
 
@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 { new: true }
             ).lean();
 
-            const { password, ...safeUser } = updatedUser;
+            const { password: _, ...safeUser } = updatedUser;
             return res.status(200).json({ user: safeUser });
         } catch (error) {
             console.error(error);

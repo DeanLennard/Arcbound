@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             maxFileSize: 10 * 1024 * 1024, // 10MB
             uploadDir: path.join(process.cwd(), '/public/uploads'),
             keepExtensions: true,
-            filename: (name, ext, part, form) => {
+            filename: (name, ext, part) => {
                 return `${Date.now()}-${part.originalFilename}`;
             },
         });

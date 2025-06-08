@@ -15,7 +15,7 @@ export default function CreatePostPage() {
     const router = useRouter();
 
     const selectedCategoryId = searchParams.get('category');
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [setCategories] = useState<Category[]>([]);
     const [categoryName, setCategoryName] = useState<string | null>(null);
 
     const [title, setTitle] = useState('');

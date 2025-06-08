@@ -21,7 +21,7 @@ interface Props {
     onChatCreated: (chat: Chat) => void;
 }
 
-export default function NewChatForm({ onClose, onChatCreated }: Props) {
+export default function NewChatForm({ onChatCreated }: Props) {
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
     const [groupName, setGroupName] = useState('');

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import Link from 'next/link';
 import toast from 'react-hot-toast';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 
