@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast';
 import React from "react";
 import Header from '@/components/Header';
 import ClientLayout from '@/components/ClientLayout';
+import ChatDock from '@/components/chat/ChatDock';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
             <Header />
             <main className="pt-4">{children}</main>
             <Toaster position="top-right" />
+            <ChatDock />
           </ClientLayout>
         </body>
       </html>

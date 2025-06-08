@@ -4,25 +4,22 @@ import User from '@/models/User';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { NextResponse } from 'next/server';
+
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+    await dbConnect();
+    const user = await User.findById(params.id).lean();
+    if (!user) {
+        return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+    const { password, ...safeUser } = user;
+    return NextResponse.json({ user: safeUser });
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
 
     const { id } = req.query;
-
-    if (req.method === 'GET') {
-        try {
-            const user = await User.findById(id).lean();
-            if (!user) {
-                return res.status(404).json({ error: 'User not found' });
-            }
-            const { password, ...safeUser } = user;
-            return res.status(200).json({ user: safeUser });
-        } catch (error) {
-            console.error(error);
-            return res.status(500).json({ error: 'Failed to fetch user profile' });
-        }
-    }
 
     if (req.method === 'PUT') {
         const session = await getServerSession(req, res, authOptions);

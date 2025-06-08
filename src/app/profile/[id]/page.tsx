@@ -3,14 +3,13 @@ import React from 'react';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { notFound } from 'next/navigation';
+import { GET as getUser } from '@/pages/api/users/[id]';
+import { NextRequest } from 'next/server';
 
 async function fetchUser(id: string) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/users/${id}`, {
-        cache: 'no-store'
-    });
-    if (!res.ok) {
-        return null;
-    }
+    const req = new NextRequest(`http://localhost/api/users/${id}`);
+    const res = await getUser(req, { params: { id } });
+    if (!res.ok) return null;
     const data = await res.json();
     return data.user;
 }

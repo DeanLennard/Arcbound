@@ -5,6 +5,7 @@ import Sidebar from './Sidebar';
 import LikesAndComments from './LikesAndComments';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
+import { GET as getPost } from '@/app/api/admin/posts/[id]/route';
 
 interface Post {
     _id: string;
@@ -18,10 +19,7 @@ interface Post {
 }
 
 async function fetchPost(id: string): Promise<Post | null> {
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
-    const res = await fetch(`${siteUrl}/api/admin/posts/${id}`, {
-        cache: 'no-store'
-    });
+    const res = await getPost(Request, { params: { id } });
     if (!res.ok) {
         return null;
     }

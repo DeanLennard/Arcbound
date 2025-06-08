@@ -51,13 +51,6 @@ export default function Sidebar({ currentPostId }: SidebarProps) {
 
     return (
         <aside className="rounded shadow-sm p-6">
-            <button
-                onClick={handleFollow}
-                className="w-full bg-black text-white px-4 py-2 border rounded shadow-sm mb-4"
-            >
-                {isFollowing ? 'Unfollow Post' : 'Follow Post'}
-            </button>
-
             <div className="border rounded shadow-sm p-6 mb-4">
                 <p className="text-white">👀 {views} Views</p>
                 <p className="text-white">💬 {commentsCount} Comments</p>

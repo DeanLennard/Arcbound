@@ -5,6 +5,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { dbConnect } from '@/lib/mongodb';
 import Post from '@/models/Post';
 import Category from '@/models/Category';
+import Comment from '@/models/Comment';
 
 export async function GET() {
     await dbConnect();
@@ -15,8 +16,12 @@ export async function GET() {
         .lean();
 
     // Transform posts so they include a top-level "author" object
-    const transformedPosts = posts.map(post => {
+    const transformedPosts = await Promise.all(posts.map(async post => {
         const { authorId, ...rest } = post;
+
+        // Fetch all comments for this post
+        const comments = await Comment.find({ postId: post._id }).lean();
+
         return {
             ...rest,
             author: authorId
@@ -24,9 +29,12 @@ export async function GET() {
                     characterName: authorId.characterName || 'Unknown',
                     profileImage: authorId.profileImage || null
                 }
-                : { characterName: 'Unknown', profileImage: null }
+                : { characterName: 'Unknown', profileImage: null },
+            comments: comments.map(comment => ({
+                content: comment.content
+            }))
         };
-    });
+    }));
 
     return NextResponse.json({ posts: transformedPosts });
 }

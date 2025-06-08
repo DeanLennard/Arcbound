@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { formatTimestamp } from '@/lib/formatTimestamp';
+import {useSession} from "next-auth/react";
 
 interface Post {
     _id: string;
@@ -13,6 +14,7 @@ interface Post {
     createdAt?: string;
     updatedAt?: string;
     author?: { characterName?: string; profileImage?: string };
+    comments?: { content: string }[];
 }
 
 interface Category {
@@ -26,31 +28,60 @@ function stripHtml(html: string): string {
 }
 
 export default function ForumPage() {
+    const { data: session, status } = useSession();
+
     const [posts, setPosts] = useState<Post[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
+    const userRole = session?.user?.role || '';
+
     useEffect(() => {
-        Promise.all([
-            fetch('/api/admin/posts').then((res) => res.json()),
-            fetch('/api/admin/categories').then((res) => res.json())
-        ]).then(([postsData, categoriesData]) => {
-            setPosts(postsData.posts || []);
-            setCategories(categoriesData.categories || []);
-            setLoading(false);
-        });
+        const fetchData = async () => {
+            try {
+                const [postsRes, categoriesRes] = await Promise.all([
+                    fetch('/api/admin/posts'),
+                    fetch('/api/admin/categories')
+                ]);
+
+                if (!postsRes.ok || !categoriesRes.ok) {
+                    throw new Error('Failed to load posts or categories');
+                }
+
+                const postsData = await postsRes.json();
+                const categoriesData = await categoriesRes.json();
+
+                setPosts(postsData.posts || []);
+                setCategories(categoriesData.categories || []);
+            } catch (error) {
+                console.error('Error fetching forum data:', error);
+                // Optionally, show an error message or toast
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const filteredPosts = posts
         .filter((post) => {
             const strippedContent = stripHtml(post.content);
             const searchLower = searchQuery.toLowerCase();
-            return (
+
+            // Search in title or post content
+            const matchesTitleOrContent =
                 post.title.toLowerCase().includes(searchLower) ||
-                strippedContent.toLowerCase().includes(searchLower)
+                strippedContent.toLowerCase().includes(searchLower);
+
+            // Search in comments (if they exist)
+            const matchesComment = post.comments?.some((comment: any) =>
+                comment.content.toLowerCase().includes(searchLower)
             );
+
+            return matchesTitleOrContent || matchesComment;
         })
         .filter((post) => {
             if (!selectedCategoryId) return false;
@@ -62,6 +93,24 @@ export default function ForumPage() {
         return <div>Loading posts...</div>;
     }
 
+    if (status === 'loading') {
+        return <div>Loading session...</div>;
+    }
+
+    // 🚫 User not authenticated or role is 'none'
+    if (!session || userRole === 'none') {
+        return (
+            <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4">
+                <div className="flex justify-center mt-8">
+                    <p className="text-lg text-red-500">
+                        🚫 You need to be approved to access this forum.
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    // ✅ User authenticated and approved — render the forum!
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4">
             <div className="relative mb-6">
@@ -98,13 +147,25 @@ export default function ForumPage() {
                 >
                     All Posts
                 </button>
-                <input
-                    type="text"
-                    placeholder="Search posts..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-1 p-2 border rounded bg-gray-800 text-white"
-                />
+                {selectedCategoryId && (
+                    <>
+                        <input
+                            type="text"
+                            placeholder="Search posts..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="flex-1 p-2 border rounded bg-gray-800 text-white"
+                        />
+                        {selectedCategoryId !== 'all' && (
+                            <Link
+                                href={`/forum/create?category=${selectedCategoryId}`}
+                                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-500"
+                            >
+                                + Create Post
+                            </Link>
+                        )}
+                    </>
+                )}
             </div>
 
             {/* Categories */}
