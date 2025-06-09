@@ -216,7 +216,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 <div className="text-xs font-semibold mb-1">
                                     {msg.senderId.characterName}
                                 </div>
-                                <div className="text-sm whitespace-pre-wrap break-all">
+                                <div className="text-sm whitespace-pre-wrap break-words">
                                     {msg.content}
                                 </div>
                                 <div className="text-xs text-gray-400 mt-1">
@@ -273,8 +273,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                     >
                         😊
                     </button>
-                    <input
-                        type="text"
+                    <textarea
                         value={newMessage}
                         onChange={(e) => {
                             setNewMessage(e.target.value);
@@ -286,7 +285,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 sendMessage();
                             }
                         }}
-                        className="flex-1 min-w-0 p-1 rounded bg-gray-700 text-white"
+                        rows={1}
+                        className="flex-1 min-w-0 p-1 rounded bg-gray-700 text-white resize-none overflow-y-auto max-h-24" // max-h-24 = ~6rem (about 3 lines)
                         placeholder="Type a message..."
                     />
                     <button

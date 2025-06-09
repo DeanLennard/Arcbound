@@ -185,8 +185,10 @@ export default function ChatDock() {
                                         : chat.members.find(m => m?._id && m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';
 
                                     const chatImage = chat.isGroup
-                                        ? chat.groupImage ?? ''
-                                        : chat.members.find(m => m?._id && m._id.toString() !== currentUserId)?.profileImage ?? '';
+                                        ? chat.groupImage && chat.groupImage.startsWith('/uploads')
+                                            ? chat.groupImage
+                                            : '/placeholder.jpg'
+                                        : chat.members.find(m => m?._id.toString() !== currentUserId)?.profileImage ?? '/placeholder.jpg';
 
                                     return (
                                         <div
