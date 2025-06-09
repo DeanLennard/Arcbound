@@ -71,6 +71,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                                     src={post.author.profileImage}
                                     alt={post.author.characterName || 'Author'}
                                     fill
+                                    unoptimized
                                     style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />

@@ -120,6 +120,7 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
                                 src={comment.author.profileImage}
                                 alt={comment.author.characterName || 'Author'}
                                 fill
+                                unoptimized
                                 style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />

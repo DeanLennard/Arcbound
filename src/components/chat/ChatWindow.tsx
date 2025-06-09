@@ -201,6 +201,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                     alt={msg.senderId.characterName}
                                     width={24}
                                     height={24}
+                                    unoptimized
                                     className="w-6 h-6 object-cover rounded-full mr-2"
                                 />
                             )}
@@ -225,6 +226,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                     alt={msg.senderId.characterName}
                                     width={24}
                                     height={24}
+                                    unoptimized
                                     className="w-6 h-6 object-cover rounded-full mr-2"
                                 />
                             )}

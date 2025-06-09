@@ -200,6 +200,7 @@ export default function ForumPage() {
                                     src={cat.image}
                                     alt={cat.name}
                                     fill
+                                    unoptimized
                                     style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
                                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 />
@@ -227,6 +228,7 @@ export default function ForumPage() {
                                                 src={post.author.profileImage}
                                                 alt={post.author.characterName || 'Author'}
                                                 fill
+                                                unoptimized
                                                 style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             />
@@ -249,6 +251,7 @@ export default function ForumPage() {
                                             src={post.previewImage}
                                             alt={post.title}
                                             fill
+                                            unoptimized
                                             style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         />
@@ -291,6 +294,7 @@ export default function ForumPage() {
                                                 src={post.previewImage}
                                                 alt={post.title}
                                                 fill
+                                                unoptimized
                                                 style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
                                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                             />

@@ -143,6 +143,7 @@ export default function CategoriesPage() {
                                 alt={cat.name}
                                 width={400}
                                 height={300}
+                                unoptimized
                                 className="w-10 h-10 object-cover rounded"
                             />
                             <span>{cat.name}</span>
