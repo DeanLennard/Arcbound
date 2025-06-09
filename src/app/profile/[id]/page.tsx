@@ -3,13 +3,18 @@ import React from 'react';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import { notFound } from 'next/navigation';
-import { GET as getUser } from '@/pages/api/users/[id]';
-import { NextRequest } from 'next/server';
 import Image from "next/image";
+import { headers } from 'next/headers';
 
 async function fetchUser(id: string) {
-    const req = new NextRequest(`http://localhost/api/users/${id}`);
-    const res = await getUser(req, { params: { id } });
+    const headersList = await headers();
+    const host = headersList.get('host');
+    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const apiUrl = `${protocol}://${host}/api/users/${id}`;
+
+    const res = await fetch(apiUrl, {
+        headers: { 'Content-Type': 'application/json' }
+    });
     if (!res.ok) return null;
     const data = await res.json();
     return data.user;
