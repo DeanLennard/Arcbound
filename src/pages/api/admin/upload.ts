@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             // safer fallback for older formidable versions
-            const filePath = `/uploads/${path.basename(file.filepath || file.path)}`;
+            const filePath = `/uploads/${path.basename(file.filepath)}`;
             return res.status(200).json({ url: filePath });
         } catch (err) {
             console.error(err);
