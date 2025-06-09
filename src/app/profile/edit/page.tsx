@@ -1,3 +1,4 @@
+// src/app/profile/edit/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -14,7 +15,7 @@ export default function EditProfilePage() {
     const [profileImage, setProfileImage] = useState('');
 
     useEffect(() => {
-        if (!session) return;
+        if (!session?.user?.id) return;
         fetch(`/api/users/${session.user.id}`)
             .then(res => res.json())
             .then(data => {
@@ -28,14 +29,14 @@ export default function EditProfilePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        const res = await fetch(`/api/users/${session?.user.id}`, {
+        const res = await fetch(`/api/users/${session?.user?.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ playerName, characterName, profileImage })
         });
         if (res.ok) {
             toast.success('Profile updated!');
-            router.push(`/profile/${session?.user.id}`);
+            router.push(`/profile/${session?.user?.id}`);
         } else {
             toast.error('Failed to update profile.');
         }

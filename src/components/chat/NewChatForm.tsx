@@ -1,6 +1,8 @@
 // src/components/Chat/NewChatForm.tsx
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
+import type { Chat } from '@/types/chat';
+import type { StylesConfig } from 'react-select';
 
 interface User {
     _id: string;
@@ -8,19 +10,17 @@ interface User {
     profileImage?: string;
 }
 
-interface Chat {
-    _id: string;
-    isGroup: boolean;
-    members: Array<{ _id: string; characterName: string; profileImage: string }>;
-    groupName?: string;
-    groupImage?: string;
-}
-
 interface Props {
+    onClose: () => void;
     onChatCreated: (chat: Chat) => void;
 }
 
-export default function NewChatForm({ onChatCreated }: Props) {
+interface OptionType {
+    value: string;
+    label: string;
+}
+
+export default function NewChatForm({ onClose, onChatCreated }: Props) {
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
     const [groupName, setGroupName] = useState('');
@@ -64,37 +64,37 @@ export default function NewChatForm({ onChatCreated }: Props) {
         label: user.characterName,
     }));
 
-    const customStyles = {
+    const customStyles: StylesConfig<OptionType, true> = {
         multiValue: (provided) => ({
             ...provided,
-            backgroundColor: '#374151', // Tailwind gray-700
+            backgroundColor: '#374151',
         }),
         multiValueLabel: (provided) => ({
             ...provided,
-            color: '#ffffff', // White text
+            color: '#ffffff',
         }),
         multiValueRemove: (provided) => ({
             ...provided,
             color: '#ffffff',
             ':hover': {
-                backgroundColor: '#4b5563', // Tailwind gray-600
+                backgroundColor: '#4b5563',
                 color: '#ffffff',
             },
         }),
         menu: (provided) => ({
             ...provided,
-            backgroundColor: '#1f2937', // Tailwind gray-800
+            backgroundColor: '#1f2937',
             color: '#ffffff',
         }),
         option: (provided, state) => ({
             ...provided,
-            backgroundColor: state.isFocused ? '#374151' : '#1f2937', // Tailwind gray-700 or gray-800
+            backgroundColor: state.isFocused ? '#374151' : '#1f2937',
             color: '#ffffff',
         }),
         control: (provided) => ({
             ...provided,
-            backgroundColor: '#1f2937', // Tailwind gray-800
-            borderColor: '#4b5563',     // Tailwind gray-600
+            backgroundColor: '#1f2937',
+            borderColor: '#4b5563',
             color: '#ffffff',
         }),
         input: (provided) => ({
@@ -171,6 +171,12 @@ export default function NewChatForm({ onChatCreated }: Props) {
                 className="bg-blue-600 text-white px-2 py-1 rounded w-full"
             >
                 Start Chat
+            </button>
+            <button
+                onClick={onClose}
+                className="mt-2 bg-red-600 text-white px-2 py-1 rounded w-full"
+            >
+                Cancel
             </button>
         </div>
     );

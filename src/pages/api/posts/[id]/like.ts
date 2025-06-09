@@ -5,6 +5,7 @@ import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import Notification from '@/models/Notification';
+import mongoose from 'mongoose';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -37,12 +38,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             if (hasLiked) {
                 // Unlike
-                post.likes = post.likes.filter((uid) => uid !== userId);
+                post.likes = post.likes.filter((uid: mongoose.Types.ObjectId | string) => uid.toString() !== userId);
             } else {
                 // Like
                 post.likes.push(userId);
                 await Notification.create({
-                    userId: subscriberId,
+                    userId: session.user.id,
                     postId: post._id,
                     type: 'like', // or 'comment'
                 });

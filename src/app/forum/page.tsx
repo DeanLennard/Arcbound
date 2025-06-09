@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import {useSession} from "next-auth/react";
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
 
 interface Post {
     _id: string;
@@ -41,7 +42,17 @@ export default function ForumPage() {
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const userRole = session?.user?.role || '';
+    const userRole = (session?.user as { role?: string })?.role || '';
+
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const categoryFromUrl = searchParams?.get('category');
+        if (categoryFromUrl) {
+            setSelectedCategoryId(categoryFromUrl);
+        }
+    }, [searchParams]);
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -228,7 +239,7 @@ export default function ForumPage() {
                                     Category: {post.category?.name || 'Uncategorized'}
                                 </p>
                                 <p className="text-xs text-gray-400 mb-2">
-                                    {formatTimestamp(post.createdAt, post.updatedAt)}
+                                    {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
                                 </p>
                                 {post.previewImage && (
                                     <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
@@ -270,7 +281,7 @@ export default function ForumPage() {
                                 >
                                     <h3 className="font-bold text-md mb-1">{post.title}</h3>
                                     <p className="text-xs text-gray-400 mb-2">
-                                        {formatTimestamp(post.createdAt, post.updatedAt)}
+                                        {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
                                     </p>
                                     {post.previewImage && (
                                         <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>

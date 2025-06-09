@@ -1,7 +1,19 @@
 // src/pages/api/admin/posts/[id].ts
 import { dbConnect } from '@/lib/mongodb';
-import Post from '@/models/Post';
+import Post, { PostDocument } from '@/models/Post';
 import type { NextApiRequest, NextApiResponse } from 'next';
+
+// Define interfaces for populated fields
+interface PopulatedCategory {
+    _id: string;
+    name: string;
+}
+
+interface PopulatedAuthor {
+    _id: string;
+    characterName: string;
+    profileImage: string;
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -14,28 +26,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             { $inc: { views: 1 } },
             { new: true }
         )
-            .populate('category')
-            .populate('authorId', 'characterName profileImage')
-            .lean();
+            .populate<{ category: PopulatedCategory }>('category')
+            .populate<{ authorId: PopulatedAuthor }>('authorId', 'characterName profileImage')
+            .lean<PostDocument & { category: PopulatedCategory; authorId: PopulatedAuthor }>();
 
         if (!post) {
             return res.status(404).json({ error: 'Post not found' });
         }
 
         const likesCount = Array.isArray(post.likes) ? post.likes.length : 0;
-        post.likesCount = likesCount;
 
+        const { authorId, ...rest } = post;
         const transformedPost = {
-            ...post,
-            author: post.authorId
+            ...rest,
+            likesCount,
+            author: authorId
                 ? {
-                    characterName: post.authorId.characterName || 'Unknown',
-                    profileImage: post.authorId.profileImage || null
+                    characterName: authorId.characterName || 'Unknown',
+                    profileImage: authorId.profileImage || null,
                 }
-                : { characterName: 'Unknown', profileImage: null }
+                : { characterName: 'Unknown', profileImage: null },
         };
-
-        delete transformedPost.authorId;
 
         return res.status(200).json({ post: transformedPost });
     }

@@ -6,20 +6,29 @@ import LikesAndComments from './LikesAndComments';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
 import Image from "next/image";
+import Link from 'next/link';
 
 interface Post {
     _id: string;
     title: string;
     content: string;
     previewImage?: string;
-    category?: { name: string };
+    category?: {
+        _id: string;
+        name: string;
+    };
     createdAt?: string;
+    updatedAt?: string;
     likes?: number;
     commentsCount?: number;
+    author?: {
+        characterName?: string;
+        profileImage?: string;
+    };
 }
 
 async function fetchPost(id: string): Promise<Post | null> {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/posts/${id}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/posts/${id}`, {
         method: 'GET',
         // you can pass cookies/headers here if needed for auth
     });
@@ -45,6 +54,16 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
         <>
             <div className="max-w-7xl mx-auto p-4 flex flex-col md:flex-row gap-4">
                 <main className="flex-1">
+                    {post.category && (
+                        <div className="mb-4">
+                            <Link
+                                href={`/forum?category=${post.category._id}`}
+                                className="px-4 py-2 bg-gray-700 text-white rounded hover:bg-gray-600 inline-block"
+                            >
+                                ← Back to {post.category.name}
+                            </Link>
+                        </div>
+                    )}
                     <div className="flex items-center gap-2 mb-2">
                         {post.author?.profileImage && (
                             <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
@@ -66,7 +85,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                         Category: {post.category?.name || 'Uncategorized'}
                     </p>
                     <p className="text-xs text-gray-300 mb-4">
-                        Posted: {formatTimestamp(post.createdAt, post.updatedAt)}
+                        Posted: {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
                     </p>
                     <div
                         className="prose max-w-none"

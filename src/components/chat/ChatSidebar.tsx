@@ -1,14 +1,8 @@
 // src/components/Chat/ChatSidebar.tsx
 import React from 'react';
 import Image from "next/image";
-
-interface Chat {
-    _id: string;
-    isGroup: boolean;
-    members: Array<{ _id: string; characterName: string; profileImage: string }>;
-    groupName?: string;
-    groupImage?: string;
-}
+import type { Chat } from '@/types/chat';
+import { useSession } from 'next-auth/react';
 
 interface Props {
     chats: Chat[];
@@ -16,20 +10,24 @@ interface Props {
 }
 
 export default function ChatSidebar({ chats, setActiveChat }: Props) {
+    const { data: session } = useSession();
+    const currentUserId = session?.user?.id || '';
+
     return (
         <div className="p-2">
             <h3 className="text-white text-lg mb-2">Chats</h3>
             {chats.map((chat) => {
                 const chatName = chat.isGroup
-                    ? chat.groupName
-                    : chat.members.find(m => m._id !== 'ME')?.characterName || 'Unknown';
+                    ? chat.groupName ?? 'Unknown'
+                    : chat.members.find(m => m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';
+
                 const chatImage = chat.isGroup
-                    ? chat.groupImage
-                    : chat.members.find(m => m._id !== 'ME')?.profileImage || '';
+                    ? chat.groupImage ?? ''
+                    : chat.members.find(m => m._id.toString() !== currentUserId)?.profileImage ?? '';
 
                 return (
                     <div
-                        key={chat._id}
+                        key={chat._id.toString()}
                         onClick={() => setActiveChat(chat)}
                         className="flex items-center gap-2 cursor-pointer hover:bg-gray-700 p-2 rounded"
                     >

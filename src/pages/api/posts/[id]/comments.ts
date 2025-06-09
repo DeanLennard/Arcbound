@@ -9,10 +9,13 @@ import Post from '@/models/Post';
 import mongoose from 'mongoose';
 
 interface NestedComment {
-    _id: string;
-    likesCount: number;
-    author: { characterName?: string; profileImage?: string };
-    children: NestedComment[];
+    _id: mongoose.Types.ObjectId | string;
+    authorId?: { characterName?: string; profileImage?: string };
+    parentId?: mongoose.Types.ObjectId;
+    likes?: mongoose.Types.ObjectId[];
+    likesCount?: number;
+    author?: { characterName?: string; profileImage?: string };
+    children?: NestedComment[];
     [key: string]: unknown;
 }
 
@@ -41,13 +44,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await comment.populate('authorId', 'characterName profileImage');
 
             // 🔔 Notification logic here:
-            const post = await Post.findById(id).lean();
+            const post = await Post.findById(id).lean<{
+                _id: mongoose.Types.ObjectId;
+                authorId?: mongoose.Types.ObjectId;
+                subscribers?: mongoose.Types.ObjectId[];
+            }>();
             if (post) {
                 const recipients = new Set<string>();
 
                 // Always notify post author if they aren't the one commenting
                 if (post.authorId?.toString() !== session.user.id) {
-                    recipients.add(post.authorId.toString());
+                    if (post.authorId) {
+                        recipients.add(post.authorId.toString());
+                    }
                 }
 
                 // Notify subscribers, excluding the commenter
@@ -92,7 +101,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const comments = await Comment.find({ postId: id })
                 .populate('authorId', 'characterName profileImage')
                 .sort({ createdAt: 1 })
-                .lean();
+                .lean<NestedComment[]>();
 
             // Nest replies under their parents
             const commentMap: Record<string, NestedComment> = {};
@@ -107,10 +116,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 commentMap[comment._id] = comment;
             });
 
-            const rootComments = [];
+            const rootComments: NestedComment[] = [];
             comments.forEach(comment => {
                 if (comment.parentId) {
-                    commentMap[comment.parentId.toString()]?.children.push(comment);
+                    const parent = commentMap[comment.parentId.toString()];
+                    if (parent) {
+                        parent.children ??= [];
+                        parent.children.push(comment);
+                    }
                 } else {
                     rootComments.push(comment);
                 }

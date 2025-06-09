@@ -1,6 +1,6 @@
 // /src/pages/api/users/[id].ts
 import { dbConnect } from '@/lib/mongodb';
-import User from '@/models/User';
+import User, { UserDocument } from '@/models/User';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -8,7 +8,7 @@ import { NextResponse } from 'next/server';
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
     await dbConnect();
-    const user = await User.findById(params.id).lean();
+    const user = await User.findById(params.id).lean<UserDocument>();
     if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -38,11 +38,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 id,
                 { playerName, characterName, profileImage },
                 { new: true }
-            ).lean();
+            ).lean<UserDocument>();
+
+            if (!updatedUser) {
+                return res.status(404).json({ error: 'User not found' });
+            }
 
             // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { password, ...safeUser } = updatedUser;
             return res.status(200).json({ user: safeUser });
+
         } catch (error) {
             console.error(error);
             return res.status(500).json({ error: 'Failed to update profile' });

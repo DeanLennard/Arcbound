@@ -1,5 +1,16 @@
 // src/models/User.ts
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
+
+export interface UserDocument extends Document {
+    email: string;
+    password: string;
+    role: string;
+    playerName: string;
+    characterName: string;
+    profileImage: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 const UserSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
@@ -12,4 +23,4 @@ const UserSchema = new mongoose.Schema({
     timestamps: true
 });
 
-export default mongoose.models.User || mongoose.model('User', UserSchema);
+export default mongoose.models.User || mongoose.model<UserDocument>('User', UserSchema);

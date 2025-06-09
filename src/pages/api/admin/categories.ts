@@ -14,7 +14,7 @@ export const config = {
     }
 };
 
-async function parseForm(req: NextApiRequest, form: formidable.Formidable) {
+async function parseForm(req: NextApiRequest, form: InstanceType<typeof formidable.Formidable>) {
     return new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
         form.parse(req, (err, fields, files) => {
             if (err) reject(err);

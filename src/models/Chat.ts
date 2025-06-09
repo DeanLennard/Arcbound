@@ -9,12 +9,14 @@ export interface IChat extends Document {
     createdAt: Date;
 }
 
-const ChatSchema = new Schema<IChat>({
-    isGroup: { type: Boolean, default: false },
-    members: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
-    groupName: { type: String },
-    groupImage: { type: String },
-    createdAt: { type: Date, default: Date.now }
-});
+const ChatSchema = new Schema<IChat>(
+    {
+        isGroup: { type: Boolean, default: false },
+        members: [{ type: Schema.Types.ObjectId, ref: 'User', required: true }],
+        groupName: { type: String },
+        groupImage: { type: String }
+    },
+    { timestamps: true }  // This automatically adds createdAt and updatedAt
+);
 
 export default mongoose.models.Chat || mongoose.model<IChat>('Chat', ChatSchema);

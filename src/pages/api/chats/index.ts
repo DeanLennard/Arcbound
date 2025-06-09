@@ -4,6 +4,7 @@ import { dbConnect } from '@/lib/mongodb';
 import Chat from '@/models/Chat';
 import { requireAuth } from '@/lib/auth';
 import Message from '@/models/Message';
+import type { Chat as ChatType } from '@/types/chat';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -14,7 +15,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             const chats = await Chat.find({ members: session.user.id })
                 .populate('members', 'characterName profileImage')
-                .lean();
+                .lean<ChatType[]>()
 
             for (const chat of chats) {
                 const unreadCount = await Message.countDocuments({
@@ -28,10 +29,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 const lastMessage = await Message.findOne({ chatId: chat._id })
                     .sort({ createdAt: -1 })
                     .select('createdAt')
-                    .lean();
+                    .lean<{ createdAt: Date } | null>();
 
                 // Fallback to chat creation date if no messages
-                chat.lastMessageAt = lastMessage ? lastMessage.createdAt : chat.createdAt;
+                chat.lastMessageAt = lastMessage?.createdAt ?? chat.createdAt ?? new Date();
             }
 
             res.status(200).json({ chats });

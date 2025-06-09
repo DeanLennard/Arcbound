@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';
 import { requireAuth } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -10,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
         try {
-            const users = await User.find({}, 'characterName profileImage _id').lean();
+            const users = await User.find({}, 'characterName profileImage _id').lean<{ _id: mongoose.Types.ObjectId; characterName: string; profileImage: string }[]>();
             // Optionally exclude the logged-in user:
             const filteredUsers = users.filter(u => u._id.toString() !== session.user.id);
             res.status(200).json({ users: filteredUsers });

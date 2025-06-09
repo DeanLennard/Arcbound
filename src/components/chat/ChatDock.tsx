@@ -7,14 +7,7 @@ import socket from '@/socket/socket';
 import NewChatForm from './NewChatForm';
 import { useSession } from 'next-auth/react';
 import Image from "next/image";
-
-interface Chat {
-    _id: string;
-    isGroup: boolean;
-    members: Array<{ _id: string; characterName: string; profileImage: string }>;
-    groupName?: string;
-    groupImage?: string;
-}
+import type { Chat } from '@/types/chat';
 
 export default function ChatDock() {
     const { data: session, status } = useSession();
@@ -48,7 +41,7 @@ export default function ChatDock() {
                         return;
                     }
 
-                    data.chats.sort((a, b) => {
+                    data.chats.sort((a: Chat, b: Chat) => {
                         const aTime = new Date(a.lastMessageAt || a.createdAt).getTime();
                         const bTime = new Date(b.lastMessageAt || b.createdAt).getTime();
                         return bTime - aTime;
@@ -57,7 +50,7 @@ export default function ChatDock() {
                     setChats(data.chats);
 
                     // Join all chat rooms
-                    data.chats.forEach((chat) => {
+                    data.chats.forEach((chat: Chat) => {
                         socket.emit('joinChat', chat._id);
                     });
                 })
@@ -96,7 +89,7 @@ export default function ChatDock() {
     };
 
     const closeChat = (chatId: string) => {
-        setActiveChats(prev => prev.filter(c => c._id !== chatId));
+        setActiveChats(prev => prev.filter(c => c._id.toString() !== chatId));
     };
 
     return (
@@ -170,15 +163,16 @@ export default function ChatDock() {
                             <div className="max-h-64 overflow-y-auto">
                                 {chats.map((chat) => {
                                     const chatName = chat.isGroup
-                                        ? chat.groupName
-                                        : chat.members.find(m => m._id !== currentUserId)?.characterName || 'Unknown';
+                                        ? chat.groupName ?? 'Unknown'
+                                        : chat.members.find(m => m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';
+
                                     const chatImage = chat.isGroup
-                                        ? chat.groupImage
-                                        : chat.members.find(m => m._id !== currentUserId)?.profileImage || '';
+                                        ? chat.groupImage ?? ''
+                                        : chat.members.find(m => m._id.toString() !== currentUserId)?.profileImage ?? '';
 
                                     return (
                                         <div
-                                            key={chat._id}
+                                            key={chat._id.toString()}
                                             onClick={() => openChat(chat)}
                                             className="flex items-center gap-2 cursor-pointer hover:bg-gray-700 p-2 rounded"
                                         >
@@ -194,7 +188,7 @@ export default function ChatDock() {
                                                 </div>
                                             )}
                                             <span>{chatName}</span>
-                                            {chat.unreadCount > 0 && (
+                                            {(chat.unreadCount ?? 0) > 0 && (
                                                 <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2">
                                                     {chat.unreadCount}
                                                 </span>
@@ -216,11 +210,11 @@ export default function ChatDock() {
                             gap-x-2"
                     >
                         {activeChats.map((chat) => (
-                            <div key={chat._id} className="relative">
+                            <div key={chat._id.toString()} className="relative">
                                 <ChatWindow
-                                    key={chat._id}
+                                    key={chat._id.toString()}
                                     chat={chat}
-                                    onClose={() => closeChat(chat._id)}
+                                    onClose={() => closeChat(chat._id.toString())}
                                     currentUserId={currentUserId}
                                 />
                             </div>

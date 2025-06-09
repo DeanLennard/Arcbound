@@ -5,17 +5,11 @@ import { formatTimestamp } from '@/lib/formatTimestamp';
 import Picker from '@emoji-mart/react';
 import data from '@emoji-mart/data';
 import Image from "next/image";
-
-interface Chat {
-    _id: string;
-    isGroup: boolean;
-    members: Array<{ _id: string; characterName: string; profileImage: string }>;
-    groupName?: string;
-    groupImage?: string;
-}
+import type { Chat } from '@/types/chat';
 
 interface Message {
     _id: string;
+    chatId: string;
     content: string;
     senderId: { _id: string; characterName: string; profileImage: string };
     createdAt: string;
@@ -120,14 +114,16 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
 
             // Filter out duplicates
             const newMessages = data.messages.filter(
-                (msg) => !messages.find((existing) => existing._id === msg._id)
+                (msg: Message) => !messages.find((existing) => existing._id === msg._id)
             );
 
             setMessages((prev) => [...newMessages, ...prev]);
 
             requestAnimationFrame(() => {
                 const newScrollHeight = messagesContainerRef.current?.scrollHeight || 0;
-                messagesContainerRef.current.scrollTop = newScrollHeight - prevScrollHeight;
+                if (messagesContainerRef.current) {
+                    messagesContainerRef.current.scrollTop = newScrollHeight - prevScrollHeight;
+                }
             });
         } catch (err) {
             console.error('Failed to load older messages:', err);
@@ -141,8 +137,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     };
 
-    const handleNewMessage = useCallback((message) => {
-        if (message.chatId === chat._id) {
+    const handleNewMessage = useCallback((message: Message) => {
+        if (message.chatId === chat._id.toString()) {
             setShouldAutoScroll(true);
             setMessages((prev) => [...prev, message]);
             window.dispatchEvent(new Event('refreshChats'));
@@ -175,7 +171,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 <h4 className="text-white text-md">
                     {chat.isGroup
                         ? chat.groupName
-                        : chat.members.find((m) => m._id !== currentUserId)?.characterName || 'Chat'}
+                        : chat.members.find((m) => m._id.toString() !== currentUserId)?.characterName || 'Chat'}
                 </h4>
                 <button
                     onClick={onClose}
@@ -238,7 +234,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 {/* This div acts as the scroll target */}
                 {isTyping && (
                     <div className="text-xs text-gray-400">
-                        {chat.members.find((m) => m._id === typingUserId)?.characterName || 'Someone'} is typing...
+                        {chat.members.find((m) => m._id.toString() === typingUserId)?.characterName || 'Someone'} is typing...
                     </div>
                 )}
                 <div ref={messagesEndRef} />

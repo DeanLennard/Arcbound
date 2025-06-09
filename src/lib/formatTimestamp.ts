@@ -1,6 +1,8 @@
 // src/lib/formatTimestamp.ts
 
-export function formatTimestamp(createdAt: string, updatedAt?: string): string {
+export function formatTimestamp(createdAt?: string, updatedAt?: string): string {
+    if (!createdAt) return 'Unknown';
+
     const created = new Date(createdAt);
     const updated = updatedAt ? new Date(updatedAt) : null;
     const now = new Date();

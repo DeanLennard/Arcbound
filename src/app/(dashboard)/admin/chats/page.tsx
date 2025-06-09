@@ -1,5 +1,5 @@
 // src/app/(dashboard)/admin/chats/page.tsx
-import getServerSession from 'next-auth/next';
+import { getServerSession } from 'next-auth';
 import authOptions from '@/lib/authOptions';
 import { redirect } from 'next/navigation';
 

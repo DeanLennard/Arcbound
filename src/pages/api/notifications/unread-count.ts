@@ -3,8 +3,12 @@ import { dbConnect } from '@/lib/mongodb';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import Notification from '@/models/Notification';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req, res) {
+export default async function handler(
+    req: NextApiRequest,
+    res: NextApiResponse
+) {
     await dbConnect();
     const session = await getServerSession(req, res, authOptions);
 

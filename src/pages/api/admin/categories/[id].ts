@@ -1,3 +1,4 @@
+// src/pages/api/admin/categories/[id].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import path from 'path';
@@ -12,7 +13,7 @@ export const config = {
     },
 };
 
-async function parseForm(req: NextApiRequest, form: formidable.Formidable) {
+async function parseForm(req: NextApiRequest, form: InstanceType<typeof formidable.Formidable>) {
     return new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
         form.parse(req, (err, fields, files) => {
             if (err) reject(err);
@@ -44,7 +45,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         try {
             const { fields, files } = await parseForm(req, form);
-            const name = Array.isArray(fields.name) ? fields.name[0] : fields.name;
+            const name = Array.isArray(fields.name) ? fields.name[0] : fields.name ?? '';
             const file = Array.isArray(files.image) ? files.image[0] : files.image;
 
             const updateData: { name: string; image?: string } = { name };

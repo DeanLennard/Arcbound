@@ -3,6 +3,7 @@ import Comment from '@/models/Comment';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
+import mongoose from 'mongoose';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -24,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const hasLiked = comment.likes.includes(userId);
 
             if (hasLiked) {
-                comment.likes = comment.likes.filter(uid => uid.toString() !== userId);
+                comment.likes = comment.likes.filter((uid: mongoose.Types.ObjectId) => uid.toString() !== userId);
             } else {
                 comment.likes.push(userId);
             }

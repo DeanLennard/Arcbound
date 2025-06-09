@@ -1,4 +1,4 @@
-// YouTubeEmbed.ts
+// src/components/editor/extensions/YouTubeEmbed.ts
 import { Node, mergeAttributes } from '@tiptap/core';
 
 export const YouTubeEmbed = Node.create({

@@ -1,6 +1,7 @@
+// src/app/forum/create/page.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import Editor from '@/components/Editor';
@@ -10,11 +11,11 @@ interface Category {
     name: string;
 }
 
-export default function CreatePostPage() {
+function CreatePostContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const selectedCategoryId = searchParams.get('category');
+    const selectedCategoryId = searchParams?.get('category');
     const [categoryName, setCategoryName] = useState<string | null>(null);
 
     const [title, setTitle] = useState('');
@@ -97,5 +98,13 @@ export default function CreatePostPage() {
                 </button>
             </form>
         </div>
+    );
+}
+
+export default function CreatePostPage() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <CreatePostContent />
+        </Suspense>
     );
 }
