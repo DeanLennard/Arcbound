@@ -8,10 +8,11 @@ import authOptions from '@/lib/authOptions';
 import crypto from 'crypto';
 
 export const config = {
-    api: {
-        bodyParser: false,
-    },
+    api: { bodyParser: false }
 };
+
+// 🔥 Ensure this runs in NodeJS
+export const runtime = 'nodejs';
 
 async function parseForm(req: NextApiRequest, form: InstanceType<typeof formidable.Formidable>) {
     return new Promise<{ fields: formidable.Fields; files: formidable.Files }>((resolve, reject) => {
@@ -40,10 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             uploadDir,
             keepExtensions: true,
             filename: (name, ext, part) => {
-                const hash = crypto
-                    .createHash('sha256')
-                    .update(part.originalFilename || '')
-                    .digest('hex')
+                const hash = crypto.createHash('sha256').update(part.originalFilename || '').digest('hex');
                 const timestamp = Date.now();
                 const fileExt = path.extname(part.originalFilename || '');
                 return `${timestamp}_${hash}${fileExt}`;
@@ -58,7 +56,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(400).json({ error: 'File upload failed' });
             }
 
-            const filePath = `/uploads/${path.basename(file.filepath)}`;
+            // safer fallback for older formidable versions
+            const filePath = `/uploads/${path.basename(file.filepath || file.path)}`;
             return res.status(200).json({ url: filePath });
         } catch (err) {
             console.error(err);

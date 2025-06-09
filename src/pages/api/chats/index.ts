@@ -7,25 +7,18 @@ import Message from '@/models/Message';
 import type { Chat as ChatType } from '@/types/chat';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    console.log('API /api/chats hit');
 
     try {
-        console.log('Connecting to DB...');
         await dbConnect();
-        console.log('DB Connected.');
 
-        console.log('Fetching session...');
         const session = await requireAuth(req, res);
         if (!session) return;
-        console.log('Session fetched:', session.user.id);
 
         if (req.method === 'GET') {
-            console.log('Fetching chats...');
             const chats = await Chat.find({ members: session.user.id })
                 .populate('members', 'characterName profileImage')
                 .sort({ updatedAt: -1 })
                 .lean<ChatType[]>();
-            console.log('Chats fetched:', chats.length);
 
             await Promise.all(chats.map(async (chat) => {
                 const latestUnreadMessages = await Message.find({
@@ -41,7 +34,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 chat.unreadCount = latestUnreadMessages.length > 5 ? '5+' : latestUnreadMessages.length;
             }));
 
-            console.log('Responding with chats...');
             res.status(200).json({ chats });
         } else {
             res.setHeader('Allow', ['GET']);

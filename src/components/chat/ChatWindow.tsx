@@ -216,7 +216,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 <div className="text-xs font-semibold mb-1">
                                     {msg.senderId.characterName}
                                 </div>
-                                <div className="text-sm whitespace-pre-wrap break-words">
+                                <div className="text-sm whitespace-pre-wrap break-words break-all">
                                     {msg.content}
                                 </div>
                                 <div className="text-xs text-gray-400 mt-1">
