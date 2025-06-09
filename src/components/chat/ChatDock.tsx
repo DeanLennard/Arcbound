@@ -19,7 +19,14 @@ export default function ChatDock() {
 
     const currentUserId = session?.user?.id || '';
     const userRole = session?.user?.role || '';
-    const totalUnreadCount = chats.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0);
+    const totalUnreadCount = chats.reduce((sum, chat) => {
+        if (typeof chat.unreadCount === 'number') {
+            return sum + chat.unreadCount;
+        } else if (chat.unreadCount === '5+') {
+            return sum + 5;
+        }
+        return sum;
+    }, 0);
 
     // Fetch chats (for example, from your API)
     useEffect(() => {
@@ -116,8 +123,18 @@ export default function ChatDock() {
                                 <NewChatForm
                                     onClose={() => setShowNewChatModal(false)}
                                     onChatCreated={(newChat) => {
-                                        setChats((prev) => [...prev, newChat]);
-                                        setActiveChats((prev) => [...prev, newChat]);
+                                        setChats((prev) => {
+                                            const exists = prev.find(chat => chat._id.toString() === newChat._id.toString());
+                                            if (exists) return prev; // Don’t duplicate
+                                            return [...prev, newChat];
+                                        });
+
+                                        setActiveChats((prev) => {
+                                            const exists = prev.find(chat => chat._id.toString() === newChat._id.toString());
+                                            if (exists) return prev;
+                                            return [...prev, newChat];
+                                        });
+
                                         setShowNewChatModal(false);
                                     }}
                                 />
@@ -162,13 +179,14 @@ export default function ChatDock() {
                             </button>
                             <div className="max-h-64 overflow-y-auto">
                                 {chats.map((chat) => {
+                                    console.log('Rendering chat:', chat);
                                     const chatName = chat.isGroup
                                         ? chat.groupName ?? 'Unknown'
-                                        : chat.members.find(m => m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';
+                                        : chat.members.find(m => m?._id && m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';
 
                                     const chatImage = chat.isGroup
                                         ? chat.groupImage ?? ''
-                                        : chat.members.find(m => m._id.toString() !== currentUserId)?.profileImage ?? '';
+                                        : chat.members.find(m => m?._id && m._id.toString() !== currentUserId)?.profileImage ?? '';
 
                                     return (
                                         <div
@@ -189,11 +207,12 @@ export default function ChatDock() {
                                                 </div>
                                             )}
                                             <span>{chatName}</span>
-                                            {(chat.unreadCount ?? 0) > 0 && (
+                                            {(typeof chat.unreadCount === 'number' && chat.unreadCount > 0) ||
+                                            (chat.unreadCount === '5+') ? (
                                                 <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2">
                                                     {chat.unreadCount}
                                                 </span>
-                                            )}
+                                            ) : null}
                                         </div>
                                     );
                                 })}

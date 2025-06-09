@@ -17,4 +17,6 @@ const MessageSchema = new Schema<IMessage>({
     readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
 });
 
+MessageSchema.index({ chatId: 1, senderId: 1, readBy: 1, createdAt: -1 });
+
 export default mongoose.models.Message || mongoose.model<IMessage>('Message', MessageSchema);

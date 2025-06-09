@@ -154,12 +154,25 @@ export default function NewChatForm({ onClose, onChatCreated }: Props) {
                                 return;
                             }
 
-                            // Convert image to base64 string
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                                setGroupImage(reader.result as string);
-                            };
-                            reader.readAsDataURL(file);
+                            const formData = new FormData();
+                            formData.append('file', file);
+
+                            try {
+                                const res = await fetch('/api/admin/upload', {
+                                    method: 'POST',
+                                    body: formData
+                                });
+                                const data = await res.json();
+                                if (data.url) {
+                                    setGroupImage(data.url);
+                                } else {
+                                    console.error('Failed to upload image:', data.error);
+                                    setGroupImage('');
+                                }
+                            } catch (err) {
+                                console.error('Error uploading image:', err);
+                                setGroupImage('');
+                            }
                         }}
                         className="w-full p-2 bg-gray-800 text-white rounded mb-4"
                     />

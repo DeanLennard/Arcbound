@@ -1,3 +1,4 @@
+// src/lib/requireRole.ts
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import { NextResponse } from 'next/server';

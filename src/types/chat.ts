@@ -10,5 +10,5 @@ export interface Chat {
     createdAt: Date;
     updatedAt?: Date;
     lastMessageAt?: Date;
-    unreadCount?: number;
+    unreadCount?: number | string;
 }

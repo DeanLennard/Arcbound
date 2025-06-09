@@ -19,4 +19,6 @@ const ChatSchema = new Schema<IChat>(
     { timestamps: true }  // This automatically adds createdAt and updatedAt
 );
 
+ChatSchema.index({ members: 1 });
+
 export default mongoose.models.Chat || mongoose.model<IChat>('Chat', ChatSchema);

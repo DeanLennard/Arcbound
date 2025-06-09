@@ -2,6 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Message from '@/models/Message';
+import Chat from '@/models/Chat';
 import { requireAuth } from '@/lib/auth';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -23,6 +24,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 senderId: session.user.id,
                 content
             });
+            await Chat.findByIdAndUpdate(id, { updatedAt: new Date() });
             res.status(201).json({ message });
         } catch (err) {
             console.error(err);

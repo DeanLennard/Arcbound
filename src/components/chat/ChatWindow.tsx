@@ -171,7 +171,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 <h4 className="text-white text-md">
                     {chat.isGroup
                         ? chat.groupName
-                        : chat.members.find((m) => m._id.toString() !== currentUserId)?.characterName || 'Chat'}
+                        : chat.members.find((m) => {
+                        if (!m || !m._id) return false;
+                        const idString = typeof m._id === 'string' ? m._id : m._id.toString();
+                        return idString !== currentUserId;
+                    })?.characterName || 'Chat'}
                 </h4>
                 <button
                     onClick={onClose}
@@ -188,8 +192,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 className="flex-1 overflow-y-auto mb-2 scrollbar-hide"
             >
             {messages.map((msg) => {
-                    const isOwnMessage = msg.senderId._id === currentUserId;
-
+                const isOwnMessage = msg.senderId._id === currentUserId;
                     return (
                         <div
                             key={msg._id}
@@ -234,11 +237,21 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                     );
                 })}
                 {/* This div acts as the scroll target */}
-                {isTyping && (
-                    <div className="text-xs text-gray-400">
-                        {chat.members.find((m) => m._id.toString() === typingUserId)?.characterName || 'Someone'} is typing...
-                    </div>
-                )}
+                {(() => {
+                    const typingUser = chat.members.find((m) => {
+                        if (!m || !m._id) return false;
+                        const idString = typeof m._id === 'string' ? m._id : m._id.toString();
+                        return idString === typingUserId;
+                    });
+                    const typingName = typingUser?.characterName || 'Someone';
+                    return (
+                        isTyping && (
+                            <div className="text-xs text-gray-400">
+                                {typingName} is typing...
+                            </div>
+                        )
+                    );
+                })()}
                 <div ref={messagesEndRef} />
             </div>
 
