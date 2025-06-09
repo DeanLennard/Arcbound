@@ -9,7 +9,7 @@ import { headers } from 'next/headers';
 async function fetchUser(id: string) {
     const headersList = await headers();
     const host = headersList.get('host');
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
+    const protocol = process.env.NODE_ENV === 'production' ? 'http' : 'http';
     const apiUrl = `${protocol}://${host}/api/users/${id}`;
 
     const res = await fetch(apiUrl, {
