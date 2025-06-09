@@ -1,5 +1,5 @@
 // src/components/Chat/ChatWindow.tsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import socket from '@/socket/socket';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import Picker from '@emoji-mart/react';
@@ -43,18 +43,10 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [typingUserId, setTypingUserId] = useState<string | null>(null);
 
     useEffect(() => {
-        // Fetch chat history from the server
         fetch(`/api/chats/${chat._id}/messages`)
             .then((res) => res.json())
             .then((data) => setMessages(data.messages))
             .catch((err) => console.error('Failed to load messages:', err));
-
-        // Setup Socket.IO
-        socket.on('newMessage', handleNewMessage);
-
-        return () => {
-            socket.off('newMessage', handleNewMessage);
-        };
     }, [chat._id]);
 
     useEffect(() => {
@@ -149,14 +141,20 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     };
 
-    const handleNewMessage = (message) => {
+    const handleNewMessage = useCallback((message) => {
         if (message.chatId === chat._id) {
             setShouldAutoScroll(true);
             setMessages((prev) => [...prev, message]);
-
             window.dispatchEvent(new Event('refreshChats'));
         }
-    };
+    }, [chat._id]);
+
+    useEffect(() => {
+        socket.on('newMessage', handleNewMessage);
+        return () => {
+            socket.off('newMessage', handleNewMessage);
+        };
+    }, [handleNewMessage]);
 
     const handleEmojiSelect = (emoji: Emoji) => {
         if (!emoji?.native) {

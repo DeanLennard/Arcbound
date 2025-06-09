@@ -1,6 +1,6 @@
 // src/lib/auth.ts
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 export async function requireAuth(req: NextApiRequest, res: NextApiResponse) {

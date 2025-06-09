@@ -1,7 +1,7 @@
 // src/pages/api/notifications/unread-count.ts
 import { dbConnect } from '@/lib/mongodb';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import Notification from '@/models/Notification';
 
 export default async function handler(req, res) {

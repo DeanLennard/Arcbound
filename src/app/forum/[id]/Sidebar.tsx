@@ -28,7 +28,7 @@ export default function Sidebar({ currentPostId }: SidebarProps) {
                 setLatestPosts(latest);
             });
 
-        fetch(`/api/admin/posts/${currentPostId}/sidebar`)
+        fetch(`/api/posts/${currentPostId}/sidebar`)
             .then(res => res.json())
             .then(data => {
                 setViews(data.views || 0);

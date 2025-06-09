@@ -2,7 +2,7 @@
 import { dbConnect } from '@/lib/mongodb';
 import Comment from '@/models/Comment';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import Notification from '@/models/Notification';
 import Post from '@/models/Post';
@@ -13,7 +13,7 @@ interface NestedComment {
     likesCount: number;
     author: { characterName?: string; profileImage?: string };
     children: NestedComment[];
-    [key: string]: any; // fallback for any additional properties
+    [key: string]: unknown;
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {

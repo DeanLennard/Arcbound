@@ -17,7 +17,6 @@ interface Chat {
 }
 
 interface Props {
-    onClose: () => void;
     onChatCreated: (chat: Chat) => void;
 }
 
@@ -114,12 +113,12 @@ export default function NewChatForm({ onChatCreated }: Props) {
             <Select
                 isMulti
                 options={options}
-                onChange={(selectedOptions) => {
-                    setSelectedUsers(
-                        selectedOptions.map((option: any) =>
-                            users.find(user => user._id === option.value)!
-                        )
-                    );
+                onChange={(selectedOptions: readonly { value: string; label: string }[]) => {
+                    const selected = selectedOptions
+                        .map(option => users.find(user => user._id === option.value))
+                        .filter((user): user is User => !!user);
+
+                    setSelectedUsers(selected);
                 }}
                 menuPortalTarget={document.body}
                 menuPosition="fixed"

@@ -1,7 +1,7 @@
 // src/app/profile/[id]/page.tsx
 import React from 'react';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import { notFound } from 'next/navigation';
 import { GET as getUser } from '@/pages/api/users/[id]';
 import { NextRequest } from 'next/server';
@@ -15,14 +15,13 @@ async function fetchUser(id: string) {
     return data.user;
 }
 
-export default async function ProfilePage({ params }: { params: { id: string } }) {
-    const id = await params.id;  // ✅ Await the parameter!
+export default async function ProfilePage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     const user = await fetchUser(id);
     if (!user) notFound();
 
     const session = await getServerSession(authOptions);
 
-    // ... render the profile here
     return (
         <div className="max-w-3xl mx-auto p-4">
             <h1 className="text-3xl font-bold mb-4">{user.playerName || user.email}</h1>

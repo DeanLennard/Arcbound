@@ -2,7 +2,7 @@
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { NextResponse } from 'next/server';
 
@@ -12,7 +12,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     if (!user) {
         return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
-    const { password: _, ...safeUser } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password, ...safeUser } = user;
     return NextResponse.json({ user: safeUser });
 }
 
@@ -39,7 +40,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 { new: true }
             ).lean();
 
-            const { password: _, ...safeUser } = updatedUser;
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            const { password, ...safeUser } = updatedUser;
             return res.status(200).json({ user: safeUser });
         } catch (error) {
             console.error(error);

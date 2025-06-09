@@ -1,7 +1,7 @@
 // /src/app/forum/[id]/LikesAndComments.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import dynamic from 'next/dynamic';
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
 import toast from 'react-hot-toast';
@@ -33,15 +33,15 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
     const [replyingTo, setReplyingTo] = useState<string | null>(null);
     const [replyContent, setReplyContent] = useState('');
 
-    useEffect(() => {
-        fetchComments();
-    }, [postId]);
-
-    const fetchComments = async () => {
+    const fetchComments = useCallback(async () => {
         const res = await fetch(`/api/posts/${postId}/comments`);
         const data = await res.json();
         setComments(data.comments || []);
-    };
+    }, [postId]);
+
+    useEffect(() => {
+        fetchComments();
+    }, [fetchComments]);
 
     const handleLike = async () => {
         const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
@@ -126,7 +126,9 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
                         </div>
                     )}
                     <span className="text-xs text-gray-400">
-                        {comment.author?.characterName || 'Unknown'} ({formatTimestamp(comment.createdAt, comment.updatedAt)})
+                        {comment.author?.characterName || 'Unknown'} (
+                            {formatTimestamp(comment.createdAt ?? '', comment.updatedAt ?? '')}
+                        )
                     </span>
                 </div>
                 <div

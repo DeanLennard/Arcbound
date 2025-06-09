@@ -5,7 +5,6 @@ import Sidebar from './Sidebar';
 import LikesAndComments from './LikesAndComments';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
-import { GET as getPost } from '@/app/api/admin/posts/[id]/route';
 import Image from "next/image";
 
 interface Post {
@@ -20,7 +19,10 @@ interface Post {
 }
 
 async function fetchPost(id: string): Promise<Post | null> {
-    const res = await getPost(Request, { params: { id } });
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/admin/posts/${id}`, {
+        method: 'GET',
+        // you can pass cookies/headers here if needed for auth
+    });
     if (!res.ok) {
         return null;
     }

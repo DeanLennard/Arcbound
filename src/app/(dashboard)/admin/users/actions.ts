@@ -2,9 +2,10 @@
 
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
+import mongoose from 'mongoose';
 
 export async function getUsers() {
     const session = await getServerSession(authOptions);
@@ -15,7 +16,7 @@ export async function getUsers() {
     await dbConnect();
     const users = await User.find().lean();
     return users.map((user) => ({
-        _id: user._id.toString(),
+        _id: (user._id as mongoose.Types.ObjectId).toString(),
         email: user.email,
         role: user.role
     }));

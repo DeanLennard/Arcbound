@@ -15,7 +15,6 @@ export default function CreatePostPage() {
     const router = useRouter();
 
     const selectedCategoryId = searchParams.get('category');
-    const [setCategories] = useState<Category[]>([]);
     const [categoryName, setCategoryName] = useState<string | null>(null);
 
     const [title, setTitle] = useState('');
@@ -26,7 +25,6 @@ export default function CreatePostPage() {
         const fetchCategories = async () => {
             const res = await fetch('/api/admin/categories');
             const data = await res.json();
-            setCategories(data.categories || []);
 
             if (selectedCategoryId) {
                 const selectedCategory = data.categories.find(

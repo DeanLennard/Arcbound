@@ -1,5 +1,6 @@
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+// src/app/(dashboard)/admin/chats/page.tsx
+import getServerSession from 'next-auth/next';
+import authOptions from '@/lib/authOptions';
 import { redirect } from 'next/navigation';
 
 export default async function ChatsPage() {

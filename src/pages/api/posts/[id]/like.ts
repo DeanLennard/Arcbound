@@ -2,7 +2,7 @@
 import { dbConnect } from '@/lib/mongodb';
 import Post from '@/models/Post';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import Notification from '@/models/Notification';
 

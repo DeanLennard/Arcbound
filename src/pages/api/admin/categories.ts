@@ -6,7 +6,7 @@ import path from 'path';
 import { dbConnect } from '@/lib/mongodb';
 import Category from '@/models/Category';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import authOptions from '@/lib/authOptions';
 
 export const config = {
     api: {
