@@ -6,6 +6,7 @@ import { dbConnect } from '@/lib/mongodb';
 import Category from '@/models/Category';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
+import crypto from 'crypto';
 
 export const config = {
     api: {
@@ -39,7 +40,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             uploadDir: path.join(process.cwd(), '/public/uploads'),
             keepExtensions: true,
             filename: (name, ext, part) => {
-                return `${Date.now()}-${part.originalFilename}`;
+                const hash = crypto
+                    .createHash('sha256')
+                    .update(part.originalFilename || '')
+                    .digest('hex')
+                const timestamp = Date.now();
+                const fileExt = path.extname(part.originalFilename || '');
+                return `${timestamp}_${hash}${fileExt}`;
             },
         });
 
