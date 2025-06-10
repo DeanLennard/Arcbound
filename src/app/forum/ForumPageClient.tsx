@@ -53,7 +53,6 @@ export default function ForumPage() {
     const searchParams = useSearchParams();
 
     useEffect(() => {
-        setPosts([]);
         setPage(1);
         setHasMore(true);
         setLoading(true);
@@ -64,10 +63,11 @@ export default function ForumPage() {
 
         const fetchInitialPosts = async () => {
             setPostsLoading(true);
+            setLoading(true);
             try {
                 const url = selectedCategoryId === 'all'
-                    ? `/api/admin/posts?page=${page}&limit=10`
-                    : `/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`;
+                    ? `/api/admin/posts?page=1&limit=10`
+                    : `/api/admin/posts?category=${selectedCategoryId}&page=1&limit=10`;
                 const res = await fetch(url);
                 const data = await res.json();
                 setPosts(data.posts);
@@ -77,22 +77,24 @@ export default function ForumPage() {
                 console.error('Error fetching posts:', error);
             } finally {
                 setPostsLoading(false);
+                setLoading(false);
             }
         };
 
         fetchInitialPosts();
-    }, [selectedCategoryId, page]);
+    }, [selectedCategoryId]);
 
     const loadMorePosts = useCallback(async () => {
         setLoading(true);
         try {
+            const nextPage = page;
             const url = selectedCategoryId === 'all'
-                ? `/api/admin/posts?page=${page}&limit=10`
-                : `/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`;
+                ? `/api/admin/posts?page=${nextPage}&limit=10`
+                : `/api/admin/posts?category=${selectedCategoryId}&page=${nextPage}&limit=10`;
             const res = await fetch(url);
             const data = await res.json();
             setPosts((prev) => [...prev, ...data.posts]);
-            setHasMore(page < data.totalPages);
+            setHasMore(nextPage < data.totalPages);
             setPage((prev) => prev + 1);
         } catch (error) {
             console.error('Error loading more posts:', error);
@@ -163,11 +165,6 @@ export default function ForumPage() {
 
             return matchesTitleOrContent || matchesComment;
         })
-        .filter((post) => {
-            if (!selectedCategoryId) return false;
-            if (selectedCategoryId === 'all') return true;
-            return post.category?._id === selectedCategoryId;
-        });
 
     if (categoriesLoading) {
         return <div>Loading categories...</div>;
@@ -284,41 +281,17 @@ export default function ForumPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredPosts.length > 0 ? (
                         filteredPosts.map((post) => (
-                            <>
-                                <Link
-                                    key={post._id}
-                                    href={`/forum/${post._id}`}
-                                    className="border rounded shadow-sm p-6 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        {post.author?.profileImage && (
-                                            <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
-                                                <Image
-                                                    src={post.author.profileImage}
-                                                    alt={post.author.characterName || 'Author'}
-                                                    fill
-                                                    unoptimized
-                                                    style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
-                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                                />
-                                            </div>
-                                        )}
-                                        <span className="text-sm text-gray-400">
-                                            {post.author?.characterName || 'Unknown'}
-                                        </span>
-                                    </div>
-                                    <h3 className="font-bold text-lg mb-1">{post.title}</h3>
-                                    <p className="text-sm text-gray-100 mb-2">
-                                        Category: {post.category?.name || 'Uncategorized'}
-                                    </p>
-                                    <p className="text-xs text-gray-400 mb-2">
-                                        {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
-                                    </p>
-                                    {post.previewImage && (
-                                        <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                            <Link
+                                key={post._id}
+                                href={`/forum/${post._id}`}
+                                className="border rounded shadow-sm p-6 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors"
+                            >
+                                <div className="flex items-center gap-2 mb-2">
+                                    {post.author?.profileImage && (
+                                        <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
                                             <Image
-                                                src={post.previewImage}
-                                                alt={post.title}
+                                                src={post.author.profileImage}
+                                                alt={post.author.characterName || 'Author'}
                                                 fill
                                                 unoptimized
                                                 style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
@@ -326,11 +299,33 @@ export default function ForumPage() {
                                             />
                                         </div>
                                     )}
-                                    <p className="text-sm text-gray-100 line-clamp-3">
-                                        {stripHtml(post.content)}
-                                    </p>
-                                </Link>
-                            </>
+                                    <span className="text-sm text-gray-400">
+                                        {post.author?.characterName || 'Unknown'}
+                                    </span>
+                                </div>
+                                <h3 className="font-bold text-lg mb-1">{post.title}</h3>
+                                <p className="text-sm text-gray-100 mb-2">
+                                    Category: {post.category?.name || 'Uncategorized'}
+                                </p>
+                                <p className="text-xs text-gray-400 mb-2">
+                                    {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
+                                </p>
+                                {post.previewImage && (
+                                    <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                                        <Image
+                                            src={post.previewImage}
+                                            alt={post.title}
+                                            fill
+                                            unoptimized
+                                            style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        />
+                                    </div>
+                                )}
+                                <p className="text-sm text-gray-100 line-clamp-3">
+                                    {stripHtml(post.content)}
+                                </p>
+                            </Link>
                         ))
                     ) : (
                         <p className="text-gray-400">No posts found.</p>
