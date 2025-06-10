@@ -32,12 +32,6 @@ interface Emoji {
     native: string;
 }
 
-declare global {
-    interface Window {
-        handleImageClick: (src: string) => void;
-    }
-}
-
 export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');

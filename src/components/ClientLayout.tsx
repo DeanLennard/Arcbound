@@ -6,6 +6,12 @@ import { SessionProvider } from 'next-auth/react';
 import Lightbox from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
 
+declare global {
+    interface Window {
+        handleImageClick: (src: string) => void;
+    }
+}
+
 export default function ClientLayout({
                                          children,
                                      }: {
@@ -16,7 +22,7 @@ export default function ClientLayout({
 
     useEffect(() => {
         // Add a global function for image click
-        (window as any).handleImageClick = (src: string) => {
+        window.handleImageClick = (src: string) => {
             setLightboxImage(src);
             setLightboxOpen(true);
         };
