@@ -32,6 +32,14 @@ interface Emoji {
     native: string;
 }
 
+interface TenorGifResult {
+    media_formats: {
+        gif: {
+            url: string;
+        };
+    };
+}
+
 export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -272,7 +280,9 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 )}&key=AIzaSyAkjSCNs3caE0jdKUWFnmgIPTbHXYphj80&limit=10`
             );
             const data = await res.json();
-            setGifResults(data.results.map((gif: any) => gif.media_formats.gif.url));
+            setGifResults(
+                data.results.map((gif: TenorGifResult) => gif.media_formats.gif.url)
+            );
         } catch (err) {
             console.error("Failed to fetch GIFs:", err);
         }
