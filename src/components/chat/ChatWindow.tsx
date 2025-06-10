@@ -309,7 +309,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                     isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'
                                 }`}
                             >
-                                <div className="text-xs font-semibold mb-1">
+                                <div className="text-xs font-semibold mb-1 break-words break-all">
                                     {msg.senderId.characterName}
                                 </div>
                                 <div className="text-sm whitespace-pre-wrap break-words break-all">
