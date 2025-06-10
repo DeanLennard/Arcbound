@@ -48,6 +48,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [isMaximised, setIsMaximised] = useState(false);
+    const [showGifPicker, setShowGifPicker] = useState(false);
+    const [gifResults, setGifResults] = useState<string[]>([]);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -245,14 +247,36 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     };
 
-    const isImageUrl = (content: string) =>
-        /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content);
+    const isImageUrl = (content: string) => {
+        return (
+            /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content) ||
+            /^https:\/\/media\.tenor\.com\/.+\.(gif|mp4|webm)$/i.test(content)
+        );
+    };
 
     const isFileUrl = (content: string) =>
         /^\/uploads\/.+\.(pdf|docx?|xlsx?|zip|rar|txt|csv)$/i.test(content);
 
     const isLinkUrl = (content: string) =>
         /^https?:\/\/[^\s]+$/i.test(content);
+
+    const searchGifs = async (query: string) => {
+        if (!query.trim()) {
+            setGifResults([]);
+            return;
+        }
+        try {
+            const res = await fetch(
+                `https://tenor.googleapis.com/v2/search?q=${encodeURIComponent(
+                    query
+                )}&key=AIzaSyAkjSCNs3caE0jdKUWFnmgIPTbHXYphj80&limit=10`
+            );
+            const data = await res.json();
+            setGifResults(data.results.map((gif: any) => gif.media_formats.gif.url));
+        } catch (err) {
+            console.error("Failed to fetch GIFs:", err);
+        }
+    };
 
     return (
         <div
@@ -406,6 +430,31 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
 
             {/* Input */}
             <div className="relative flex items-center gap-2 w-full">
+                {showGifPicker && (
+                    <div className="absolute bottom-full left-0 mb-2 z-50 p-2 bg-gray-800 rounded-lg shadow-lg">
+                        <input
+                            type="text"
+                            placeholder="Search GIFs..."
+                            onChange={(e) => searchGifs(e.target.value)}
+                            className="p-2 rounded bg-gray-700 text-white mb-2 w-full"
+                        />
+                        <div className="grid grid-cols-3 gap-2">
+                            {gifResults.map((url, index) => (
+                                <img
+                                    key={index}
+                                    src={url}
+                                    alt="GIF"
+                                    className="rounded cursor-pointer"
+                                    onClick={() => {
+                                        sendMessageWithImage(url);
+                                        setShowGifPicker(false);
+                                    }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {showEmojiPicker && (
                     <div className="absolute bottom-full left-0 mb-2 z-50 origin-bottom-left scale-75 bg-gray-800 rounded-lg shadow-lg">
                         <Picker
@@ -421,6 +470,12 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         className="flex-shrink-0"
                     >
                         😊
+                    </button>
+                    <button
+                        onClick={() => setShowGifPicker(!showGifPicker)}
+                        className="flex-shrink-0"
+                    >
+                        🎞️
                     </button>
                     <button
                         onClick={() => fileInputRef.current?.click()}
