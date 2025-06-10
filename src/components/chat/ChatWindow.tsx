@@ -32,6 +32,12 @@ interface Emoji {
     native: string;
 }
 
+declare global {
+    interface Window {
+        handleImageClick: (src: string) => void;
+    }
+}
+
 export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
@@ -320,7 +326,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                             width={200}
                                             height={200}
                                             unoptimized
-                                            className="rounded"
+                                            className="rounded cursor-pointer"
+                                            onClick={() => window.handleImageClick(msg.content)}
                                         />
                                     ) : isFileUrl(msg.content) ? (
                                         <a
