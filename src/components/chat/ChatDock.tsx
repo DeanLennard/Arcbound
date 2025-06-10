@@ -179,7 +179,6 @@ export default function ChatDock() {
                             </button>
                             <div className="max-h-64 overflow-y-auto">
                                 {chats.map((chat) => {
-                                    console.log('Rendering chat:', chat);
                                     const chatName = chat.isGroup
                                         ? chat.groupName ?? 'Unknown'
                                         : chat.members.find(m => m?._id && m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';

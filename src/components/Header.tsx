@@ -25,12 +25,12 @@ export default function Header() {
         <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center relative">
             {/* Left: Logo and nav links (desktop) */}
             <div className="flex items-center gap-4">
-                <Link href="/" className="text-xl font-bold hover:underline">
+                <Link href="/forum" className="text-xl font-bold hover:underline">
                     Arcbound
                 </Link>
                 <nav className="hidden md:flex items-center gap-4">
-                    <Link href="/forum" className="hover:underline">
-                        Relay
+                    <Link href="/" className="hover:underline">
+                        Home
                     </Link>
                     <Link href="/tools" className="hover:underline">
                         Tools
@@ -93,8 +93,8 @@ export default function Header() {
             {/* Mobile Menu Dropdown */}
             {menuOpen && (
                 <div className="absolute top-full left-0 w-full bg-gray-900 text-white flex flex-col gap-2 px-4 py-3 z-50">
-                    <Link href="/forum" className="hover:underline" onClick={toggleMenu}>
-                        Relay
+                    <Link href="/" className="hover:underline" onClick={toggleMenu}>
+                        Home
                     </Link>
                     <Link href="/tools" className="hover:underline" onClick={toggleMenu}>
                         Tools
