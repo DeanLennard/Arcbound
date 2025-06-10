@@ -477,9 +477,31 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 )}
                 {/* Action Buttons in one row */}
                 <div className="flex gap-2">
-                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>😊</button>
-                    <button onClick={() => setShowGifPicker(!showGifPicker)}>🎞️</button>
-                    <button onClick={() => fileInputRef.current?.click()}>📷</button>
+                    <button
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className="flex-shrink-0"
+                    >
+                        😊
+                    </button>
+                    <button
+                        onClick={() => setShowGifPicker(!showGifPicker)}
+                        className="flex-shrink-0"
+                    >
+                        🎞️
+                    </button>
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex-shrink-0"
+                    >
+                        📷
+                    </button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        ref={fileInputRef}
+                    />
                 </div>
                 {/* Textarea and Send */}
                 <div className="flex items-center gap-2">
