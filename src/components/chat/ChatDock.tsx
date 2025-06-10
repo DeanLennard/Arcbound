@@ -179,15 +179,17 @@ export default function ChatDock() {
                             </button>
                             <div className="max-h-64 overflow-y-auto">
                                 {chats.map((chat) => {
+                                    const otherMember = chat.members?.find(m => m?._id && m._id.toString() !== currentUserId);
+
                                     const chatName = chat.isGroup
                                         ? chat.groupName ?? 'Unknown'
-                                        : chat.members.find(m => m?._id && m._id.toString() !== currentUserId)?.characterName ?? 'Unknown';
+                                        : otherMember?.characterName ?? 'Unknown';
 
                                     const chatImage = chat.isGroup
-                                        ? chat.groupImage && chat.groupImage.startsWith('/uploads')
+                                        ? (chat.groupImage && chat.groupImage.startsWith('/uploads')
                                             ? chat.groupImage
-                                            : '/placeholder.jpg'
-                                        : chat.members.find(m => m?._id.toString() !== currentUserId)?.profileImage ?? '/placeholder.jpg';
+                                            : '/placeholder.jpg')
+                                        : (otherMember?.profileImage ?? '/placeholder.jpg');
 
                                     return (
                                         <div
