@@ -56,7 +56,6 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState('');
     const [editedContent, setEditedContent] = useState('');
-    const router = useRouter();
     const { data: session } = useSession();
 
     useEffect(() => {
