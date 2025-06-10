@@ -56,7 +56,7 @@ function extractFirstImage(html: string): string | undefined {
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'admin') {
+    if (!session || session.user.role === 'none') {
         return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
