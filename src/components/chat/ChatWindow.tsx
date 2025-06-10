@@ -442,14 +442,16 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             <div className="flex flex-col gap-2 w-full">
                 <div className="relative w-full">
                     {showGifPicker && (
-                        <div className="absolute bottom-full left-0 mb-2 z-50 p-2 bg-gray-800 rounded-lg shadow-lg">
+                        <div
+                            className="absolute bottom-full left-0 mb-2 z-50 p-2 bg-gray-800 rounded-lg shadow-lg w-64 max-w-full"
+                        >
                             <input
                                 type="text"
                                 placeholder="Search GIFs..."
                                 onChange={(e) => searchGifs(e.target.value)}
                                 className="p-2 rounded bg-gray-700 text-white mb-2 w-full"
                             />
-                            <div className="grid grid-cols-3 gap-2">
+                            <div className="grid grid-cols-3 gap-2 max-h-64 overflow-y-auto">
                                 {gifResults.map((url, index) => (
                                     <img
                                         key={index}
