@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'PUT') {
         try {
-            const updates: any = {};
+            const updates: Partial<{ groupName: string; groupImage: string }> = {};
             if (req.body.groupName !== undefined) {
                 updates.groupName = req.body.groupName;
             }
