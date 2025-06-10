@@ -1,7 +1,7 @@
 // src/app/forum/[id]/page.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import Sidebar from './Sidebar';
 import LikesAndComments from './LikesAndComments';
 import { formatTimestamp } from '@/lib/formatTimestamp';
