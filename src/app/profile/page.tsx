@@ -30,6 +30,21 @@ export default function ProfilePage() {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const validExtensions = /\.(jpg|jpeg|png|gif|webp)$/i;
+
+        // Check MIME type:
+        if (!validImageTypes.includes(file.type)) {
+            toast.error('Only image files are allowed (jpg, jpeg, png, gif, webp).');
+            return;
+        }
+
+        // Check file extension:
+        if (!validExtensions.test(file.name)) {
+            toast.error('Only image files are allowed (jpg, jpeg, png, gif, webp).');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
 

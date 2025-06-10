@@ -26,6 +26,52 @@ export default function EditProfilePage() {
             });
     }, [session]);
 
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+        const allowedExtensions = /\.(jpg|jpeg|png|gif|webp)$/i;
+
+        // Check MIME type
+        if (!validImageTypes.includes(file.type)) {
+            toast.error('Only image files are allowed (jpg, jpeg, png, gif, webp).');
+            return;
+        }
+
+        // Check extension
+        if (!allowedExtensions.test(file.name)) {
+            toast.error('Only image files are allowed (jpg, jpeg, png, gif, webp).');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/admin/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!res.ok) {
+                toast.error('Failed to upload image.');
+                return;
+            }
+
+            const data = await res.json();
+            if (data.url) {
+                setProfileImage(data.url);
+                toast.success('Image uploaded successfully!');
+            } else {
+                toast.error('Invalid response from server.');
+            }
+        } catch (err) {
+            console.error('Image upload error:', err);
+            toast.error('Failed to upload image.');
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -65,31 +111,24 @@ export default function EditProfilePage() {
                     onChange={(e) => setCharacterName(e.target.value)}
                     className="p-2 border rounded"
                 />
+                {/* File Upload (images only) */}
                 <input
                     type="file"
                     accept="image/*"
-                    onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) {
-                            const isImage = file.type.startsWith('image/');
-                            if (!isImage) {
-                                toast.error('Please upload an image file.');
-                                return;
-                            }
-
-                            // You could directly upload to your server, or for now convert to an object URL for preview.
-                            const reader = new FileReader();
-                            reader.onloadend = () => {
-                                setProfileImage(reader.result as string); // store preview URL
-                            };
-                            reader.readAsDataURL(file);
-
-                            // Alternatively: upload to server and get the URL in the response
-                            // Then call setProfileImage(response.url);
-                        }
-                    }}
+                    onChange={handleFileChange}
                     className="p-2 border rounded"
                 />
+
+                {/* Preview */}
+                {profileImage && (
+                    <div className="mt-2">
+                        <img
+                            src={profileImage}
+                            alt="Profile Preview"
+                            className="w-24 h-24 object-cover rounded"
+                        />
+                    </div>
+                )}
                 <button
                     type="submit"
                     disabled={loading}
