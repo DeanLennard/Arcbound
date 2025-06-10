@@ -272,7 +272,21 @@ export default function ForumPage() {
                     {categories.map((cat) => (
                         <div
                             key={cat._id}
-                            onClick={() => setSelectedCategoryId(cat._id)}
+                            onClick={(e) => {
+                                // Middle click or Ctrl/Command click opens in new tab
+                                if (e.button === 1 || e.ctrlKey || e.metaKey) {
+                                    window.open(`/forum?category=${cat._id}`, '_blank');
+                                } else {
+                                    // Normal click sets selected category
+                                    setSelectedCategoryId(cat._id);
+                                }
+                            }}
+                            onMouseDown={(e) => {
+                                if (e.button === 1) {
+                                    e.preventDefault();
+                                    window.open(`/forum?category=${cat._id}`, '_blank');
+                                }
+                            }}
                             className={`border rounded shadow-sm p-4 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors`}
                         >
                             <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
