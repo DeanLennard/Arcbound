@@ -66,10 +66,28 @@ export default function EditProfilePage() {
                     className="p-2 border rounded"
                 />
                 <input
-                    type="text"
-                    placeholder="Profile Image URL"
-                    value={profileImage}
-                    onChange={(e) => setProfileImage(e.target.value)}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                            const isImage = file.type.startsWith('image/');
+                            if (!isImage) {
+                                toast.error('Please upload an image file.');
+                                return;
+                            }
+
+                            // You could directly upload to your server, or for now convert to an object URL for preview.
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                                setProfileImage(reader.result as string); // store preview URL
+                            };
+                            reader.readAsDataURL(file);
+
+                            // Alternatively: upload to server and get the URL in the response
+                            // Then call setProfileImage(response.url);
+                        }
+                    }}
                     className="p-2 border rounded"
                 />
                 <button
