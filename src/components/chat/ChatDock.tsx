@@ -49,8 +49,8 @@ export default function ChatDock() {
                     }
 
                     data.chats.sort((a: Chat, b: Chat) => {
-                        const aTime = new Date(a.lastMessageAt || a.createdAt).getTime();
-                        const bTime = new Date(b.lastMessageAt || b.createdAt).getTime();
+                        const aTime = new Date(a.updatedAt  || a.createdAt).getTime();
+                        const bTime = new Date(b.updatedAt  || b.createdAt).getTime();
                         return bTime - aTime;
                     });
 
