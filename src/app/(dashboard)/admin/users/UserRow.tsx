@@ -75,7 +75,7 @@ export default function UserRow({ user }: UserRowProps) {
                 </button>
                 <button
                     disabled={loading || role === 'none'}
-                    onClick={() => handleRoleChange('member')}
+                    onClick={() => handleRoleChange('none')}
                     className={`px-2 py-1 rounded text-white ${
                         role === 'none' ? 'bg-gray-400' : 'bg-red-600 hover:bg-red-700'
                     }`}

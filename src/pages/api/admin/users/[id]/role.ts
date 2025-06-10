@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (req.method === 'PATCH') {
         const { newRole } = req.body;
 
-        if (!['admin', 'moderator', 'member'].includes(newRole)) {
+        if (!['admin', 'moderator', 'member', 'none'].includes(newRole)) {
             return res.status(400).json({ error: 'Invalid role' });
         }
 

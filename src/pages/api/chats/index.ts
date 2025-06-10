@@ -15,7 +15,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         if (!session) return;
 
         if (req.method === 'GET') {
-            const chats = await Chat.find({ members: session.user.id })
+            const isAdmin = session.user.role === 'admin';
+            const userId = session.user.id;
+
+            // NEW: check for all param
+            const isAdminAll = req.query.all === 'true' && isAdmin;
+
+            // if admin & all param, show all chats
+            const chatQuery = isAdminAll ? {} : { members: userId };
+
+            const chats = await Chat.find(chatQuery)
                 .populate('members', 'characterName profileImage')
                 .sort({ updatedAt: -1 })
                 .lean<ChatType[]>();
@@ -26,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     senderId: { $ne: session.user.id },
                     readBy: { $ne: session.user.id }
                 })
-                    .sort({ createdAt: -1 })
+                    .sort({ updatedAt: -1 })
                     .limit(6)
                     .select('_id')
                     .lean();
