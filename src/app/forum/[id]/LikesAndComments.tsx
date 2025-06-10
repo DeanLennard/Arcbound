@@ -133,7 +133,7 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
                     </span>
                 </div>
                 <div
-                    className="prose max-w-none p-5"
+                    className="prose max-w-none p-5 break-words break-all"
                     dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(comment.content) }}
                 />
                 <button
@@ -190,7 +190,7 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
 
             {/* Comments */}
             <h2 className="text-xl font-semibold mb-2 p-2">Comments</h2>
-            <div>{renderComments(comments)}</div>
+            <div className="break-words break-all">{renderComments(comments)}</div>
         </div>
     );
 }
