@@ -440,90 +440,92 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
 
             {/* Input */}
             <div className="flex flex-col gap-2 w-full">
-                {showGifPicker && (
-                    <div className="absolute bottom-full left-0 mb-2 z-50 p-2 bg-gray-800 rounded-lg shadow-lg">
-                        <input
-                            type="text"
-                            placeholder="Search GIFs..."
-                            onChange={(e) => searchGifs(e.target.value)}
-                            className="p-2 rounded bg-gray-700 text-white mb-2 w-full"
-                        />
-                        <div className="grid grid-cols-3 gap-2">
-                            {gifResults.map((url, index) => (
-                                <img
-                                    key={index}
-                                    src={url}
-                                    alt="GIF"
-                                    className="rounded cursor-pointer"
-                                    onClick={() => {
-                                        sendMessageWithImage(url);
-                                        setShowGifPicker(false);
-                                    }}
-                                />
-                            ))}
+                <div className="relative w-full">
+                    {showGifPicker && (
+                        <div className="absolute bottom-full left-0 mb-2 z-50 p-2 bg-gray-800 rounded-lg shadow-lg">
+                            <input
+                                type="text"
+                                placeholder="Search GIFs..."
+                                onChange={(e) => searchGifs(e.target.value)}
+                                className="p-2 rounded bg-gray-700 text-white mb-2 w-full"
+                            />
+                            <div className="grid grid-cols-3 gap-2">
+                                {gifResults.map((url, index) => (
+                                    <img
+                                        key={index}
+                                        src={url}
+                                        alt="GIF"
+                                        className="rounded cursor-pointer"
+                                        onClick={() => {
+                                            sendMessageWithImage(url);
+                                            setShowGifPicker(false);
+                                        }}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {showEmojiPicker && (
-                    <div
-                        className="absolute bottom-full left-0 mb-2 z-50 origin-bottom-left scale-75 bg-gray-800 rounded-lg shadow-lg">
-                        <Picker
-                            data={data}
-                            onEmojiSelect={handleEmojiSelect}
-                            theme="dark"
+                    {showEmojiPicker && (
+                        <div
+                            className="absolute bottom-full left-0 mb-2 z-50 origin-bottom-left scale-75 bg-gray-800 rounded-lg shadow-lg">
+                            <Picker
+                                data={data}
+                                onEmojiSelect={handleEmojiSelect}
+                                theme="dark"
+                            />
+                        </div>
+                    )}
+                    {/* Action Buttons in one row */}
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                            className="flex-shrink-0"
+                        >
+                            😊
+                        </button>
+                        <button
+                            onClick={() => setShowGifPicker(!showGifPicker)}
+                            className="flex-shrink-0"
+                        >
+                            🎞️
+                        </button>
+                        <button
+                            onClick={() => fileInputRef.current?.click()}
+                            className="flex-shrink-0"
+                        >
+                            📷
+                        </button>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            ref={fileInputRef}
                         />
                     </div>
-                )}
-                {/* Action Buttons in one row */}
-                <div className="flex gap-2">
-                    <button
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="flex-shrink-0"
-                    >
-                        😊
-                    </button>
-                    <button
-                        onClick={() => setShowGifPicker(!showGifPicker)}
-                        className="flex-shrink-0"
-                    >
-                        🎞️
-                    </button>
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex-shrink-0"
-                    >
-                        📷
-                    </button>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        ref={fileInputRef}
-                    />
-                </div>
-                {/* Textarea and Send */}
-                <div className="flex items-center gap-2">
-                    <textarea
-                        value={newMessage}
-                        onChange={(e) => {
-                            setNewMessage(e.target.value);
-                            handleTyping();
-                        }}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                e.preventDefault();
-                                sendMessage();
-                            }
-                        }}
-                        rows={1}
-                        className="flex-1 p-1 rounded bg-gray-700 text-white resize-y min-h-8 max-h-48"
-                        placeholder="Type a message..."
-                    />
-                    <button onClick={sendMessage} className="px-2 py-1 bg-blue-600 text-white rounded">
-                        Send
-                    </button>
+                    {/* Textarea and Send */}
+                    <div className="flex items-center gap-2">
+                        <textarea
+                            value={newMessage}
+                            onChange={(e) => {
+                                setNewMessage(e.target.value);
+                                handleTyping();
+                            }}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' && !e.shiftKey) {
+                                    e.preventDefault();
+                                    sendMessage();
+                                }
+                            }}
+                            rows={1}
+                            className="flex-1 p-1 rounded bg-gray-700 text-white resize-y min-h-8 max-h-48"
+                            placeholder="Type a message..."
+                        />
+                        <button onClick={sendMessage} className="px-2 py-1 bg-blue-600 text-white rounded">
+                            Send
+                        </button>
+                    </div>
                 </div>
             </div>
             {showGroupMembers && (
