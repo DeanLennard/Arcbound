@@ -32,6 +32,9 @@ export default function Header() {
                     <Link href="/" className="hover:underline">
                         Home
                     </Link>
+                    <Link href="/forum" className="hover:underline">
+                        Relay
+                    </Link>
                     <Link href="/tools" className="hover:underline">
                         Tools
                     </Link>
@@ -95,6 +98,9 @@ export default function Header() {
                 <div className="absolute top-full left-0 w-full bg-gray-900 text-white flex flex-col gap-2 px-4 py-3 z-50">
                     <Link href="/" className="hover:underline" onClick={toggleMenu}>
                         Home
+                    </Link>
+                    <Link href="/forum" className="hover:underline">
+                        Relay
                     </Link>
                     <Link href="/tools" className="hover:underline" onClick={toggleMenu}>
                         Tools
