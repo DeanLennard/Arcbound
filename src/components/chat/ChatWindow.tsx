@@ -47,6 +47,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [isMaximised, setIsMaximised] = useState(false);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -254,8 +255,14 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         /^https?:\/\/[^\s]+$/i.test(content);
 
     return (
-        <div className="bg-gray-800 p-2 flex flex-col h-100 w-full md:w-72 rounded shadow-lg overflow-x-hidden">
-            {/* Header */}
+        <div
+            className={`bg-gray-800 p-2 flex flex-col rounded shadow-lg overflow-x-hidden ${
+                isMaximised
+                    ? 'fixed inset-4 z-50 w-auto h-auto max-h-[90vh]'
+                    : 'h-100 w-full md:w-72'
+            }`}
+        >
+        {/* Header */}
             <div className="flex justify-between items-center border-b border-gray-700 mb-2">
                 <h4 className="text-white text-md">
                     {chat.isGroup
@@ -266,12 +273,20 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         return idString !== currentUserId;
                     })?.characterName || 'Chat'}
                 </h4>
-                <button
-                    onClick={onClose}
-                    className="text-gray-400 hover:text-red-500"
-                >
-                    X
-                </button>
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => setIsMaximised(!isMaximised)}
+                        className="text-gray-400 hover:text-green-500"
+                    >
+                        {isMaximised ? '−' : '⬈'}
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-red-500"
+                    >
+                        X
+                    </button>
+                </div>
             </div>
             {chat.isGroup && (
                 <button
@@ -305,14 +320,19 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 />
                             )}
                             <div
-                                className={`max-w-xs p-2 rounded-lg ${
-                                    isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'
-                                }`}
+                                className={`p-2 rounded-lg 
+                                    ${isOwnMessage ? 'bg-blue-600 text-white' : 'bg-gray-700 text-white'}
+                                    ${isMaximised ? 'max-w-6xl' : 'max-w-xs'}
+                                `}
                             >
-                                <div className="text-xs font-semibold mb-1 break-words break-all">
+                                <div
+                                    className={`font-semibold mb-1 break-words break-all ${isMaximised ? 'text-sm' : 'text-xs'}`}
+                                >
                                     {msg.senderId.characterName}
                                 </div>
-                                <div className="text-sm whitespace-pre-wrap break-words break-all">
+                                <div
+                                    className={`whitespace-pre-wrap break-words break-all ${isMaximised ? 'text-lg' : 'text-sm'}`}
+                                >
                                     {isImageUrl(msg.content) ? (
                                         <Image
                                             src={msg.content}
@@ -346,7 +366,9 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                         msg.content
                                     )}
                                 </div>
-                                <div className="text-xs text-gray-400 mt-1">
+                                <div
+                                    className={`text-gray-400 mt-1 ${isMaximised ? 'text-sm' : 'text-xs'}`}
+                                >
                                     {formatTimestamp(msg.createdAt)}
                                 </div>
                             </div>
