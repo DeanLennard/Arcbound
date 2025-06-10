@@ -47,6 +47,7 @@ export default function ForumPage() {
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [postsLoading, setPostsLoading] = useState(false);
+    const [latestPosts, setLatestPosts] = useState<Post[]>([]);
 
     const userRole = (session?.user as { role?: string })?.role || '';
 
@@ -146,6 +147,20 @@ export default function ForumPage() {
         };
 
         fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        const fetchLatestPosts = async () => {
+            try {
+                const res = await fetch(`/api/admin/posts?page=1&limit=3&sort=latest`);
+                const data = await res.json();
+                setLatestPosts(data.posts);
+            } catch (error) {
+                console.error('Error fetching latest posts:', error);
+            }
+        };
+
+        fetchLatestPosts();
     }, []);
 
     const filteredPosts = posts
@@ -344,41 +359,36 @@ export default function ForumPage() {
                 <>
                     <h2 className="text-2xl font-bold mt-8 mb-4">Latest Posts</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {posts
-                            .sort((a, b) =>
-                                new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime()
-                            )
-                            .slice(0, 3)
-                            .map((post) => (
-                                <Link
-                                    key={post._id}
-                                    href={`/forum/${post._id}`}
-                                    className="border rounded shadow-sm p-4 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors"
-                                >
-                                    <h3 className="font-bold text-md mb-1">{post.title}</h3>
-                                    <p className="text-xs text-gray-400 mb-2">
-                                        {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
-                                    </p>
-                                    {post.previewImage && (
-                                        <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
-                                            <Image
-                                                src={post.previewImage}
-                                                alt={post.title}
-                                                fill
-                                                unoptimized
-                                                style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
-                                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                            />
-                                        </div>
-                                    )}
-                                    <p className="text-xs text-gray-100 mb-2">
-                                        Category: {post.category?.name || 'Uncategorized'}
-                                    </p>
-                                    <p className="text-xs text-gray-100 line-clamp-3">
-                                        {stripHtml(post.content)}
-                                    </p>
-                                </Link>
-                            ))}
+                        {latestPosts.map((post) => (
+                            <Link
+                                key={post._id}
+                                href={`/forum/${post._id}`}
+                                className="border rounded shadow-sm p-4 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors"
+                            >
+                                <h3 className="font-bold text-md mb-1">{post.title}</h3>
+                                <p className="text-xs text-gray-400 mb-2">
+                                    {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
+                                </p>
+                                {post.previewImage && (
+                                    <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
+                                        <Image
+                                            src={post.previewImage}
+                                            alt={post.title}
+                                            fill
+                                            unoptimized
+                                            style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                        />
+                                    </div>
+                                )}
+                                <p className="text-xs text-gray-100 mb-2">
+                                    Category: {post.category?.name || 'Uncategorized'}
+                                </p>
+                                <p className="text-xs text-gray-100 line-clamp-3">
+                                    {stripHtml(post.content)}
+                                </p>
+                            </Link>
+                        ))}
                     </div>
                 </>
             )}
