@@ -1,6 +1,6 @@
 // src/components/ChatMessages.tsx
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef, useCallback} from "react";
 import Image from "next/image";
 
 interface Props {
@@ -23,11 +23,7 @@ export default function ChatMessages({ chat }: Props) {
     const [hasMore, setHasMore] = useState(true);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
-        loadMessages();
-    }, []);
-
-    const loadMessages = async (before?: string) => {
+    const loadMessages = useCallback(async (before?: string) => {
         setLoading(true);
         const url = `/api/chats/${chat._id}/messages?limit=20${before ? `&before=${before}` : ""}`;
         const res = await fetch(url);
@@ -35,7 +31,11 @@ export default function ChatMessages({ chat }: Props) {
         setMessages(prev => [...data.messages.reverse(), ...prev]);
         setHasMore(data.messages.length > 0);
         setLoading(false);
-    };
+    }, [chat._id, messages]);
+
+    useEffect(() => {
+        loadMessages();
+    }, [loadMessages]);
 
     const handleScroll = () => {
         if (!containerRef.current) return;

@@ -1,15 +1,14 @@
 // src/app/(dashboard)/admin/chats/page.tsx
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef, useCallback} from "react";
 import Image from "next/image";
 import Modal from "@/components/Modal";
 import ChatMessages from "@/components/ChatMessages";
-import {Types} from "mongoose";
 
 interface Chat {
-    _id: Types.ObjectId;
+    _id: string;
     isGroup: boolean;
-    members: Array<{ _id: Types.ObjectId; characterName: string; profileImage: string }>;
+    members: Array<{ _id: string; characterName: string; profileImage: string }>; // change ObjectId -> string
     groupName?: string;
     groupImage?: string;
     createdAt: Date;
@@ -24,11 +23,7 @@ export default function ChatsPage() {
     const loaderRef = useRef<HTMLDivElement | null>(null);
     const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
 
-    useEffect(() => {
-        loadChats();
-    }, [page]);
-
-    const loadChats = async () => {
+    const loadChats = useCallback(async () => {
         const res = await fetch(`/api/chats?all=true&page=${page}`);
         const data = await res.json();
         setChats(prev => {
@@ -45,7 +40,11 @@ export default function ChatsPage() {
             return uniqueChats;
         });
         setHasMore(data.chats.length > 0);
-    };
+    }, [page]);
+
+    useEffect(() => {
+        loadChats();
+    }, [loadChats]);
 
     useEffect(() => {
         const observer = new IntersectionObserver(entries => {
@@ -57,7 +56,7 @@ export default function ChatsPage() {
             observer.observe(loaderRef.current);
         }
         return () => observer.disconnect();
-    }, [loaderRef.current, hasMore]);
+    }, [hasMore]);
 
     return (
         <div className="max-w-5xl mx-auto p-4">
