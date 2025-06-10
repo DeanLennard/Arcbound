@@ -6,21 +6,32 @@ import { dbConnect } from '@/lib/mongodb';
 import Post from '@/models/Post';
 import Comment from '@/models/Comment';
 
-export async function GET() {
+export async function GET(req: Request) {
     await dbConnect();
-    const posts = await Post.find()
+    const { searchParams } = new URL(req.url);
+    const categoryId = searchParams.get('category');
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+
+    const query: any = {};
+    if (categoryId && categoryId !== 'all') {
+        query.category = categoryId;
+    }
+
+    const posts = await Post.find(query)
         .populate('category')
         .populate('authorId', 'characterName profileImage')
         .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
         .lean();
 
-    // Transform posts so they include a top-level "author" object
+    const totalPosts = await Post.countDocuments(query);
+    const totalPages = Math.ceil(totalPosts / limit);
+
     const transformedPosts = await Promise.all(posts.map(async post => {
         const { authorId, ...rest } = post;
-
-        // Fetch all comments for this post
         const comments = await Comment.find({ postId: post._id }).lean();
-
         return {
             ...rest,
             author: authorId
@@ -35,7 +46,7 @@ export async function GET() {
         };
     }));
 
-    return NextResponse.json({ posts: transformedPosts });
+    return NextResponse.json({ posts: transformedPosts, totalPages, currentPage: page });
 }
 
 function extractFirstImage(html: string): string | undefined {

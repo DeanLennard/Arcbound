@@ -1,6 +1,6 @@
 // /src/app/forum/ForumPageClient.tsx
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import {useSession} from "next-auth/react";
@@ -41,10 +41,79 @@ export default function ForumPage() {
     const [loading, setLoading] = useState(true);
     const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
+    const [page, setPage] = useState(1);
+    const [hasMore, setHasMore] = useState(true);
+    const observer = useRef<IntersectionObserver | null>(null);
+    const loadMoreRef = useRef<HTMLDivElement | null>(null);
+    const [categoriesLoading, setCategoriesLoading] = useState(true);
+    const [postsLoading, setPostsLoading] = useState(false);
 
     const userRole = (session?.user as { role?: string })?.role || '';
 
     const searchParams = useSearchParams();
+
+    useEffect(() => {
+        setPosts([]);
+        setPage(1);
+        setHasMore(true);
+        setLoading(true);
+    }, [selectedCategoryId]);
+
+    useEffect(() => {
+        if (!selectedCategoryId) return;
+
+        const url = selectedCategoryId === 'all'
+            ? `/api/admin/posts?page=${page}&limit=10`
+            : `/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`;
+
+        const fetchInitialPosts = async () => {
+            setPostsLoading(true);
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                setPosts(data.posts);
+                setHasMore(data.currentPage < data.totalPages);
+                setPage(2);
+            } catch (error) {
+                console.error('Error fetching posts:', error);
+            } finally {
+                setPostsLoading(false);
+            }
+        };
+
+        fetchInitialPosts();
+    }, [selectedCategoryId]);
+
+    useEffect(() => {
+        if (!loadMoreRef.current || !hasMore) return;
+
+        if (observer.current) observer.current.disconnect();
+
+        observer.current = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting && !loading) {
+                loadMorePosts();
+            }
+        });
+
+        observer.current.observe(loadMoreRef.current);
+
+        return () => observer.current && observer.current.disconnect();
+    }, [hasMore, loading, selectedCategoryId]);
+
+    const loadMorePosts = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`);
+            const data = await res.json();
+            setPosts((prev) => [...prev, ...data.posts]);
+            setHasMore(page < data.totalPages);
+            setPage((prev) => prev + 1);
+        } catch (error) {
+            console.error('Error loading more posts:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         const categoryFromUrl = searchParams?.get('category');
@@ -53,33 +122,22 @@ export default function ForumPage() {
         }
     }, [searchParams]);
 
-
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchCategories = async () => {
+            setCategoriesLoading(true);
             try {
-                const [postsRes, categoriesRes] = await Promise.all([
-                    fetch('/api/admin/posts'),
-                    fetch('/api/admin/categories')
-                ]);
-
-                if (!postsRes.ok || !categoriesRes.ok) {
-                    throw new Error('Failed to load posts or categories');
-                }
-
-                const postsData = await postsRes.json();
-                const categoriesData = await categoriesRes.json();
-
-                setPosts(postsData.posts || []);
-                setCategories(categoriesData.categories || []);
+                const res = await fetch('/api/admin/categories');
+                if (!res.ok) throw new Error('Failed to load categories');
+                const data = await res.json();
+                setCategories(data.categories || []);
             } catch (error) {
-                console.error('Error fetching forum data:', error);
-                // Optionally, show an error message or toast
+                console.error('Error fetching categories:', error);
             } finally {
-                setLoading(false);
+                setCategoriesLoading(false);
             }
         };
 
-        fetchData();
+        fetchCategories();
     }, []);
 
     const filteredPosts = posts
@@ -105,7 +163,11 @@ export default function ForumPage() {
             return post.category?._id === selectedCategoryId;
         });
 
-    if (loading) {
+    if (categoriesLoading) {
+        return <div>Loading categories...</div>;
+    }
+
+    if (postsLoading) {
         return <div>Loading posts...</div>;
     }
 
@@ -216,17 +278,41 @@ export default function ForumPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredPosts.length > 0 ? (
                         filteredPosts.map((post) => (
-                            <Link
-                                key={post._id}
-                                href={`/forum/${post._id}`}
-                                className="border rounded shadow-sm p-6 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors"
-                            >
-                                <div className="flex items-center gap-2 mb-2">
-                                    {post.author?.profileImage && (
-                                        <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                            <>
+                                <Link
+                                    key={post._id}
+                                    href={`/forum/${post._id}`}
+                                    className="border rounded shadow-sm p-6 flex flex-col cursor-pointer hover:bg-gray-600 transition-colors"
+                                >
+                                    <div className="flex items-center gap-2 mb-2">
+                                        {post.author?.profileImage && (
+                                            <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                                                <Image
+                                                    src={post.author.profileImage}
+                                                    alt={post.author.characterName || 'Author'}
+                                                    fill
+                                                    unoptimized
+                                                    style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                                />
+                                            </div>
+                                        )}
+                                        <span className="text-sm text-gray-400">
+                                            {post.author?.characterName || 'Unknown'}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-bold text-lg mb-1">{post.title}</h3>
+                                    <p className="text-sm text-gray-100 mb-2">
+                                        Category: {post.category?.name || 'Uncategorized'}
+                                    </p>
+                                    <p className="text-xs text-gray-400 mb-2">
+                                        {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
+                                    </p>
+                                    {post.previewImage && (
+                                        <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
                                             <Image
-                                                src={post.author.profileImage}
-                                                alt={post.author.characterName || 'Author'}
+                                                src={post.previewImage}
+                                                alt={post.title}
                                                 fill
                                                 unoptimized
                                                 style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
@@ -234,36 +320,20 @@ export default function ForumPage() {
                                             />
                                         </div>
                                     )}
-                                    <span className="text-sm text-gray-400">
-                                        {post.author?.characterName || 'Unknown'}
-                                    </span>
-                                </div>
-                                <h3 className="font-bold text-lg mb-1">{post.title}</h3>
-                                <p className="text-sm text-gray-100 mb-2">
-                                    Category: {post.category?.name || 'Uncategorized'}
-                                </p>
-                                <p className="text-xs text-gray-400 mb-2">
-                                    {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
-                                </p>
-                                {post.previewImage && (
-                                    <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
-                                        <Image
-                                            src={post.previewImage}
-                                            alt={post.title}
-                                            fill
-                                            unoptimized
-                                            style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
-                                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                        />
-                                    </div>
-                                )}
-                                <p className="text-sm text-gray-100 line-clamp-3">
-                                    {stripHtml(post.content)}
-                                </p>
-                            </Link>
+                                    <p className="text-sm text-gray-100 line-clamp-3">
+                                        {stripHtml(post.content)}
+                                    </p>
+                                </Link>
+                            </>
                         ))
                     ) : (
                         <p className="text-gray-400">No posts found.</p>
+                    )}
+                    {/* Loader trigger */}
+                    {hasMore && (
+                        <div ref={loadMoreRef} className="text-center p-4">
+                            <span>Loading more posts...</span>
+                        </div>
                     )}
                 </div>
             )}
