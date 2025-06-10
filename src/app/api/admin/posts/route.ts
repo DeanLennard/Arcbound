@@ -13,7 +13,7 @@ export async function GET(req: Request) {
     const page = parseInt(searchParams.get('page') || '1', 10);
     const limit = parseInt(searchParams.get('limit') || '10', 10);
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (categoryId && categoryId !== 'all') {
         query.category = categoryId;
     }

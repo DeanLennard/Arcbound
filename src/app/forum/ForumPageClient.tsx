@@ -1,6 +1,6 @@
 // /src/app/forum/ForumPageClient.tsx
 "use client";
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import Link from 'next/link';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import {useSession} from "next-auth/react";
@@ -62,13 +62,12 @@ export default function ForumPage() {
     useEffect(() => {
         if (!selectedCategoryId) return;
 
-        const url = selectedCategoryId === 'all'
-            ? `/api/admin/posts?page=${page}&limit=10`
-            : `/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`;
-
         const fetchInitialPosts = async () => {
             setPostsLoading(true);
             try {
+                const url = selectedCategoryId === 'all'
+                    ? `/api/admin/posts?page=${page}&limit=10`
+                    : `/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`;
                 const res = await fetch(url);
                 const data = await res.json();
                 setPosts(data.posts);
@@ -82,10 +81,30 @@ export default function ForumPage() {
         };
 
         fetchInitialPosts();
-    }, [selectedCategoryId]);
+    }, [selectedCategoryId, page]);
+
+    const loadMorePosts = useCallback(async () => {
+        setLoading(true);
+        try {
+            const url = selectedCategoryId === 'all'
+                ? `/api/admin/posts?page=${page}&limit=10`
+                : `/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`;
+            const res = await fetch(url);
+            const data = await res.json();
+            setPosts((prev) => [...prev, ...data.posts]);
+            setHasMore(page < data.totalPages);
+            setPage((prev) => prev + 1);
+        } catch (error) {
+            console.error('Error loading more posts:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedCategoryId, page]);
 
     useEffect(() => {
-        if (!loadMoreRef.current || !hasMore) return;
+        if (!loadMoreRef.current || !hasMore) {
+            return () => {};  // <-- valid empty cleanup function
+        }
 
         if (observer.current) observer.current.disconnect();
 
@@ -97,23 +116,10 @@ export default function ForumPage() {
 
         observer.current.observe(loadMoreRef.current);
 
-        return () => observer.current && observer.current.disconnect();
-    }, [hasMore, loading, selectedCategoryId]);
-
-    const loadMorePosts = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`/api/admin/posts?category=${selectedCategoryId}&page=${page}&limit=10`);
-            const data = await res.json();
-            setPosts((prev) => [...prev, ...data.posts]);
-            setHasMore(page < data.totalPages);
-            setPage((prev) => prev + 1);
-        } catch (error) {
-            console.error('Error loading more posts:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+        return () => {
+            observer.current?.disconnect();
+        };
+    }, [hasMore, loading, selectedCategoryId, loadMorePosts]);
 
     useEffect(() => {
         const categoryFromUrl = searchParams?.get('category');
