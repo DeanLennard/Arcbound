@@ -40,12 +40,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const transformedPost = {
             ...rest,
             likesCount,
+            authorId: authorId?._id?.toString() || authorId?.toString() || '',
             author: authorId
                 ? {
+                    _id: authorId._id?.toString() || '',
                     characterName: authorId.characterName || 'Unknown',
                     profileImage: authorId.profileImage || null,
                 }
-                : { characterName: 'Unknown', profileImage: null },
+                : { _id: '', characterName: 'Unknown', profileImage: null },
         };
 
         return res.status(200).json({ post: transformedPost });
