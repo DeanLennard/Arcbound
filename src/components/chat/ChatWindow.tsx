@@ -439,7 +439,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             </div>
 
             {/* Input */}
-            <div className="relative flex items-center gap-2 w-full">
+            <div className="flex flex-col gap-2 w-full">
                 {showGifPicker && (
                     <div className="absolute bottom-full left-0 mb-2 z-50 p-2 bg-gray-800 rounded-lg shadow-lg">
                         <input
@@ -466,7 +466,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 )}
 
                 {showEmojiPicker && (
-                    <div className="absolute bottom-full left-0 mb-2 z-50 origin-bottom-left scale-75 bg-gray-800 rounded-lg shadow-lg">
+                    <div
+                        className="absolute bottom-full left-0 mb-2 z-50 origin-bottom-left scale-75 bg-gray-800 rounded-lg shadow-lg">
                         <Picker
                             data={data}
                             onEmojiSelect={handleEmojiSelect}
@@ -474,32 +475,14 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         />
                     </div>
                 )}
-                <div className="flex items-center gap-2 w-full overflow-hidden">
-                    <button
-                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                        className="flex-shrink-0"
-                    >
-                        😊
-                    </button>
-                    <button
-                        onClick={() => setShowGifPicker(!showGifPicker)}
-                        className="flex-shrink-0"
-                    >
-                        🎞️
-                    </button>
-                    <button
-                        onClick={() => fileInputRef.current?.click()}
-                        className="flex-shrink-0"
-                    >
-                        📷
-                    </button>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        ref={fileInputRef}
-                    />
+                {/* Action Buttons in one row */}
+                <div className="flex gap-2">
+                    <button onClick={() => setShowEmojiPicker(!showEmojiPicker)}>😊</button>
+                    <button onClick={() => setShowGifPicker(!showGifPicker)}>🎞️</button>
+                    <button onClick={() => fileInputRef.current?.click()}>📷</button>
+                </div>
+                {/* Textarea and Send */}
+                <div className="flex items-center gap-2">
                     <textarea
                         value={newMessage}
                         onChange={(e) => {
@@ -513,13 +496,10 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                             }
                         }}
                         rows={1}
-                        className="flex-1 min-w-0 p-1 rounded bg-gray-700 text-white resize-none overflow-y-auto max-h-24" // max-h-24 = ~6rem (about 3 lines)
+                        className="flex-1 p-1 rounded bg-gray-700 text-white resize-y min-h-8 max-h-48"
                         placeholder="Type a message..."
                     />
-                    <button
-                        onClick={sendMessage}
-                        className="flex-shrink-0 px-2 py-1 bg-blue-600 text-white rounded"
-                    >
+                    <button onClick={sendMessage} className="px-2 py-1 bg-blue-600 text-white rounded">
                         Send
                     </button>
                 </div>
