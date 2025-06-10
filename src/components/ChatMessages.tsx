@@ -28,10 +28,17 @@ export default function ChatMessages({ chat }: Props) {
         const url = `/api/chats/${chat._id}/messages?limit=20${before ? `&before=${before}` : ""}`;
         const res = await fetch(url);
         const data = await res.json();
-        setMessages(prev => [...data.messages.reverse(), ...prev]);
+        setMessages(prev => {
+            const allMessages = [...data.messages, ...prev];
+            const uniqueMessages = allMessages.filter(
+                (msg, index, self) => index === self.findIndex(m => m._id === msg._id)
+            );
+            uniqueMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+            return uniqueMessages;
+        });
         setHasMore(data.messages.length > 0);
         setLoading(false);
-    }, [chat._id, messages]);
+    }, [chat._id]);
 
     useEffect(() => {
         loadMessages();
