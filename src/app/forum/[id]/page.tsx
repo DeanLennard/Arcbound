@@ -1,12 +1,16 @@
-// /src/app/forum/[id]/page.tsx
-import React from 'react';
-import { notFound } from 'next/navigation';
+// src/app/forum/[id]/page.tsx
+'use client';
+import React, { useState, useEffect } from 'react';
+import { notFound, useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import LikesAndComments from './LikesAndComments';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
 import Image from "next/image";
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import dynamic from "next/dynamic";
+const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
 
 interface Post {
     _id: string;
@@ -32,7 +36,7 @@ interface Post {
 async function fetchPost(id: string): Promise<Post | null> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/posts/${id}`, {
         method: 'GET',
-        // you can pass cookies/headers here if needed for auth
+        // Add credentials if needed
     });
     if (!res.ok) {
         return null;
@@ -46,12 +50,70 @@ async function fetchPost(id: string): Promise<Post | null> {
     };
 }
 
-export default async function PostPage({ params }: { params: Promise<{ id: string }> }) {
-    const { id } = await params;
-    const post = await fetchPost(id);
+export default function PostPage({ params }: { params: Promise<{ id: string }> }) {
+    const [post, setPost] = useState<Post | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedTitle, setEditedTitle] = useState('');
+    const [editedContent, setEditedContent] = useState('');
+    const router = useRouter();
+    const { data: session } = useSession();
+
+    useEffect(() => {
+        const loadPost = async () => {
+            const { id } = await params;
+            const fetchedPost = await fetchPost(id);
+            if (!fetchedPost) {
+                notFound();
+            }
+            setPost(fetchedPost);
+            setLoading(false);
+        };
+        loadPost();
+    }, [params]);
+
+    if (loading) {
+        return <div className="text-center text-white mt-10">Loading...</div>;
+    }
+
     if (!post) {
         notFound();
     }
+
+    const isAuthor = session?.user?.id === post.authorId;
+
+    const handleEdit = () => {
+        setEditedTitle(post.title);
+        setEditedContent(post.content);
+        setIsEditing(true);
+    };
+
+    const handleSave = async () => {
+        try {
+            const res = await fetch(`/api/admin/posts`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: post._id,
+                    title: editedTitle,
+                    content: editedContent,
+                    categoryId: post.category?._id || 'uncategorized'
+                }),
+            });
+            if (res.ok) {
+                setPost(prev => prev ? { ...prev, title: editedTitle, content: editedContent } : prev);
+                setIsEditing(false);
+            } else {
+                const data = await res.json();
+                alert(`Failed to update post: ${data.error || 'Unknown error'}`);
+            }
+        } catch (err) {
+            console.error('Failed to update post:', err);
+            alert('Failed to update post.');
+        }
+    };
 
     return (
         <>
@@ -83,22 +145,58 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                                     </div>
                                 )}
                                 <span className="text-sm text-gray-300">
-                                  {post.author?.characterName || 'Unknown'}
+                                    {post.author?.characterName || 'Unknown'}
                                 </span>
                             </div>
                         </Link>
+                        {isAuthor && !isEditing && (
+                            <button
+                                onClick={handleEdit}
+                                className="ml-auto text-blue-500 hover:text-blue-300 text-xs underline"
+                            >
+                                Edit Post
+                            </button>
+                        )}
                     </div>
-                    <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-                    <p className="text-sm text-gray-300 mb-2">
-                        Category: {post.category?.name || 'Uncategorized'}
-                    </p>
-                    <p className="text-xs text-gray-300 mb-4">
-                        Posted: {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
-                    </p>
-                    <div
-                        className="prose max-w-none tiptap"
-                        dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(post.content) }}
-                    />
+                    {isEditing ? (
+                        <div className="mb-4">
+                            <input
+                                type="text"
+                                value={editedTitle}
+                                onChange={(e) => setEditedTitle(e.target.value)}
+                                className="w-full p-2 rounded bg-gray-700 text-white mb-2"
+                            />
+                            <Editor value={editedContent} onChange={setEditedContent} />
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={handleSave}
+                                    className="bg-green-600 text-white px-2 py-1 rounded"
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    onClick={() => setIsEditing(false)}
+                                    className="bg-red-600 text-white px-2 py-1 rounded"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    ) : (
+                        <>
+                            <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
+                            <p className="text-sm text-gray-300 mb-2">
+                                Category: {post.category?.name || 'Uncategorized'}
+                            </p>
+                            <p className="text-xs text-gray-300 mb-4">
+                                Posted: {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
+                            </p>
+                            <div
+                                className="prose max-w-none tiptap"
+                                dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(post.content) }}
+                            />
+                        </>
+                    )}
                     <LikesAndComments
                         postId={post._id}
                         initialLikes={post.likes ?? 0}
