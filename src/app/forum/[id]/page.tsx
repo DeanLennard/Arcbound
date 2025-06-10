@@ -96,7 +96,7 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                         Posted: {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
                     </p>
                     <div
-                        className="prose max-w-none"
+                        className="prose max-w-none tiptap"
                         dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(post.content) }}
                     />
                     <LikesAndComments
