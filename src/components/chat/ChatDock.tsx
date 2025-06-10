@@ -207,7 +207,7 @@ export default function ChatDock() {
                                                     />
                                                 </div>
                                             )}
-                                            <span>{chatName}</span>
+                                            <span>{chatName.length > 40 ? `${chatName.substring(0, 40)}...` : chatName}</span>
                                             {(typeof chat.unreadCount === 'number' && chat.unreadCount > 0) ||
                                             (chat.unreadCount === '5+') ? (
                                                 <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2">
