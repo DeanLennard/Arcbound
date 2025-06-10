@@ -21,7 +21,9 @@ interface Post {
     updatedAt?: string;
     likes?: number;
     commentsCount?: number;
+    authorId: string;
     author?: {
+        _id: string;
         characterName?: string;
         profileImage?: string;
     };
@@ -65,21 +67,25 @@ export default async function PostPage({ params }: { params: Promise<{ id: strin
                         </div>
                     )}
                     <div className="flex items-center gap-2 mb-2">
-                        {post.author?.profileImage && (
-                            <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
-                                <Image
-                                    src={post.author.profileImage}
-                                    alt={post.author.characterName || 'Author'}
-                                    fill
-                                    unoptimized
-                                    style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                />
-                            </div>
-                        )}
-                        <span className="text-sm text-gray-300">
-                            {post.author?.characterName || 'Unknown'}
-                        </span>
+                        <Link
+                            href={`/profile/${post.authorId}`}
+                        >
+                            {post.author?.profileImage && (
+                                <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
+                                    <Image
+                                        src={post.author.profileImage}
+                                        alt={post.author.characterName || 'Author'}
+                                        fill
+                                        unoptimized
+                                        style={{ objectFit: 'cover', borderRadius: '0.5rem' }}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                    />
+                                </div>
+                            )}
+                            <span className="text-sm text-gray-300">
+                                {post.author?.characterName || 'Unknown'}
+                            </span>
+                        </Link>
                     </div>
                     <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
                     <p className="text-sm text-gray-300 mb-2">

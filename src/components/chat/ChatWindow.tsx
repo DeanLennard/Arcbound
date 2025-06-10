@@ -46,6 +46,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [editedGroupName, setEditedGroupName] = useState(chat.groupName || '');
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -201,6 +202,57 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     };
 
+    const sendMessageWithImage = async (imageUrl: string) => {
+        try {
+            const res = await fetch(`/api/chats/${chat._id}/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ content: imageUrl })
+            });
+            const data = await res.json();
+            socket.emit('sendMessage', data.message);
+            window.dispatchEvent(new Event('refreshChats'));
+        } catch (err) {
+            console.error('Failed to send image message:', err);
+        }
+    };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch('/api/admin/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+
+            if (data.url) {
+                await sendMessageWithImage(data.url);
+            }
+        } catch (error) {
+            console.error('Failed to upload image:', error);
+        } finally {
+            // Reset the file input so selecting the same file again triggers onChange
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
+    const isImageUrl = (content: string) =>
+        /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content);
+
+    const isFileUrl = (content: string) =>
+        /^\/uploads\/.+\.(pdf|docx?|xlsx?|zip|rar|txt|csv)$/i.test(content);
+
+    const isLinkUrl = (content: string) =>
+        /^https?:\/\/[^\s]+$/i.test(content);
+
     return (
         <div className="bg-gray-800 p-2 flex flex-col h-100 w-full md:w-72 rounded shadow-lg overflow-x-hidden">
             {/* Header */}
@@ -261,7 +313,37 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                     {msg.senderId.characterName}
                                 </div>
                                 <div className="text-sm whitespace-pre-wrap break-words break-all">
-                                    {msg.content}
+                                    {isImageUrl(msg.content) ? (
+                                        <Image
+                                            src={msg.content}
+                                            alt="uploaded image"
+                                            width={200}
+                                            height={200}
+                                            unoptimized
+                                            className="rounded"
+                                        />
+                                    ) : isFileUrl(msg.content) ? (
+                                        <a
+                                            href={msg.content}
+                                            download
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-400 underline"
+                                        >
+                                            📎 Download File
+                                        </a>
+                                    ) : isLinkUrl(msg.content) ? (
+                                        <a
+                                            href={msg.content}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-blue-400 underline"
+                                        >
+                                            {msg.content}
+                                        </a>
+                                    ) : (
+                                        msg.content
+                                    )}
                                 </div>
                                 <div className="text-xs text-gray-400 mt-1">
                                     {formatTimestamp(msg.createdAt)}
@@ -317,6 +399,19 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                     >
                         😊
                     </button>
+                    <button
+                        onClick={() => fileInputRef.current?.click()}
+                        className="flex-shrink-0"
+                    >
+                        📷
+                    </button>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                        ref={fileInputRef}
+                    />
                     <textarea
                         value={newMessage}
                         onChange={(e) => {
