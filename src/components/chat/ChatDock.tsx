@@ -87,7 +87,7 @@ export default function ChatDock() {
             window.removeEventListener('refreshChats', handleRefresh);
             socket.off('newMessage', handleNewMessage);
         };
-    }, [session]);
+    }, [session, userRole]);
 
     const openChat = (chat: Chat) => {
         if (!activeChats.find(c => c._id === chat._id)) {
