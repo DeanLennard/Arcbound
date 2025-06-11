@@ -9,6 +9,10 @@ import Link from '@tiptap/extension-link';
 import Underline from '@tiptap/extension-underline';
 import Placeholder from '@tiptap/extension-placeholder';
 import { YouTubeEmbed } from '@/components/editor/extensions/YouTubeEmbed';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableHeader from '@tiptap/extension-table-header';
+import TableCell from '@tiptap/extension-table-cell';
 
 interface EditorProps {
     value: string;
@@ -19,6 +23,12 @@ export default function Editor({ value, onChange }: EditorProps) {
     const editor = useEditor({
         extensions: [
             StarterKit,
+            Table.configure({
+                resizable: true,  // Optional: allows resizing columns
+            }),
+            TableRow,
+            TableHeader,
+            TableCell,
             Image,
             Link.configure({
                 openOnClick: false,
@@ -177,6 +187,34 @@ export default function Editor({ value, onChange }: EditorProps) {
                     className="px-2 py-1 rounded bg-red-600 text-white"
                 >
                     Insert YouTube
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+                    className="px-2 py-1 rounded bg-yellow-600 text-white"
+                >
+                    Insert Table
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().addColumnAfter().run()}
+                    className="px-2 py-1 rounded bg-yellow-600 text-white"
+                >
+                    Add Column
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().addRowAfter().run()}
+                    className="px-2 py-1 rounded bg-yellow-600 text-white"
+                >
+                    Add Row
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().deleteTable().run()}
+                    className="px-2 py-1 rounded bg-red-600 text-white"
+                >
+                    Delete Table
                 </button>
             </div>
 

@@ -74,3 +74,29 @@ body {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* Basic table styles */
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+  background-color: #1f2937; /* Optional: dark background */
+  color: #ffffff;           /* Optional: white text */
+}
+
+.prose th,
+.prose td {
+  padding: 0.75rem;
+  border: 1px solid #4b5563; /* Dark border (gray-700) */
+  text-align: left;
+}
+
+.prose th {
+  background-color: #374151; /* Darker header background (gray-800) */
+  font-weight: 600;
+}
+
+/* Optional: striped rows */
+.prose tr:nth-child(even) {
+  background-color: #2d3748; /* gray-700 for even rows */
+}
