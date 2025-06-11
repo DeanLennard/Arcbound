@@ -625,6 +625,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         <Select
                             options={users
                                 .filter(u => !chat.members.some(m => m && m._id && m._id.toString() === u._id))
+                                .sort((a, b) => a.characterName.localeCompare(b.characterName))
                                 .map(user => ({
                                     value: user._id,
                                     label: user.characterName
