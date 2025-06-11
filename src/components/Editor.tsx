@@ -234,6 +234,21 @@ export default function Editor({ value, onChange }: EditorProps) {
                 >
                     Delete Table
                 </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().deleteRow().run()}
+                    className="px-2 py-1 rounded bg-red-600 text-white"
+                >
+                    Delete Row
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().deleteColumn().run()}
+                    className="px-2 py-1 rounded bg-red-600 text-white"
+                >
+                    Delete Column
+                </button>
             </div>
 
             {/* Editor Content */}
