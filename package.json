@@ -37,6 +37,7 @@
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
     "tailwind-scrollbar-hide": "^4.0.0",
+    "tiptap-extension-resize-image": "^1.2.2",
     "yet-another-react-lightbox": "^3.23.2"
   },
   "devDependencies": {

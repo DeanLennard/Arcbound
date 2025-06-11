@@ -13,6 +13,7 @@ import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
+import ResizeImage from 'tiptap-extension-resize-image';
 
 interface EditorProps {
     value: string;
@@ -29,7 +30,7 @@ export default function Editor({ value, onChange }: EditorProps) {
             TableRow,
             TableHeader,
             TableCell,
-            Image,
+            ResizeImage,
             Link.configure({
                 openOnClick: false,
             }),
