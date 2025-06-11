@@ -54,8 +54,12 @@ export default function ChatMessages({ chat }: Props) {
         }
     };
 
-    const isImageUrl = (content: string) =>
-        /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content);
+    const isImageUrl = (content: string) => {
+        return (
+            /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content) ||
+            /^https:\/\/media\.tenor\.com\/.+\.(gif|mp4|webm)$/i.test(content)
+        );
+    };
 
     const isFileUrl = (content: string) =>
         /^\/uploads\/.+\.(pdf|docx?|xlsx?|zip|rar|txt|csv)$/i.test(content);
