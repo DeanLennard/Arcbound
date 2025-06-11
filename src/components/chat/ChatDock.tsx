@@ -30,7 +30,7 @@ export default function ChatDock() {
 
     // Fetch chats (for example, from your API)
     useEffect(() => {
-        if (!session) return;
+        if (!session || userRole === 'none') return;
 
         const fetchChats = () => {
             fetch('/api/chats')
