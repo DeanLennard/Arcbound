@@ -100,3 +100,33 @@ body {
 .prose tr:nth-child(even) {
   background-color: #2d3748; /* gray-700 for even rows */
 }
+
+/* Blockquote */
+.prose blockquote {
+  border-left: 4px solid #3b82f6; /* blue-500 */
+  background-color: #1f2937; /* gray-800 */
+  color: #d1d5db; /* gray-300 */
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  font-style: italic;
+}
+
+/* Inline code */
+.prose code {
+  background-color: #374151; /* gray-700 */
+  color: #facc15; /* yellow-400 for a pop */
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.25rem;
+  font-family: 'Fira Code', monospace;
+}
+
+/* Block code */
+.prose pre {
+  background-color: #1f2937; /* gray-800 */
+  color: #f8fafc; /* gray-50 */
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-family: 'Fira Code', monospace;
+  line-height: 1.5;
+}

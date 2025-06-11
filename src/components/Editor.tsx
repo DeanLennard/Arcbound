@@ -190,6 +190,24 @@ export default function Editor({ value, onChange }: EditorProps) {
                 </button>
                 <button
                     type="button"
+                    onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                    className={`px-2 py-1 rounded ${
+                        editor.isActive('blockquote') ? 'bg-blue-600 text-white' : 'bg-gray-500'
+                    }`}
+                >
+                    Blockquote
+                </button>
+                <button
+                    type="button"
+                    onClick={() => editor.chain().focus().toggleCode().run()}
+                    className={`px-2 py-1 rounded ${
+                        editor.isActive('code') ? 'bg-blue-600 text-white' : 'bg-gray-500'
+                    }`}
+                >
+                    Code
+                </button>
+                <button
+                    type="button"
                     onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
                     className="px-2 py-1 rounded bg-yellow-600 text-white"
                 >
