@@ -1,7 +1,7 @@
 // src/pages/api/push/send.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import webpush from 'web-push';
-import {dbConnect} from '@/lib/mongodb';
+import { dbConnect } from '@/lib/mongodb';
 import PushSubscription from '@/models/PushSubscription';
 
 webpush.setVapidDetails(
@@ -24,11 +24,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         subscriptions.map(async sub => {
             try {
                 await webpush.sendNotification(sub, payload);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Push failed for:', sub.endpoint, err);
 
-                if (err.statusCode === 410 || err.statusCode === 404) {
-                    // Subscription is no longer valid, delete it
+                if (
+                    typeof err === 'object' &&
+                    err !== null &&
+                    'statusCode' in err &&
+                    (err as { statusCode: number }).statusCode === 410 ||
+                    (err as { statusCode: number }).statusCode === 404
+                ) {
                     await PushSubscription.deleteOne({ endpoint: sub.endpoint });
                 }
             }
