@@ -624,12 +624,17 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         <h3 className="text-md font-semibold mb-2">Add Member:</h3>
                         <Select
                             options={users
-                                .filter(u => !chat.members.some(m => m && m._id && m._id.toString() === u._id))
-                                .sort((a, b) => a.characterName.localeCompare(b.characterName))
+                                .filter(u => u.characterName && !chat.members.some(m => m && m._id && m._id.toString() === u._id))
+                                .sort((a, b) => {
+                                    const nameA = a.characterName || '';
+                                    const nameB = b.characterName || '';
+                                    return nameA.localeCompare(nameB);
+                                })
                                 .map(user => ({
                                     value: user._id,
                                     label: user.characterName
-                                }))}
+                                }))
+                            }
                             onChange={(option) => {
                                 const user = users.find(u => u._id === option?.value);
                                 setSelectedUser(user || null);
