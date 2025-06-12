@@ -18,6 +18,8 @@ export async function getUsers() {
     return users.map((user) => ({
         _id: (user._id as mongoose.Types.ObjectId).toString(),
         email: user.email,
-        role: user.role
+        role: user.role,
+        playerName: user.playerName,
+        characterName: user.characterName
     }));
 }

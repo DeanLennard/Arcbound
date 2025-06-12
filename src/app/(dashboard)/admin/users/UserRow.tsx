@@ -8,6 +8,8 @@ interface UserRowProps {
         _id: string;
         email: string;
         role: string;
+        playerName: string;
+        characterName: string;
     };
 }
 
@@ -43,6 +45,8 @@ export default function UserRow({ user }: UserRowProps) {
 
     return (
         <tr className="border">
+            <td className="border p-2">{user.playerName}</td>
+            <td className="border p-2">{user.characterName}</td>
             <td className="border p-2">{user.email}</td>
             <td className="border p-2 capitalize">{role}</td>
             <td className="border p-2 flex flex-wrap gap-2">

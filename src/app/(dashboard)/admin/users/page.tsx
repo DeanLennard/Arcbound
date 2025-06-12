@@ -10,6 +10,8 @@ export default async function UsersPage() {
             <table className="w-full border-collapse border">
                 <thead>
                 <tr className="bg-gray-600">
+                    <th className="border p-2">Player Name</th>
+                    <th className="border p-2">Character Name</th>
                     <th className="border p-2">Email</th>
                     <th className="border p-2">Role</th>
                     <th className="border p-2">Actions</th>
