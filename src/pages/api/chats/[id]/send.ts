@@ -4,6 +4,15 @@ import { dbConnect } from '@/lib/mongodb';
 import Message from '@/models/Message';
 import Chat from '@/models/Chat';
 import { requireAuth } from '@/lib/auth';
+import PushSubscription from '@/models/PushSubscription';
+import webpush from 'web-push';
+import mongoose from 'mongoose';
+
+webpush.setVapidDetails(
+    'mailto:admin@arcbound.co.uk',
+    process.env.VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -24,7 +33,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 senderId: session.user.id,
                 content
             });
-            await Chat.findByIdAndUpdate(id, { updatedAt: new Date() });
+            const chat = await Chat.findByIdAndUpdate(id, { updatedAt: new Date() });
+
+            if (!chat) return res.status(404).json({ error: 'Chat not found' });
+
+            // Notify all other members
+            const recipients = (chat.members as mongoose.Types.ObjectId[])
+                .map(id => id.toString())
+                .filter(id => id !== session.user.id);
+
+            const subscriptions = await PushSubscription.find({ userId: { $in: recipients } });
+
+            const payload = JSON.stringify({
+                title: 'Arcbound: New Message',
+                body: `You received a message.`,
+                icon: '/icon-192.png',
+                url: `/chats/${id}` // Useful for the client
+            });
+
+            await Promise.all(
+                subscriptions.map(async sub => {
+                    try {
+                        await webpush.sendNotification(sub, payload);
+                    }catch (err: unknown) {
+                        if (
+                            typeof err === 'object' &&
+                            err !== null &&
+                            'statusCode' in err &&
+                            (err as { statusCode: number }).statusCode === 410 || (err as { statusCode: number }).statusCode === 404
+                        ) {
+                            await PushSubscription.deleteOne({ endpoint: sub.endpoint });
+                        }
+                    }
+                })
+            );
+
+
             res.status(201).json({ message });
         } catch (err) {
             console.error(err);

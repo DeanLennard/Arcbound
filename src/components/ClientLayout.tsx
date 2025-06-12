@@ -28,6 +28,35 @@ export default function ClientLayout({
         };
     }, []);
 
+    useEffect(() => {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    }, []);
+
+    useEffect(() => {
+        const registerPush = async () => {
+            const res = await fetch('/api/auth/session');
+            const session = await res.json();
+
+            if (session?.user && 'serviceWorker' in navigator) {
+                const reg = await navigator.serviceWorker.register('/sw.js');
+                const subscription = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+                });
+
+                await fetch('/api/push/subscribe', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(subscription)
+                });
+            }
+        };
+
+        registerPush();
+    }, []);
+
     return (
         <SessionProvider>
             {children}

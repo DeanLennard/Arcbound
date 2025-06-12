@@ -39,6 +39,7 @@
     "socket.io-client": "^4.8.1",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tiptap-extension-resize-image": "^1.2.2",
+    "web-push": "^3.6.7",
     "yet-another-react-lightbox": "^3.23.2"
   },
   "devDependencies": {
@@ -50,6 +51,7 @@
     "@types/nodemailer": "^6.4.17",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/web-push": "^3.6.4",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
     "tailwindcss": "^4.1.8",
