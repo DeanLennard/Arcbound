@@ -1,6 +1,8 @@
 // src/pages/api/push/subscribe.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import {dbConnect} from '@/lib/mongodb';
+import { getServerSession } from 'next-auth';
+import authOptions from '@/lib/authOptions';
+import { dbConnect } from '@/lib/mongodb';
 import PushSubscription from '@/models/PushSubscription';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -10,6 +12,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     await dbConnect();
+    const session = await getServerSession(req, res, authOptions);
+
+    if (!session || !session.user?.id) {
+        return res.status(401).json({ error: 'Unauthorised' });
+    }
+
     const { endpoint, keys } = req.body;
 
     if (!endpoint || !keys?.p256dh || !keys?.auth) {
@@ -19,9 +27,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
         await PushSubscription.updateOne(
             { endpoint },
-            { endpoint, keys },
+            {
+                endpoint,
+                keys,
+                userId: session.user.id
+            },
             { upsert: true }
         );
+
         res.status(201).json({ message: 'Subscribed successfully' });
     } catch (err) {
         console.error('Error saving subscription:', err);
