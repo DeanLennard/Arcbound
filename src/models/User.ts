@@ -18,7 +18,10 @@ const UserSchema = new mongoose.Schema({
     role: { type: String, enum: ['admin', 'moderator', 'member', 'none'], default: 'member' },
     playerName: { type: String },
     characterName: { type: String },
-    profileImage: { type: String } // Can be a URL or base64 or whatever you choose
+    profileImage: { type: String },
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date },
+
 }, {
     timestamps: true
 });
