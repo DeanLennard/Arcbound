@@ -30,6 +30,7 @@ export default function ChatDock() {
         return sum;
     }, 0);
 
+    // 1) Load muted‐chats once
     useEffect(() => {
         fetch('/api/users/muted-chats')
             .then(r => r.json())
@@ -39,40 +40,45 @@ export default function ChatDock() {
 
     // 2) Listen for per-chat mute toggles
     useEffect(() => {
-        const onMuteToggled = (e: CustomEvent<{chatId: string; muted: boolean}>) => {
+        const onMuteToggled: EventListener = (e) => {
+            const custom = e as CustomEvent<{ chatId: string; muted: boolean }>;
             setMutedChats(prev => {
                 const next = new Set(prev);
-                if (e.detail.muted) next.add(e.detail.chatId);
-                else                next.delete(e.detail.chatId);
+                if (custom.detail.muted) next.add(custom.detail.chatId);
+                else                   next.delete(custom.detail.chatId);
                 return next;
             });
         };
-        window.addEventListener('chatMuteToggled', onMuteToggled as any);
+
+        window.addEventListener('chatMuteToggled', onMuteToggled);
         return () => {
-            window.removeEventListener('chatMuteToggled', onMuteToggled as any);
+            window.removeEventListener('chatMuteToggled', onMuteToggled);
         };
     }, []);
 
-    // 3) Fetch chats + set up refresh + socket listeners
+    // 3) Fetch chats + setup refresh & socket once
     useEffect(() => {
         if (!session || userRole === 'none') return;
 
-        // A) chat fetcher
+        // A) fetcher
         const fetchChats = () => {
             fetch('/api/chats')
                 .then(r => r.json())
                 .then(data => {
                     if (!Array.isArray(data.chats)) {
-                        console.error('Bad response', data);
+                        console.error('Bad /api/chats response', data);
                         setChats([]);
                         return;
                     }
-                    chats.sort((a, b) =>
-                        new Date(b.updatedAt || b.createdAt).getTime()
-                        - new Date(a.updatedAt || a.createdAt).getTime()
+
+                    // use a local array so we don't refer to `chats` state here
+                    const newChats = [...data.chats] as Chat[];
+                    newChats.sort((a, b) =>
+                        new Date(b.updatedAt || b.createdAt).getTime() -
+                        new Date(a.updatedAt || a.createdAt).getTime()
                     );
-                    setChats(data.chats);
-                    chats.forEach(c => socket.emit('joinChat', c._id));
+                    setChats(newChats);
+                    newChats.forEach(c => socket.emit('joinChat', c._id));
                 })
                 .catch(console.error);
         };
@@ -82,7 +88,7 @@ export default function ChatDock() {
         const handleRefresh = () => fetchChats();
         window.addEventListener('refreshChats', handleRefresh);
 
-        // C) socket listener
+        // C) newMessage socket listener
         const playSoundIfUnmuted = (chatId: string) => {
             if (mutedChats.has(chatId)) return;
             new Audio('/sounds/notification.mp3').play().catch(() => {});
@@ -93,7 +99,7 @@ export default function ChatDock() {
         };
         socket.on('newMessage', onNewMessage);
 
-        // Cleanup
+        // teardown
         return () => {
             window.removeEventListener('refreshChats', handleRefresh);
             socket.off('newMessage', onNewMessage);
