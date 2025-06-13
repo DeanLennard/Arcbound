@@ -330,6 +330,13 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 </h4>
                 <div className="flex items-center gap-2">
                     <button
+                        onClick={toggleMute}
+                        title={isMuted ? 'Unmute Chat' : 'Mute Chat'}
+                        className="text-gray-400 hover:text-yellow-400"
+                    >
+                        {isMuted ? '🔕' : '🔔'}
+                    </button>
+                    <button
                         onClick={() => setIsMaximised(!isMaximised)}
                         className="text-gray-400 hover:text-green-500"
                     >
@@ -620,15 +627,6 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 }
                             }}
                         />
-
-                        <h3 className="text-md font-semibold mb-2">Notifications:</h3>
-                        <button
-                            onClick={toggleMute}
-                            title={isMuted ? 'Unmute Chat' : 'Mute Chat'}
-                            className="text-gray-400 hover:text-yellow-400"
-                        >
-                            {isMuted ? '🔕' : '🔔'}
-                        </button>
 
                         {/* Members List */}
                         <h3 className="text-md font-semibold mb-2">Members:</h3>
