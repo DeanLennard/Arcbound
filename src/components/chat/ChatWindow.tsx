@@ -621,6 +621,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                             }}
                         />
 
+                        <h3 className="text-md font-semibold mb-2">Notifications:</h3>
                         <button
                             onClick={toggleMute}
                             title={isMuted ? 'Unmute Chat' : 'Mute Chat'}
