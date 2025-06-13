@@ -69,14 +69,14 @@ export default function ChatDock() {
         const onNewMessage = (message: { chatId: unknown }) => {
             const raw = message.chatId;
             const chatId = String(raw);
-            console.log('incoming chatId:', chatId);
-            console.log('mutedChats:', Array.from(mutedChatsRef.current));
+            //console.log('incoming chatId:', chatId);
+            //console.log('mutedChats:', Array.from(mutedChatsRef.current));
 
             if (!mutedChatsRef.current.has(chatId)) {
-                console.log('→ playing sound');
+                //console.log('→ playing sound');
                 new Audio('/sounds/notification.mp3').play().catch(() => {});
             } else {
-                console.log('→ skipping sound (muted)');
+                //console.log('→ skipping sound (muted)');
             }
 
             window.dispatchEvent(new Event('refreshChats'));
