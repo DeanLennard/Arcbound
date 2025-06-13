@@ -23,8 +23,10 @@ const UserSchema = new mongoose.Schema({
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
     mutedChats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
-
-
+    character: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Character'
+    },
 }, {
     timestamps: true
 });

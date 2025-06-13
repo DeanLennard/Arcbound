@@ -1,3 +1,4 @@
+// src/pages/api/users/index.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';
@@ -11,7 +12,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
         try {
-            const users = await User.find({}, 'characterName profileImage _id').lean<{ _id: mongoose.Types.ObjectId; characterName: string; profileImage: string }[]>();
+            const users = await User.find({}, 'playerName characterName profileImage _id').lean<{ _id: mongoose.Types.ObjectId; characterName: string; profileImage: string }[]>();
             // Optionally exclude the logged-in user:
             const filteredUsers = users.filter(u => u._id.toString() !== session.user.id);
             res.status(200).json({ users: filteredUsers });
