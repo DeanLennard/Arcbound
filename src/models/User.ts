@@ -10,6 +10,7 @@ export interface UserDocument extends Document {
     profileImage: string;
     createdAt: Date;
     updatedAt: Date;
+    mutedChats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
 }
 
 const UserSchema = new mongoose.Schema({
@@ -21,6 +22,8 @@ const UserSchema = new mongoose.Schema({
     profileImage: { type: String },
     resetPasswordToken: { type: String },
     resetPasswordExpires: { type: Date },
+    mutedChats: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Chat' }],
+
 
 }, {
     timestamps: true

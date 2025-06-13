@@ -3,6 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Message from '@/models/Message';
 import Chat from '@/models/Chat';
+import User from '@/models/User';
 import { requireAuth } from '@/lib/auth';
 import PushSubscription from '@/models/PushSubscription';
 import webpush from 'web-push';
@@ -42,7 +43,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 .map(id => id.toString())
                 .filter(id => id !== session.user.id);
 
-            const subscriptions = await PushSubscription.find({ userId: { $in: recipients } });
+            // Get users who have NOT muted this chat
+            const unmutedUsers = await User.find({
+                _id: { $in: recipients },
+                mutedChats: { $ne: chat._id },
+            }).select('_id');
+
+            const notifyIds = unmutedUsers.map(u => u._id.toString());
+
+            const subscriptions = await PushSubscription.find({ userId: { $in: notifyIds } });
 
             const payload = JSON.stringify({
                 title: 'Arcbound: New Message',

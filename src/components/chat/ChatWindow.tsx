@@ -58,6 +58,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [isMaximised, setIsMaximised] = useState(false);
     const [showGifPicker, setShowGifPicker] = useState(false);
     const [gifResults, setGifResults] = useState<string[]>([]);
+    const [isMuted, setIsMuted] = useState(false);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -72,6 +73,13 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             .then(data => setUsers(data.users))
             .catch(err => console.error('Failed to load users:', err));
     }, []);
+
+    useEffect(() => {
+        fetch(`/api/chats/${chat._id}/is-muted`)
+            .then(res => res.json())
+            .then(data => setIsMuted(data.muted))
+            .catch(console.error);
+    }, [chat._id]);
 
     useEffect(() => {
         socket.on('typing', ({ chatId, userId }) => {
@@ -210,6 +218,19 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         } catch (err) {
             console.error('Failed to leave group:', err);
             alert('Failed to leave group.');
+        }
+    };
+
+    const toggleMute = async () => {
+        try {
+            const res = await fetch(`/api/chats/${chat._id}/toggle-mute`, { method: 'POST' });
+            const data = await res.json();
+            setIsMuted(data.muted);
+            window.dispatchEvent(new CustomEvent('chatMuteToggled', {
+                detail: { chatId: chat._id, muted: data.muted }
+            }))
+        } catch (err) {
+            console.error('Failed to toggle mute', err);
         }
     };
 
@@ -599,6 +620,14 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                 }
                             }}
                         />
+
+                        <button
+                            onClick={toggleMute}
+                            title={isMuted ? 'Unmute Chat' : 'Mute Chat'}
+                            className="text-gray-400 hover:text-yellow-400"
+                        >
+                            {isMuted ? '🔕' : '🔔'}
+                        </button>
 
                         {/* Members List */}
                         <h3 className="text-md font-semibold mb-2">Members:</h3>

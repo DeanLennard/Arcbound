@@ -16,9 +16,11 @@ export default function ChatDock() {
     const [activeChats, setActiveChats] = useState<Chat[]>([]);
     const [showNewChatModal, setShowNewChatModal] = useState(false);
     const [isMinimised, setIsMinimised] = useState(false);
+    const [mutedChats, setMutedChats] = useState<Set<string>>(new Set())
 
     const currentUserId = session?.user?.id || '';
     const userRole = session?.user?.role || '';
+
     const totalUnreadCount = chats.reduce((sum, chat) => {
         if (typeof chat.unreadCount === 'number') {
             return sum + chat.unreadCount;
@@ -28,66 +30,75 @@ export default function ChatDock() {
         return sum;
     }, 0);
 
-    // Fetch chats (for example, from your API)
+    useEffect(() => {
+        fetch('/api/users/muted-chats')
+            .then(r => r.json())
+            .then(data => setMutedChats(new Set(data.chatIds)))
+            .catch(console.error);
+    }, []);
+
+    // 2) Listen for per-chat mute toggles
+    useEffect(() => {
+        const onMuteToggled = (e: CustomEvent<{chatId: string; muted: boolean}>) => {
+            setMutedChats(prev => {
+                const next = new Set(prev);
+                if (e.detail.muted) next.add(e.detail.chatId);
+                else                next.delete(e.detail.chatId);
+                return next;
+            });
+        };
+        window.addEventListener('chatMuteToggled', onMuteToggled as any);
+        return () => {
+            window.removeEventListener('chatMuteToggled', onMuteToggled as any);
+        };
+    }, []);
+
+    // 3) Fetch chats + set up refresh + socket listeners
     useEffect(() => {
         if (!session || userRole === 'none') return;
 
+        // A) chat fetcher
         const fetchChats = () => {
             fetch('/api/chats')
-                .then(res => res.json())
+                .then(r => r.json())
                 .then(data => {
-                    if (data.error) {
-                        console.error('API Error:', data.error);
+                    if (!Array.isArray(data.chats)) {
+                        console.error('Bad response', data);
                         setChats([]);
                         return;
                     }
-
-                    if (!data.chats || !Array.isArray(data.chats)) {
-                        console.error('Unexpected chat data:', data);
-                        setChats([]);
-                        return;
-                    }
-
-                    data.chats.sort((a: Chat, b: Chat) => {
-                        const aTime = new Date(a.updatedAt  || a.createdAt).getTime();
-                        const bTime = new Date(b.updatedAt  || b.createdAt).getTime();
-                        return bTime - aTime;
-                    });
-
+                    chats.sort((a, b) =>
+                        new Date(b.updatedAt || b.createdAt).getTime()
+                        - new Date(a.updatedAt || a.createdAt).getTime()
+                    );
                     setChats(data.chats);
-
-                    // Join all chat rooms
-                    data.chats.forEach((chat: Chat) => {
-                        socket.emit('joinChat', chat._id);
-                    });
+                    chats.forEach(c => socket.emit('joinChat', c._id));
                 })
-                .catch(err => console.error('Failed to load chats:', err));
+                .catch(console.error);
         };
-
-        // Fetch initially
         fetchChats();
 
-        // Listen for the custom 'refreshChats' event
+        // B) refreshChats listener
         const handleRefresh = () => fetchChats();
         window.addEventListener('refreshChats', handleRefresh);
 
-        // Listen for real-time new messages via Socket.IO
-        const handleNewMessage = () => {
-            fetchChats();
-
-            // Play sound
-            const audio = new Audio('/sounds/notification.mp3');
-            audio.play().catch(err => {
-                console.warn('Notification sound failed to play:', err);
-            });
+        // C) socket listener
+        const playSoundIfUnmuted = (chatId: string) => {
+            if (mutedChats.has(chatId)) return;
+            new Audio('/sounds/notification.mp3').play().catch(() => {});
         };
-        socket.on('newMessage', handleNewMessage);
+        const onNewMessage = (message: { chatId: string }) => {
+            fetchChats();
+            playSoundIfUnmuted(message.chatId);
+        };
+        socket.on('newMessage', onNewMessage);
 
+        // Cleanup
         return () => {
             window.removeEventListener('refreshChats', handleRefresh);
-            socket.off('newMessage', handleNewMessage);
+            socket.off('newMessage', onNewMessage);
         };
-    }, [session, userRole]);
+    }, [session, userRole, mutedChats]);
 
     const openChat = (chat: Chat) => {
         if (!activeChats.find(c => c._id === chat._id)) {
