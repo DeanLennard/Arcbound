@@ -5,9 +5,13 @@ import authOptions from '@/lib/authOptions';
 import { notFound } from 'next/navigation';
 import Image from "next/image";
 import { GET as getUser } from '@/pages/api/users/[id]';
+import NotificationToggle from '@/components/NotificationToggle';
 
 async function fetchUser(id: string) {
-    const response = await getUser(new Request(`http://localhost:3000/api/users/${id}`), { params: { id } });
+    const response = await getUser(
+        new Request(`http://localhost:3000/api/users/${id}`),
+        { params: { id } }
+    );
     const data = await response.json();
     return data.user;
 }
@@ -37,12 +41,15 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
             )}
             {/* Add "Edit Profile" button if it's the same user */}
             {session?.user?.id === user._id && (
-                <a
-                    href={`/profile`}
-                    className="inline-block mt-4 bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
-                >
-                    Edit Profile
-                </a>
+                <div className="mt-4 flex items-center">
+                    <a
+                        href={`/profile`}
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded"
+                    >
+                        Edit Profile
+                    </a>
+                    <NotificationToggle />
+                </div>
             )}
         </div>
     );
