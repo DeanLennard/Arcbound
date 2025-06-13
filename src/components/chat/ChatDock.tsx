@@ -66,13 +66,19 @@ export default function ChatDock() {
 
     // socket listener—only once on mount
     useEffect(() => {
-        const onNewMessage = (message: { chatId: string }) => {
-            const chatId = message.chatId.toString();
-            // Play sound only if chat is not muted
+        const onNewMessage = (message: { chatId: unknown }) => {
+            const raw = message.chatId;
+            const chatId = String(raw);
+            console.log('incoming chatId:', chatId);
+            console.log('mutedChats:', Array.from(mutedChatsRef.current));
+
             if (!mutedChatsRef.current.has(chatId)) {
+                console.log('→ playing sound');
                 new Audio('/sounds/notification.mp3').play().catch(() => {});
+            } else {
+                console.log('→ skipping sound (muted)');
             }
-            // trigger sidebar refresh
+
             window.dispatchEvent(new Event('refreshChats'));
         };
         socket.on('newMessage', onNewMessage);
