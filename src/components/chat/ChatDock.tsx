@@ -1,7 +1,7 @@
 // src/components/Chat/ChatDock.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import ChatWindow from './ChatWindow';
 import socket from '@/socket/socket';
 import NewChatForm from './NewChatForm';
@@ -17,6 +17,7 @@ export default function ChatDock() {
     const [showNewChatModal, setShowNewChatModal] = useState(false);
     const [isMinimised, setIsMinimised] = useState(false);
     const [mutedChats, setMutedChats] = useState<Set<string>>(new Set())
+    const mutedChatsRef = useRef<Set<string>>(mutedChats);
 
     const currentUserId = session?.user?.id || '';
     const userRole = session?.user?.role || '';
@@ -30,6 +31,11 @@ export default function ChatDock() {
         return sum;
     }, 0);
 
+    // keep the ref up to date
+    useEffect(() => {
+        mutedChatsRef.current = mutedChats;
+    }, [mutedChats]);
+
     // 1) Load muted‐chats once
     useEffect(() => {
         fetch('/api/users/muted-chats')
@@ -38,73 +44,71 @@ export default function ChatDock() {
             .catch(console.error);
     }, []);
 
-    // 2) Listen for per-chat mute toggles
+    // listen for ChatWindow toggles
     useEffect(() => {
-        const onMuteToggled: EventListener = (e) => {
-            const custom = e as CustomEvent<{ chatId: string; muted: boolean }>;
+        const onMuteToggled = (e: Event) => {
+            const { chatId, muted } = (e as CustomEvent<{ chatId: string; muted: boolean }>).detail;
             setMutedChats(prev => {
                 const next = new Set(prev);
-                if (custom.detail.muted) next.add(custom.detail.chatId);
-                else                   next.delete(custom.detail.chatId);
+                if (muted) {
+                    next.add(chatId);
+                } else {
+                    next.delete(chatId);
+                }
                 return next;
             });
         };
-
         window.addEventListener('chatMuteToggled', onMuteToggled);
         return () => {
             window.removeEventListener('chatMuteToggled', onMuteToggled);
         };
     }, []);
 
+    // socket listener—only once on mount
+    useEffect(() => {
+        const onNewMessage = (message: { chatId: string }) => {
+            const chatId = message.chatId.toString();
+            // Play sound only if chat is not muted
+            if (!mutedChatsRef.current.has(chatId)) {
+                new Audio('/sounds/notification.mp3').play().catch(() => {});
+            }
+            // trigger sidebar refresh
+            window.dispatchEvent(new Event('refreshChats'));
+        };
+        socket.on('newMessage', onNewMessage);
+        return () => {
+            socket.off('newMessage', onNewMessage);
+        };
+    }, []);
+
     // 3) Fetch chats + setup refresh & socket once
     useEffect(() => {
-        if (!session || userRole === 'none') return;
+        if (!session || session.user.role === 'none') return;
 
-        // A) fetcher
         const fetchChats = () => {
             fetch('/api/chats')
                 .then(r => r.json())
                 .then(data => {
                     if (!Array.isArray(data.chats)) {
                         console.error('Bad /api/chats response', data);
-                        setChats([]);
-                        return;
+                        return setChats([]);
                     }
-
-                    // use a local array so we don't refer to `chats` state here
-                    const newChats = [...data.chats] as Chat[];
-                    newChats.sort((a, b) =>
+                    const sorted: Chat[] = [...data.chats].sort((a, b) =>
                         new Date(b.updatedAt || b.createdAt).getTime() -
                         new Date(a.updatedAt || a.createdAt).getTime()
                     );
-                    setChats(newChats);
-                    newChats.forEach(c => socket.emit('joinChat', c._id));
+                    setChats(sorted);
+                    sorted.forEach(c => socket.emit('joinChat', c._id));
                 })
                 .catch(console.error);
         };
+
         fetchChats();
-
-        // B) refreshChats listener
-        const handleRefresh = () => fetchChats();
-        window.addEventListener('refreshChats', handleRefresh);
-
-        // C) newMessage socket listener
-        const playSoundIfUnmuted = (chatId: string) => {
-            if (mutedChats.has(chatId)) return;
-            new Audio('/sounds/notification.mp3').play().catch(() => {});
-        };
-        const onNewMessage = (message: { chatId: string }) => {
-            fetchChats();
-            playSoundIfUnmuted(message.chatId);
-        };
-        socket.on('newMessage', onNewMessage);
-
-        // teardown
+        window.addEventListener('refreshChats', fetchChats);
         return () => {
-            window.removeEventListener('refreshChats', handleRefresh);
-            socket.off('newMessage', onNewMessage);
+            window.removeEventListener('refreshChats', fetchChats);
         };
-    }, [session, userRole, mutedChats]);
+    }, [session, status]);
 
     const openChat = (chat: Chat) => {
         if (!activeChats.find(c => c._id === chat._id)) {
