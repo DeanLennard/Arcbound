@@ -393,7 +393,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                     {msg.senderId.characterName}
                                 </div>
                                 <div
-                                    className={`whitespace-pre-wrap break-words break-all ${isMaximised ? 'text-lg' : 'text-sm'}`}
+                                    className={`whitespace-pre-wrap break-smart ${isMaximised ? 'text-lg' : 'text-sm'}`}
                                 >
                                     {isImageUrl(msg.content) ? (
                                         <Image
