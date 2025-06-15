@@ -1,14 +1,31 @@
-// Diplomacy.ts
-import mongoose, { Document } from 'mongoose';
-export type DiplomacyType = 'Trade'|'NonAggression'|'Alliance'|'War'|'Annihilation'|'VassalSubject'|'VassalOverlord';
+// models/Diplomacy.ts
+import mongoose, { Document } from 'mongoose'
+
+export type DiplomacyType =
+    | 'Trade Agreement'
+    | 'Non Aggression Pact'
+    | 'Alliance'
+    | 'War'
+    | 'Total Annihilation'
+    | 'Vassal'
+
+export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
+
 export interface DiplomacyDoc extends Document {
-    arcship:     mongoose.Types.ObjectId;
-    targetShip:  mongoose.Types.ObjectId;
-    type:        DiplomacyType;
+    name: string
+    description: string
+    type: DiplomacyType
+    level: PowerLevel;
+    ships: mongoose.Types.ObjectId[]  // ← all ships in this arrangement
 }
+
 const DiplomacySchema = new mongoose.Schema<DiplomacyDoc>({
-    arcship:    { type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' },
-    targetShip: { type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' },
-    type:       { type: String, enum: ['Trade','NonAggression','Alliance','War','Annihilation','VassalSubject','VassalOverlord'] },
-});
-export default mongoose.models.Diplomacy || mongoose.model<DiplomacyDoc>('Diplomacy', DiplomacySchema);
+    name:        { type: String, required: true },
+    description: { type: String, required: true },
+    type:       { type: String, enum: ['Trade Agreement','Non Aggression Pact','Alliance','War','Total Annihilation','Vassal'] },
+    level:        { type: String, enum: ['SPARK','SURGE','FLUX', 'BREAK', 'ASCENDANCE'], default: 'SPARK' },
+    ships:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' }],
+})
+
+export default mongoose.models.Diplomacy ||
+mongoose.model<DiplomacyDoc>('Diplomacy', DiplomacySchema)

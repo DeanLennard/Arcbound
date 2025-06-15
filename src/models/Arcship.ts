@@ -30,10 +30,19 @@ export interface ArcshipDocument extends Document {
 
     history: string;
 
+    offensiveMod:           number;
+    defensiveMod:           number;
+    tacticalMod:            number;
+    movementInteractionMod: number;
+    movementResolutionMod:  number;
+    targetRangeMod:         number;
+    shippingItemsMod:       number;
+    moduleSlotsMod:         number;
+
     // relations
-    modules: Types.ObjectId[];       // Module refs
-    diplomacy: Types.ObjectId[];     // Diplomacy refs
-    activeEffects: Types.ObjectId[]; // Effect refs
+    modules:       Types.ObjectId[]; // ← Module.attachedTo
+    effects:       Types.ObjectId[]; // ← Effect.ships
+    diplomacy:     Types.ObjectId[]; // ← Diplomacy.ships
     eventLog: Types.ObjectId[];      // EventLog refs
 
     createdAt: Date;
@@ -69,10 +78,14 @@ const ArcshipSchema = new mongoose.Schema<ArcshipDocument>({
 
     history: { type: String, default: '' },
 
-    modules:        [{ type: mongoose.Schema.Types.ObjectId, ref: 'Module' }],
-    diplomacy:      [{ type: mongoose.Schema.Types.ObjectId, ref: 'Diplomacy' }],
-    activeEffects:  [{ type: mongoose.Schema.Types.ObjectId, ref: 'Effect' }],
-    eventLog:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'EventLog' }],
+    offensiveMod:           { type: Number, default: 0 },
+    defensiveMod:           { type: Number, default: 0 },
+    tacticalMod:            { type: Number, default: 0 },
+    movementInteractionMod: { type: Number, default: 0 },
+    movementResolutionMod:  { type: Number, default: 0 },
+    targetRangeMod:         { type: Number, default: 0 },
+    shippingItemsMod:       { type: Number, default: 0 },
+    moduleSlotsMod:         { type: Number, default: 0 },
 
 }, { timestamps: true });
 
@@ -94,19 +107,45 @@ ArcshipSchema.pre<ArcshipDocument>('save', function (next) {
 });
 
 // **VIRTUALS**
-// Reverse‐populate all Characters whose .arcship === this._id
-ArcshipSchema.virtual('commanders', {
-    ref: 'Character',
-    localField: '_id',
-    foreignField: 'arcship',
+// 1) Modules attachedTo this arcship
+ArcshipSchema.virtual('modules', {
+    ref:         'Module',
+    localField:  '_id',
+    foreignField:'attachedTo',
 });
 
-// Reverse‐populate retired/died prevCommanders if you track status
+// 2) Effects whose ships[] array includes this arcship
+ArcshipSchema.virtual('effects', {
+    ref:         'Effect',
+    localField:  '_id',
+    foreignField:'ships',
+});
+
+// 3) Diplomacy docs whose ships[] array includes this arcship
+ArcshipSchema.virtual('diplomacy', {
+    ref:         'Diplomacy',
+    localField:  '_id',
+    foreignField:'ships',
+});
+
+// 4) Your existing commander & prevCommander reverse populates
+ArcshipSchema.virtual('commanders', {
+    ref:         'Character',
+    localField:  '_id',
+    foreignField:'arcship',
+});
 ArcshipSchema.virtual('prevCommanders', {
-    ref: 'Character',
-    localField: '_id',
-    foreignField: 'arcship',
-    // add match: { status: 'Dead' } if you only want dead ones
+    ref:         'Character',
+    localField:  '_id',
+    foreignField:'arcship',
+    // you could add match: { status: 'Dead' }, if desired
+});
+
+// 5) Event log
+ArcshipSchema.virtual('eventLog', {
+    ref:         'EventLog',
+    localField:  '_id',
+    foreignField:'arcship',
 });
 
 // ensure virtuals show up

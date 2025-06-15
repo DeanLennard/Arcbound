@@ -11,6 +11,7 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
+    "@headlessui/react": "^2.2.4",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-image": "^2.14.0",
     "@tiptap/extension-link": "^2.14.0",

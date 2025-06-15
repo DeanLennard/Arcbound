@@ -2,10 +2,23 @@
 'use client';
 import { useForm } from 'react-hook-form';
 
+// static lists
+const FACTIONS = [
+    'The Aeon Collective',
+    'The Helion Federation',
+    'The Korveth Dominion',
+    'The Sundered Concord',
+    'The Tyr Solaris Imperium',
+    'The Virean Ascendancy',
+    'Other',
+]
+
 export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
-    const { register, handleSubmit, formState: { isSubmitting } } =
+    const { register, handleSubmit, watch, formState: { isSubmitting } } =
         useForm({ defaultValues: initial });
     const isEdit = Boolean(initial._id);
+
+    const selectedFaction = watch('faction')
 
     const onSubmit = async (data: any) => {
         const method = isEdit ? 'PUT' : 'POST';
@@ -33,12 +46,29 @@ export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
                         className="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                 </div>
+                {/* Faction */}
                 <div>
-                    <label className="block text-sm font-medium text-white">Faction</label>
-                    <input
-                        {...register('faction')}
-                        className="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    />
+                    <div>
+                        <label className="block text-sm font-medium text-white">Faction</label>
+                        <select
+                            {...register('faction', { required: true })}
+                            className="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        >
+                            <option value="">— Select Faction —</option>
+                            {FACTIONS.map(f => (
+                                <option key={f} value={f}>{f}</option>
+                            ))}
+                        </select>
+                        {selectedFaction === 'Other' && (
+                            <input
+                                {...register('factionCustom', { required: true })}
+                                placeholder="Enter custom faction"
+                                className="mt-2 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -77,6 +107,44 @@ export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
                     </div>
                 ))}
             </div>
+
+            {/* History */}
+            <div>
+                <label className="block text-sm font-medium text-white">History</label>
+                <textarea
+                    {...register('history')}
+                    rows={4}
+                    className="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded
+               focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+            </div>
+
+            {/* Derived‐stat Modifiers */}
+            <section>
+                <h3 className="text-lg font-semibold text-white mb-2">Derived Stats Modifiers</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {[
+                        ['offensiveMod',           'Offensive FP Δ'],
+                        ['defensiveMod',           'Defensive FP Δ'],
+                        ['tacticalMod',            'Tactical AP Δ'],
+                        ['movementInteractionMod', 'Movement Int Δ'],
+                        ['movementResolutionMod',  'Movement Res Δ'],
+                        ['targetRangeMod',         'Target Range Δ'],
+                        ['shippingItemsMod',       'Shipping Δ'],
+                        ['moduleSlotsMod',         'Module Slots Δ'],
+                    ].map(([field,label]) => (
+                        <div key={field}>
+                            <label className="block text-xs text-gray-300">{label}</label>
+                            <input
+                                type="number"
+                                {...register(field as any)}
+                                className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded
+                     focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            />
+                        </div>
+                    ))}
+                </div>
+            </section>
 
             <div className="flex space-x-4 pt-4">
                 <button

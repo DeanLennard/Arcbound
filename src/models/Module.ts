@@ -1,31 +1,22 @@
-// Module.ts
-import mongoose, { Document } from 'mongoose';
+// src/models/Module.ts
+import mongoose, { Document, Types } from 'mongoose';
+
+export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
+
 export interface ModuleDoc extends Document {
     name: string;
     description: string;
-    cost: {
-        credits: number;
-        alloys:   number;
-        energy:   number;
-        data:     number;
-        essence:  number;
-    };
-    prereqs: {
-        cmdTotal?:  number;
-        coreTotal?: number;
-    };
-    attachedTo?: mongoose.Types.ObjectId; // Arcship
+    state: 'Active' | 'Inactive';
+    level: PowerLevel;
+    attachedTo?: Types.ObjectId; // Arcship
 }
+
 const ModuleSchema = new mongoose.Schema<ModuleDoc>({
-    name:        String,
-    description: String,
-    cost: {
-        credits: Number, alloys: Number, energy: Number, data: Number, essence: Number
-    },
-    prereqs: {
-        cmdTotal:  Number,
-        coreTotal: Number
-    },
+    name:        { type: String, required: true },
+    description: { type: String, required: true },
+    state:       { type: String, enum: ['Active','Inactive'], default: 'Active' },
+    level:        { type: String, enum: ['SPARK','SURGE','FLUX', 'BREAK', 'ASCENDANCE'], default: 'SPARK' },
     attachedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' },
 });
+
 export default mongoose.models.Module || mongoose.model<ModuleDoc>('Module', ModuleSchema);

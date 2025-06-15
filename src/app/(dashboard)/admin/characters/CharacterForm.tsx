@@ -67,7 +67,7 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: any) {
     const isEdit = Boolean(initial._id)
 
     // load users
-    const { data: userData, error: userError } = useSWR<{ users: UserOption[] }>('/api/users', fetcher)
+    const { data: userData, error: userError } = useSWR<{ users: UserOption[] }>('/api/users/all', fetcher)
     // load arcships
     const { data: arcData, error: arcError } = useSWR<ArcshipOption[]>('/api/arcships', fetcher)
 

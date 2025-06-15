@@ -5,6 +5,7 @@ import '@/models/Module';
 import '@/models/Diplomacy';
 import '@/models/Effect';
 import '@/models/EventLog';
+import '@/models/Character';
 import Arcship from '@/models/Arcship';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -12,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     switch (req.method) {
         case 'GET': {
             const ships = await Arcship.find()
-                .populate('modules diplomacy activeEffects commanders prevCommanders eventLog')
+                .populate('modules diplomacy effects commanders prevCommanders eventLog')
                 .lean();
             return res.status(200).json(ships);
         }

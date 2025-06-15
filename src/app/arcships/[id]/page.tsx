@@ -1,8 +1,10 @@
 // src/app/arcships/[id]/page.tsx
 import React from 'react'
 import {dbConnect} from '@/lib/mongodb';
+import '@/models/Character';
+import '@/models/User';
 import '@/models/Module'
-import '@/models/Diplomacy'
+import Diplomacy from '@/models/Diplomacy'
 import '@/models/Effect'
 import '@/models/EventLog'
 import Arcship from '@/models/Arcship'
@@ -11,14 +13,37 @@ interface Props { params: { id: string } }
 
 export default async function ArcshipPage({ params: { id } }: Props) {
     await dbConnect()
-    const ship = await Arcship.findById(id)
-        .populate('modules')
-        .populate({ path: 'diplomacy', populate: { path: 'targetShip' } })
-        .populate('activeEffects')
-        .populate('commanders')
-        .populate('prevCommanders')
-        .populate('eventLog')
-        .lean()
+    const [ ship, agreements ] = await Promise.all([
+        Arcship.findById(id)
+            .populate('modules')                   // your Module docs
+            .populate('effects')             // your Effect docs
+            .populate({
+                path: 'commanders',
+                match: { status: 'Active' },
+                populate: {
+                    path: 'user',
+                    select: 'playerName'
+                }
+            })
+            // only dead or retired in `prevCommanders`
+            .populate({
+                path: 'prevCommanders',
+                match: { status: { $in: ['Dead','Retired'] } },
+                populate: {
+                    path: 'user',
+                    select: 'playerName'
+                }
+            })
+            .populate({
+                path: 'eventLog',
+                options: { sort: { createdAt: -1 } }
+            })
+            .lean(),
+        // ← load all diplomacy docs that include this ship
+        Diplomacy.find({ ships: id })
+            .populate('ships', 'name')
+            .lean(),
+    ])
 
     if (!ship) return <p>Arcship not found</p>
 
@@ -31,10 +56,20 @@ export default async function ArcshipPage({ params: { id } }: Props) {
     const senseTotal = ship.sense.base + ship.sense.mod
     const intcTotal  = ship.intc.base  + ship.intc.mod
 
-    // — Derived values
-    const offensiveFP = coreTotal * 200 + ship.core.mod
-    const defensiveFP = hullTotal * 400 + ship.hull.mod
-    const tacticalAP  = hullTotal       + ship.hull.mod
+    // Offensive FP
+    const baseOffensiveFP  = coreTotal * 200
+    const modOffensiveFP   = ship.offensiveMod ?? 0
+    const totalOffensiveFP = baseOffensiveFP + modOffensiveFP
+
+    // Defensive FP
+    const baseDefensiveFP  = hullTotal * 400
+    const modDefensiveFP   = ship.defensiveMod ?? 0
+    const totalDefensiveFP = baseDefensiveFP + modDefensiveFP
+
+    // Tactical AP
+    const baseTacticalAP   = cmdTotal
+    const modTacticalAP    = ship.tacticalMod ?? 0
+    const totalTacticalAP  = baseTacticalAP + modTacticalAP
 
     const movementByNav = (n: number) => {
         if (n <= 0) return 0
@@ -44,26 +79,48 @@ export default async function ArcshipPage({ params: { id } }: Props) {
         if (n <= 8) return 4
         return 5
     }
-    const movementInteraction = movementByNav(navTotal) + ship.nav.mod
-    const movementResolution  = movementByNav(navTotal) + ship.nav.mod
 
-    const targetRangeBySense = (s: number) => {
-        if (s <= 1)  return 'Current Hex'
-        if (s <= 4)  return '1 Hex away'
-        if (s <= 7)  return '2 Hexes away'
-        if (s <= 9)  return '3 Hexes away'
-        return '5 Hexes away'
-    }
-    const targetRange   = targetRangeBySense(senseTotal)
-    const shippingItems = (() => {
-        if (senseTotal <= 1)  return 'No Trades'
-        if (senseTotal <= 4)  return '1 Item per phase'
-        if (senseTotal <= 7)  return '2 Items per phase'
-        if (senseTotal <= 9)  return '3 Items per phase'
-        return '5 Items per phase'
+    // Movement
+    const baseIntMovement     = movementByNav(navTotal)
+    const modIntMovement      = ship.movementInteractionMod ?? 0
+    const totalIntMovement    = baseIntMovement + modIntMovement
+
+    const baseResMovement     = movementByNav(navTotal)
+    const modResMovement      = ship.movementResolutionMod ?? 0
+    const totalResMovement    = baseResMovement + modResMovement
+
+    // 2) Range (in hexes)
+    const baseRangeHexes     = (() => {
+        if (senseTotal <= 1)  return 0
+        if (senseTotal <= 4)  return 1
+        if (senseTotal <= 7)  return 2
+        if (senseTotal <= 9)  return 3
+        return 5
     })()
+    const modRangeHexes    = ship.targetRangeMod ?? 0
+    const totalRangeHexes  = baseRangeHexes + modRangeHexes
+    const totalRangeLabel  = totalRangeHexes === 0
+        ? 'Current Hex'
+        : `${totalRangeHexes} Hex${totalRangeHexes>1?'es':''} away`
 
-    const moduleSlots = Math.floor(intcTotal * 1.5) + ship.intc.mod
+    // 3) Shipping Items
+    const baseShipping       = (() => {
+        if (senseTotal <= 1)  return 0
+        if (senseTotal <= 4)  return 1
+        if (senseTotal <= 7)  return 2
+        if (senseTotal <= 9)  return 3
+        return 5
+    })()
+    const modShipping      = ship.shippingItemsMod ?? 0
+    const totalShipping    = baseShipping + modShipping
+    const totalShippingLabel = totalShipping === 0
+        ? 'No Trades'
+        : `${totalShipping} Item${totalShipping>1?'s':''} / phase`
+
+    // Module Slots
+    const baseModuleSlots  = Math.floor(intcTotal * 1.5)
+    const modModuleSlots   = ship.moduleSlotsMod ?? 0
+    const totalModuleSlots = baseModuleSlots + modModuleSlots
 
     // — Resources (both Balance & Income use same formula)
     const alloysIncome   = hullTotal  * 3000
@@ -91,20 +148,28 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                         <table className="min-w-full bg-white text-gray-900 rounded-lg">
                             <thead className="bg-gray-200">
                             <tr>
-                                {['Metric','Base','Mod','Total'].map(h => (
+                                {['Metric','Total','Base','Mod'].map(h => (
                                     <th key={h} className="px-4 py-2 text-left">{h}</th>
                                 ))}
                             </tr>
                             </thead>
                             <tbody>
                             {(['hull','core','cmd','crew','nav','sense','intc'] as const).map(key => {
-                                const m = (ship as any)[key]
+                                const m     = (ship as any)[key];
+                                const total = m.base + m.mod;
                                 return (
-                                    <tr key={key} className="border-t">
+                                    <tr
+                                        key={key}
+                                        className={`border-t ${
+                                            total === 0
+                                                ? 'bg-red-50 text-red-600'   // red-tint background + red text
+                                                : ''
+                                        }`}
+                                    >
                                         <td className="px-4 py-2">{key.toUpperCase()}</td>
+                                        <td className="px-4 py-2">{total}</td>
                                         <td className="px-4 py-2">{m.base}</td>
                                         <td className="px-4 py-2">{m.mod}</td>
-                                        <td className="px-4 py-2">{m.base + m.mod}</td>
                                     </tr>
                                 )
                             })}
@@ -114,17 +179,30 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                 </section>
 
                 <section>
-                    <h2 className="text-2xl font-semibold mb-2">Derived Values</h2>
-                    <ul className="list-disc list-inside space-y-1 text-gray-100">
-                        <li>Offensive FP: {offensiveFP}</li>
-                        <li>Defensive FP: {defensiveFP}</li>
-                        <li>Tactical AP: {tacticalAP}</li>
-                        <li>Movement Interaction: {movementInteraction} hexes/step</li>
-                        <li>Movement Resolution: {movementResolution} hexes/step</li>
-                        <li>Target Range: {targetRange}</li>
-                        <li>Shipping Items: {shippingItems}</li>
-                        <li>Module Slots: {moduleSlots}</li>
-                    </ul>
+                    <h2>Derived Values</h2>
+                    <table>
+                        <thead></thead>
+                        <tbody>
+                        {[
+                            ['',             'Total',            'Base',           'Mod'],
+                            ['Offensive FP', totalOffensiveFP,   baseOffensiveFP,  modOffensiveFP],
+                            ['Defensive FP', totalDefensiveFP,   baseDefensiveFP,  modDefensiveFP],
+                            ['Tactical AP',  totalTacticalAP,    baseTacticalAP,   modTacticalAP],
+                            ['Movement Int', totalIntMovement,   baseIntMovement,  modIntMovement],
+                            ['Movement Res', totalResMovement,   baseResMovement,  modResMovement],
+                            ['Range',        totalRangeLabel,    baseRangeHexes,   modRangeHexes],
+                            ['Shipping',     totalShippingLabel, baseShipping,     modShipping],
+                            ['Module Slots', totalModuleSlots,   baseModuleSlots,  modModuleSlots],
+                        ].map(([label, base, mod, total]) => (
+                            <tr key={label}>
+                                <td className="px-4 py-2">{label}</td>
+                                <td className="px-4 py-2">{base}</td>
+                                <td className="px-4 py-2">{mod}</td>
+                                <td className="px-4 py-2">{total}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
                 </section>
             </div>
 
@@ -171,63 +249,130 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                 </div>
             </section>
 
-            {/* Modules & Diplomacy */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Modules, Effects & Diplomacy */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* 1) Modules */}
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Modules</h2>
                     <ul className="space-y-2 text-gray-100">
                         {ship.modules.map((mod: any) => (
-                            <li key={mod._id} className="border p-2 rounded bg-gray-800">
+                            <li key={mod._id}
+                                className={`
+                                    p-2 rounded
+                                    ${mod.state === 'Active'   ? 'bg-green-600 text-white'
+                                    : mod.state === 'Inactive' ? 'bg-red-600   text-white'
+                                    : 'bg-gray-800 text-gray-100'}
+                                `}
+                            >
                                 <strong>{mod.name}</strong>
+                                <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                    {mod.level}
+                                </span>
                                 <p className="text-sm">{mod.description}</p>
                             </li>
                         ))}
                     </ul>
                 </section>
 
+                {/* 2) Effects */}
+                <section>
+                    <h2 className="text-2xl font-semibold mb-2">Effects</h2>
+                    <ul className="space-y-2">
+                        {ship.effects.map((fx: any) => (
+                            <li key={fx._id}
+                                className={`
+                                    p-2 rounded 
+                                    ${fx.kind === 'Positive' ? 'bg-green-600 text-white'
+                                    : fx.kind === 'Negative'   ? 'bg-red-600   text-white'
+                                    : 'bg-gray-600 text-gray-100'}
+                                `}
+                            >
+                                <strong>{fx.name}</strong>
+                                <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                    {fx.level}
+                                </span>
+                                <p className="text-sm">{fx.description}</p>
+                                <div className="mt-1 text-xs">
+                                    Status:{' '}
+                                    <span
+                                        className={
+                                            fx.kind === 'Positive'
+                                                ? 'text-green-400'
+                                                : fx.kind === 'Negative'
+                                                    ? 'text-red-400'
+                                                    : 'text-gray-400'
+                                        }
+                                    >
+                                      {fx.kind}
+                                    </span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </section>
+
+                {/* 3) Diplomatic Arrangements */}
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Diplomatic Arrangements</h2>
                     <ul className="space-y-2 text-gray-100">
-                        {ship.diplomacy.map((d: any) => (
-                            <li key={d._id}>
-                                With <strong>{d.targetShip.name}</strong>: {d.type}
-                            </li>
-                        ))}
+                        {agreements.map((d: any) => {
+                            const others = d.ships
+                                .filter((s: any) => s._id !== ship._id)
+                                .map((s: any) => s.name)
+                                .join(', ')
+
+                            return (
+                                <li key={d._id} className="bg-gray-800 p-2 rounded">
+                                    <strong>{d.name}</strong> ({d.type})
+                                    <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                        {d.level}
+                                    </span>
+                                    <div className="mt-1 text-sm text-gray-400">
+                                        Partners: {others || 'None'}
+                                    </div>
+                                    <div className="mt-1 text-xs text-gray-500">{d.description}</div>
+                                </li>
+                            )
+                        })}
                     </ul>
                 </section>
             </div>
 
-            {/* Effects, Commanders, History, Event Log */}
+            {/* Commanders, History, Event Log */}
             <div className="space-y-8">
-                <section>
-                    <h2 className="text-2xl font-semibold mb-2">Active Effects</h2>
-                    <div className="flex flex-wrap gap-2">
-                        {ship.activeEffects.map((fx: any) => (
-                            <span
-                                key={fx._id}
-                                className={`px-2 py-1 rounded ${
-                                    fx.kind === 'Positive'
-                                        ? 'bg-green-200 text-green-800'
-                                        : fx.kind === 'Negative'
-                                            ? 'bg-red-200 text-red-800'
-                                            : 'bg-gray-200 text-gray-800'
-                                }`}
-                            >
-                {fx.name}
-              </span>
-                        ))}
+                {/* Commanders */}
+                <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Active */}
+                    <div>
+                        <h2 className="text-2xl font-semibold mb-2">Active Commanders</h2>
+                        {ship.commanders.length > 0 ? (
+                            <ul className="space-y-2 text-gray-100">
+                                {ship.commanders.map((c: any) => (
+                                    <li key={c._id} className="p-2 bg-gray-800 rounded">
+                                        {c.charName} <span className="text-sm text-gray-400">({c.user?.playerName || 'Unknown'})</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-500">None</p>
+                        )}
                     </div>
-                </section>
 
-                <section>
-                    <h2 className="text-2xl font-semibold mb-2">Commanders</h2>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-100">
-                        {ship.commanders.map((c: any) => (
-                            <li key={c._id} className="p-2 bg-gray-800 rounded">
-                                {c.charName} ({c.playerName})
-                            </li>
-                        ))}
-                    </ul>
+                    {/* Previous */}
+                    <div>
+                        <h2 className="text-2xl font-semibold mb-2">Previous Commanders</h2>
+                        {ship.prevCommanders.length > 0 ? (
+                            <ul className="space-y-2 text-gray-100">
+                                {ship.prevCommanders.map((c: any) => (
+                                    <li key={c._id} className="p-2 bg-gray-800 rounded">
+                                        {c.charName} <span className="text-sm text-gray-400">({c.user?.playerName || 'Unknown'})</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p className="text-gray-500">None</p>
+                        )}
+                    </div>
                 </section>
 
                 <section>
@@ -252,7 +397,7 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                                     <td className="px-4 py-2">{e.eventName}</td>
                                     <td className="px-4 py-2">{e.effect}</td>
                                     <td className="px-4 py-2">{e.phase}</td>
-                                    <td className="px-4 py-2">{e.powerLevel}</td>
+                                    <td className="px-4 py-2">{e.level}</td>
                                     <td className="px-4 py-2">{e.ongoing ? 'Yes' : 'No'}</td>
                                 </tr>
                             ))}
