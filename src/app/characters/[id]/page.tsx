@@ -5,9 +5,17 @@ import { dbConnect } from '@/lib/mongodb'
 import Character    from '@/models/Character'
 import Phase        from '@/models/Phase'
 import CharacterAsset, { AssetCategory } from '@/models/CharacterAsset'
+import type { CharacterDocument } from '@/models/Character'
+import type { ArcshipDocument } from '@/models/Arcship'
+import type { UserDocument } from '@/models/User'
 
 interface PageProps {
     params: { id: string }
+}
+
+type PopulatedCharacter = Omit<CharacterDocument, 'arcship' | 'user'> & {
+    arcship?: ArcshipDocument
+    user?: Pick<UserDocument, 'playerName'>
 }
 
 export default async function CharacterPage({ params }: PageProps) {
@@ -20,7 +28,7 @@ export default async function CharacterPage({ params }: PageProps) {
     const char = await Character.findById(id)
         .populate('arcship')
         .populate({ path: 'user', select: 'playerName' })
-        .lean()
+        .lean<PopulatedCharacter>()
     if (!char) notFound()
 
     // fetch phase history
@@ -105,8 +113,8 @@ export default async function CharacterPage({ params }: PageProps) {
                     <h2 className="text-2xl font-semibold mb-2 text-white">{label}</h2>
                     {data.length > 0 ? (
                         <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            {data.map((rel: any) => (
-                                <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
+                            {data.map((rel) => (
+                                <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
                                     <strong className="text-indigo-300">{rel.name}</strong>{' '}
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
@@ -157,8 +165,8 @@ export default async function CharacterPage({ params }: PageProps) {
                         <h2 className={`text-2xl font-semibold mb-2 text-${color}`}>{label}</h2>
                         <ul className="space-y-2">
                             {data.map(rel => (
-                                <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
-                                    <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
+                                <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
+                                    <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
                                         <strong className="text-indigo-300">{rel.name}</strong>{' '}
                                         <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
@@ -200,9 +208,9 @@ export default async function CharacterPage({ params }: PageProps) {
                 <h2 className="text-2xl font-semibold mb-4 text-white">Phase History</h2>
                 {phases.length ? (
                     <div className="space-y-4">
-                        {phases.map((ph: any) => (
+                        {phases.map((ph) => (
                             <div
-                                key={ph._id}
+                                key={String(ph._id)}
                                 className="bg-gray-800 p-4 rounded-lg space-y-4"
                             >
                                 {/* Phase header */}

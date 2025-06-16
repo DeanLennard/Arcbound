@@ -26,7 +26,12 @@ interface FormValues {
     partnerIds:    string[]    // all ships in arrangement
 }
 
-export default function AddDiplomacyModal({ onClose }: { onClose(): void }) {
+interface AddDiplomacyModalProps {
+    arcshipId: string
+    onClose(): void
+}
+
+export default function AddDiplomacyModal({ arcshipId, onClose, }: AddDiplomacyModalProps) {
     const { id: selfId } = useParams()!
     const { data: allShips } = useSWR<ArcshipOption[]>('/api/arcships', fetcher)
     const partners = allShips?.filter(s => s._id !== selfId) || []

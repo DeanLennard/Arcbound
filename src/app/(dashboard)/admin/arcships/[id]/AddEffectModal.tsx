@@ -21,6 +21,10 @@ interface FormValues {
     level:    'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
 }
 
+type Option =
+    | EffectDoc
+    | { _id: '__new'; name: string; kind?: never; description?: never }
+
 export default function AddEffectModal({
                                            arcshipId,
                                            onClose,
@@ -49,21 +53,30 @@ export default function AddEffectModal({
     const isNew = selectedId === '__new'
 
     // Combobox needs an object, so keep track of the whole EffectDoc or a sentinel for “new”
-    const [active, setActive] = useState<EffectDoc | { _id: '__new' } | null>(
-        null
-    )
+    const [active, setActive] = useState<Option | undefined>(undefined);
+    const [query, setQuery] = useState('');
 
     // whenever user selects, sync into react-hook-form
-    function onSelect(item: EffectDoc | { _id: '__new' }) {
-        setActive(item)
-        setValue('effectId', item._id, { shouldValidate: true })
+    function onSelect(item: Option | null) {
+        if (item) {
+            setActive(item);
+            setValue('effectId', item._id, { shouldValidate: true });
+        } else {
+            // cleared
+            setActive(undefined);
+            setValue('effectId', '', { shouldValidate: true });
+        }
     }
 
-    // sort + filter
+    // filter by the query, then sort alphabetically
     const filtered = useMemo(() => {
         if (!available) return []
-        return [...available].sort((a, b) => a.name.localeCompare(b.name))
-    }, [available])
+            return available
+                .filter(e =>
+                    e.name.toLowerCase().includes(query.toLowerCase())
+                )
+                .sort((a, b) => a.name.localeCompare(b.name))
+    }, [available, query])
 
     const onSubmit: SubmitHandler<FormValues> = async vals => {
         if (isNew) {
@@ -102,16 +115,13 @@ export default function AddEffectModal({
             >
                 <h3 className="text-lg font-semibold text-white">Attach Effect</h3>
 
-                <Combobox value={active} onChange={onSelect}>
+                <Combobox<Option> value={active} onChange={onSelect}>
                     <div className="relative">
-                        <Combobox.Input
+                        <Combobox.Input<Option>
                             className="w-full p-2 bg-gray-700 text-white rounded"
-                            displayValue={(val: any) =>
-                                val?._id === '__new'
-                                    ? '+ Create New…'
-                                    : val?.name || ''
-                            }
+                            displayValue={(opt) => opt?.name ?? ''}
                             placeholder="Search or select an effect…"
+                            onChange={e => setQuery(e.currentTarget.value)}
                         />
                         <Combobox.Options className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded bg-white text-black">
                             {filtered.map(e => (
@@ -119,9 +129,7 @@ export default function AddEffectModal({
                                     key={e._id}
                                     value={e}
                                     className={({ active }) =>
-                                        `cursor-pointer px-3 py-2 ${
-                                            active ? 'bg-indigo-600 text-white' : ''
-                                        }`
+                                        `cursor-pointer px-3 py-2 ${active ? 'bg-indigo-600 text-white' : ''}`
                                     }
                                 >
                                     {e.name} <span className="text-sm text-gray-500">({e.kind})</span>
@@ -129,11 +137,9 @@ export default function AddEffectModal({
                             ))}
                             <Combobox.Option
                                 key="__new"
-                                value={{ _id: '__new' }}
+                                value={{ _id: '__new', name: '+ Create New…' }}
                                 className={({ active }) =>
-                                    `cursor-pointer px-3 py-2 ${
-                                        active ? 'bg-indigo-600 text-white' : ''
-                                    }`
+                                    `cursor-pointer px-3 py-2 ${active ? 'bg-indigo-600 text-white' : ''}`
                                 }
                             >
                                 + Create New Effect…
@@ -141,6 +147,7 @@ export default function AddEffectModal({
                         </Combobox.Options>
                     </div>
                 </Combobox>
+
                 {errors.effectId && (
                     <p className="text-red-400 text-sm">Please select or create one.</p>
                 )}

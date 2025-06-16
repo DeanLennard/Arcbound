@@ -4,6 +4,7 @@ import { useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useForm }       from 'react-hook-form'
 import useSWR, { mutate } from 'swr'
+import type { EventLogDoc }        from '@/models/EventLog'
 import AddModuleModal    from './AddModuleModal'
 import AddEffectModal    from './AddEffectModal'
 import AddDiplomacyModal    from './AddDiplomacyModal'
@@ -44,6 +45,27 @@ interface Arcship {
     moduleSlotsMod:         number
 }
 
+type StatField =
+    | 'offensiveMod'
+    | 'defensiveMod'
+    | 'tacticalMod'
+    | 'movementInteractionMod'
+    | 'movementResolutionMod'
+    | 'targetRangeMod'
+    | 'shippingItemsMod'
+    | 'moduleSlotsMod'
+
+const derivedStats: { field: StatField; label: string }[] = [
+    { field: 'offensiveMod',           label: 'Offensive Δ' },
+    { field: 'defensiveMod',           label: 'Defensive Δ' },
+    { field: 'tacticalMod',            label: 'Tactical Δ'  },
+    { field: 'movementInteractionMod', label: 'Mvmt Int Δ' },
+    { field: 'movementResolutionMod',  label: 'Mvmt Res Δ'  },
+    { field: 'targetRangeMod',         label: 'Range Δ'     },
+    { field: 'shippingItemsMod',       label: 'Shipping Δ'  },
+    { field: 'moduleSlotsMod',         label: 'Module Slots Δ' },
+]
+
 interface ModuleDoc {
     _id: string
     name: string
@@ -64,23 +86,17 @@ interface DiplomacyDoc {
     level: string
     ships: { _id: string; name: string }[]
 }
-interface EventLogDoc {
-    _id: string
-    eventName: string
-    effect: string
-    phase: string
-    level: string
-    ongoing: boolean
-}
 
 export default function AdminArcshipDetail() {
-    const { id } = useParams()
+    const params = useParams()
+    // always call it:
+    const id = typeof params?.id === 'string' ? params.id : null
 
-    const { data: ship,    error: shipErr    } = useSWR<Arcship>(`/api/arcships/${id}`, fetcher)
-    const { data: mods,    error: modsErr    } = useSWR<ModuleDoc[]>(   `/api/modules?attachedTo=${id}`, fetcher)
-    const { data: effects, error: effectsErr } = useSWR<EffectDoc[]>(   `/api/effects?ship=${id}`,     fetcher)
-    const { data: diplo,   error: diploErr   } = useSWR<DiplomacyDoc[]>(`/api/diplomacy?ship=${id}`, fetcher)
-    const { data: logs,    error: logsErr    } = useSWR<EventLogDoc[]>(`/api/eventlog?arcship=${id}`, fetcher)
+    const { data: ship,    error: shipErr    } = useSWR<Arcship>(() => id ? `/api/arcships/${id}` : null, fetcher)
+    const { data: mods,    error: modsErr    } = useSWR<ModuleDoc[]>(() => id ?    `/api/modules?attachedTo=${id}` : null, fetcher)
+    const { data: effects, error: effectsErr } = useSWR<EffectDoc[]>(() => id ?    `/api/effects?ship=${id}` : null,     fetcher)
+    const { data: diplo,   error: diploErr   } = useSWR<DiplomacyDoc[]>(() => id ? `/api/diplomacy?ship=${id}` : null, fetcher)
+    const { data: logs,    error: logsErr    } = useSWR<EventLogDoc[]>(() => id ? `/api/eventlog?arcship=${id}` : null, fetcher)
     const [showModuleModal,    setShowModule]    = useState(false)
     const [showEffectModal,    setShowEffect]    = useState(false)
     const [showDiplomacyModal, setShowDiplomacy] = useState(false)
@@ -105,8 +121,15 @@ export default function AdminArcshipDetail() {
         mutate(`/api/arcships/${id}`)
     })
 
+    if (id === null) return <p className="p-6 text-red-400">Missing or invalid arcship ID</p>
     if (shipErr || modsErr || effectsErr || diploErr || logsErr) return <p className="p-6 text-red-400">Error loading data</p>
     if (!ship || !mods || !effects || !diplo || !logs)     return <p className="p-6">Loading…</p>
+
+    const simpleFields = ['currentSector', 'benefit', 'challenge'] as const;
+    type SimpleField = typeof simpleFields[number];
+
+    const metricKeys = ['hull','core','cmd','crew','nav','sense','intc'] as const;
+    type MetricKey = typeof metricKeys[number];
 
     return (
         <div className="p-6 space-y-8">
@@ -134,13 +157,14 @@ export default function AdminArcshipDetail() {
 
                 {/* currentSector, benefit, challenge */}
                 <div className="grid grid-cols-3 gap-4">
-                    {['currentSector','benefit','challenge'].map(f => (
+                    {simpleFields.map((f: SimpleField) => (
                         <div key={f}>
                             <label className="block text-sm font-medium text-white">
-                                {f.charAt(0).toUpperCase()+f.slice(1)}
+                                {f.charAt(0).toUpperCase() + f.slice(1)}
                             </label>
+                            {/* now register knows f is exactly one of those three */}
                             <input
-                                {...register(f as any)}
+                                {...register(f)}
                                 className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
                             />
                         </div>
@@ -149,13 +173,21 @@ export default function AdminArcshipDetail() {
 
                 {/* Core metrics */}
                 <div className="grid grid-cols-3 gap-6">
-                    {(['hull','core','cmd','crew','nav','sense','intc'] as const).map(key => (
+                    {metricKeys.map((key: MetricKey) => (
                         <div key={key}>
                             <h4 className="text-white font-semibold mb-1">{key.toUpperCase()}</h4>
                             <label className="block text-xs text-gray-300">Base</label>
-                            <input type="number" {...register(`${key}.base` as any)} className="block w-full p-1 bg-gray-700 text-white rounded"/>
+                            <input
+                                type="number"
+                                {...register(`${key}.base` as const)}
+                                className="block w-full p-1 bg-gray-700 text-white rounded"
+                            />
                             <label className="block text-xs text-gray-300 mt-2">Mod</label>
-                            <input type="number" {...register(`${key}.mod` as any)} className="block w-full p-1 bg-gray-700 text-white rounded"/>
+                            <input
+                                type="number"
+                                {...register(`${key}.mod` as const)}
+                                className="block w-full p-1 bg-gray-700 text-white rounded"
+                            />
                         </div>
                     ))}
                 </div>
@@ -172,23 +204,22 @@ export default function AdminArcshipDetail() {
 
                 {/* Derived‐stat Modifiers */}
                 <section>
-                    <h3 className="text-lg font-semibold text-white mb-2">Derived Stats Modifiers</h3>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                        Derived Stats Modifiers
+                    </h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {[
-                            ['offensiveMod',           'Offensive Δ'],
-                            ['defensiveMod',           'Defensive Δ'],
-                            ['tacticalMod',            'Tactical Δ'],
-                            ['movementInteractionMod', 'Mvmt Int Δ'],
-                            ['movementResolutionMod',  'Mvmt Res Δ'],
-                            ['targetRangeMod',         'Range Δ'],
-                            ['shippingItemsMod',       'Shipping Δ'],
-                            ['moduleSlotsMod',         'Module Slots Δ'],
-                        ].map(([f,label])=>(
-                            <div key={f}>
-                                <label className="block text-xs text-gray-300">{label}</label>
+                        {derivedStats.map(({ field, label }) => (
+                            <div key={field}>
+                                <label
+                                    htmlFor={field}
+                                    className="block text-xs text-gray-300"
+                                >
+                                    {label}
+                                </label>
                                 <input
+                                    id={field}
                                     type="number"
-                                    {...register(f as any)}
+                                    {...register(field)}
                                     className="mt-1 w-full p-1 bg-gray-700 text-white rounded"
                                 />
                             </div>
@@ -211,27 +242,29 @@ export default function AdminArcshipDetail() {
                 <ul className="space-y-2">
                     {mods.map(m => (
                         <li key={m._id} className="flex justify-between bg-gray-800 p-2 rounded">
-                            <div>
+                            <div className="pr-4 flex-1">
                                 <strong>{m.name}</strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {m.level}
                                 </span>
                                 <p className="text-sm">{m.description}</p>
                             </div>
-                            <button
-                                className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
-                                onClick={async (e) => {
-                                    e.preventDefault()
-                                    await fetch(`/api/modules/${m._id}`, {
-                                        method:'DELETE',
-                                        headers:{'Content-Type':'application/json'},
-                                        body: JSON.stringify({ attachedTo: null })
-                                    })
-                                    mutate(`/api/modules?attachedTo=${id}`)
-                                }}
-                            >
-                                Unattach
-                            </button>
+                            <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                <button
+                                    className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
+                                    onClick={async (e) => {
+                                        e.preventDefault()
+                                        await fetch(`/api/modules/${m._id}`, {
+                                            method:'DELETE',
+                                            headers:{'Content-Type':'application/json'},
+                                            body: JSON.stringify({ attachedTo: null })
+                                        })
+                                        mutate(`/api/modules?attachedTo=${id}`)
+                                    }}
+                                >
+                                    Unattach
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -247,27 +280,29 @@ export default function AdminArcshipDetail() {
                 <ul className="space-y-2">
                     {effects.map(ef => (
                         <li key={ef._id} className="flex justify-between bg-gray-800 p-2 rounded">
-                            <div>
+                            <div className="pr-4 flex-1">
                                 <strong>{ef.name}</strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {ef.level}
                                 </span>
                                 <p className="text-sm">{ef.description}</p>
                             </div>
-                            <button
-                                className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
-                                onClick={async (e) => {
-                                    e.preventDefault()
-                                    await fetch(`/api/effects/${ef._id}`, {
-                                        method: 'PUT',
-                                        headers: {'Content-Type':'application/json'},
-                                        body: JSON.stringify({ ships: { remove: id } })
-                                    });
-                                    mutate(`/api/effects?ship=${id}`);
-                                }}
-                            >
-                                Delete
-                            </button>
+                            <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                <button
+                                    className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
+                                    onClick={async (e) => {
+                                        e.preventDefault()
+                                        await fetch(`/api/effects/${ef._id}`, {
+                                            method: 'PUT',
+                                            headers: {'Content-Type':'application/json'},
+                                            body: JSON.stringify({ ships: { remove: id } })
+                                        });
+                                        mutate(`/api/effects?ship=${id}`);
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -283,7 +318,7 @@ export default function AdminArcshipDetail() {
                 <ul className="space-y-2">
                     {diplo.map(d => (
                         <li key={d._id} className="bg-gray-800 p-4 rounded flex justify-between items-start">
-                            <div>
+                            <div className="pr-4 flex-1">
                                 <strong className="text-white">{d.name}<em>({d.type})</em></strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {d.level}
@@ -297,16 +332,18 @@ export default function AdminArcshipDetail() {
                                         .join(', ') || 'None'}
                                 </p>
                             </div>
-                            <button
-                                className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
-                                onClick={async e => {
-                                    e.preventDefault()
-                                    await fetch(`/api/diplomacy/${d._id}`, { method: 'DELETE' })
-                                    mutate(`/api/diplomacy?ship=${id}`)
-                                }}
-                            >
-                                End
-                            </button>
+                            <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                <button
+                                    className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
+                                    onClick={async e => {
+                                        e.preventDefault()
+                                        await fetch(`/api/diplomacy/${d._id}`, { method: 'DELETE' })
+                                        mutate(`/api/diplomacy?ship=${id}`)
+                                    }}
+                                >
+                                    End
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>
@@ -324,8 +361,8 @@ export default function AdminArcshipDetail() {
                 <h2 className="text-xl font-semibold">Event Log</h2>
                 <ul className="space-y-2">
                     {logs.map(l => (
-                        <li key={l._id} className="bg-gray-800 p-2 rounded flex justify-between">
-                            <div>
+                        <li key={String(l._id)} className="bg-gray-800 p-2 rounded flex justify-between">
+                            <div className="pr-4 flex-1">
                                 <strong className="text-white">{l.eventName}</strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {l.level}
@@ -335,16 +372,18 @@ export default function AdminArcshipDetail() {
                                     Phase: {l.phase} • Ongoing: {l.ongoing ? 'Yes' : 'No'}
                                 </div>
                             </div>
-                            <button
-                                className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
-                                onClick={async e => {
-                                    e.preventDefault()
-                                    await fetch(`/api/eventlog/${d._id}`, { method: 'DELETE' })
-                                    mutate(`/api/eventlog?arcship=${id}`)
-                                }}
-                            >
-                                End
-                            </button>
+                            <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                <button
+                                    className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
+                                    onClick={async e => {
+                                        e.preventDefault()
+                                        await fetch(`/api/eventlog/${l._id}`, { method: 'DELETE' })
+                                        mutate(`/api/eventlog?arcship=${id}`)
+                                    }}
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </li>
                     ))}
                 </ul>

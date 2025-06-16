@@ -5,33 +5,53 @@ import { useParams }              from 'next/navigation'
 import { useState, useEffect }    from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import useSWR, { mutate }         from 'swr'
-import {AssetCategory} from "@/models/CharacterAsset";
+import type { AssetCategory } from '@/models/CharacterAsset'
 
-import AddAssetModal            from './AddAssetModal'
-import AddPhaseModal           from './AddPhaseModal'
-import EditAssetModal from './EditAssetModal'
-import EditPhaseModal           from './EditPhaseModal'
+import AddAssetModal      from './AddAssetModal'
+import EditAssetModal     from './EditAssetModal'
+import AddPhaseModal      from './AddPhaseModal'
+import EditPhaseModal     from './EditPhaseModal'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
-interface CharacterForm {
-    charName: string
-    status:    'Active'|'Dead'|'Retired'
-    faction:   string
-    archetype: string
+type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
 
+export interface CharacterAsset {
+    _id:       string
+    name:      string
+    description:string
+    level:     PowerLevel
+    state:     'Active'|'Inactive'
+    apcost:    number
+    ebcost:    number
+    category:  AssetCategory
+}
+
+interface Phase {
+    _id:        string
+    number:     number
+    interaction:string
+    gambit:     string
+    resolution: string
+}
+
+interface CharacterForm {
+    charName:        string
+    status:          'Active'|'Dead'|'Retired'
+    faction:         string
+    archetype:       string
     ascPoints:       { spent: number; remaining: number }
     essenceBurn:     { spent: number; remaining: number }
     credits:         number
-
     background:      string
     factionObjective:string
 }
 
 export default function AdminCharacterDetail() {
-    const { id } = useParams()
-    const { data: char, error } = useSWR<CharacterForm>(`/api/characters/${id}`, fetcher)
-    const { data: phases }    = useSWR<any[]>(`/api/characters/${id}/phases`,    fetcher)
+    const { id } = useParams() as { id: string }
+
+    const { data: char, error: charErr } = useSWR<CharacterForm>(`/api/characters/${id}`, fetcher)
+    const { data: phases, error: phasesErr } = useSWR<Phase[]>(`/api/characters/${id}/phases`, fetcher)
 
     // lists
     const assetCategories: { key: AssetCategory; label: string }[] = [
@@ -48,11 +68,37 @@ export default function AdminCharacterDetail() {
         { key:'Scrapcode',      label:'Scrapcode Compendium'}
     ]
 
-    // modals
-    const [showPhase, setShowPhase]             = useState(false)
-    const [addingAssetFor, setAddingAssetFor] = useState<AssetCategory | null>(null);
-    const [editingAsset,   setEditingAsset]   = useState<any>(null)
-    const [editingPhase, setEditingPhase] = useState<any>(null)
+    const itemsRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Item`,        fetcher)
+    const shardsRes       = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Shard`,       fetcher)
+    const resistancesRes  = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Resistance`,  fetcher)
+    const weaknessesRes   = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Weakness`,    fetcher)
+    const otherEffectsRes = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=OtherEffect`,fetcher)
+    const implantsRes     = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Implant`,    fetcher)
+    const thresholdRes    = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=ThresholdForm`,fetcher)
+    const genomeRes       = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=GenomeThread`, fetcher)
+    const vitalRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=VitalSignature`,fetcher)
+    const ritualsRes      = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Ritual`,       fetcher)
+    const scrapRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Scrapcode`,   fetcher)
+
+    const assetsByCat: Record<AssetCategory, CharacterAsset[]> = {
+        Item:           itemsRes.data        || [],
+        Shard:          shardsRes.data       || [],
+        Resistance:     resistancesRes.data  || [],
+        Weakness:       weaknessesRes.data   || [],
+        OtherEffect:    otherEffectsRes.data || [],
+        Implant:        implantsRes.data     || [],
+        ThresholdForm:  thresholdRes.data    || [],
+        GenomeThread:   genomeRes.data       || [],
+        VitalSignature: vitalRes.data        || [],
+        Ritual:         ritualsRes.data      || [],
+        Scrapcode:      scrapRes.data        || [],
+    }
+
+    // modal state, properly typed
+    const [addingAssetFor, setAddingAssetFor] = useState<AssetCategory| null>(null)
+    const [editingAsset, setEditingAsset]     = useState<CharacterAsset | null>(null)
+    const [showPhase, setShowPhase]           = useState(false)
+    const [editingPhase, setEditingPhase]     = useState<Phase | null>(null)
 
     // form
     const { register, handleSubmit, reset, formState } = useForm<CharacterForm>({
@@ -69,16 +115,8 @@ export default function AdminCharacterDetail() {
         mutate(`/api/characters/${id}`)
     }
 
-    // Fetch them with one hook per category:
-    const assetsByCat = Object.fromEntries(
-        assetCategories.map(({key}) => [
-            key,
-            useSWR(`/api/character-assets?character=${id}&category=${key}`, fetcher).data||[]
-        ])
-    )
-
-    if (error) return <p className="text-red-400 p-6">Error loading</p>
-    if (!char)  return <p className="p-6">Loading…</p>
+    if (charErr || phasesErr) return <p className="p-6 text-red-400">Error loading</p>
+    if (!char)                 return <p className="p-6">Loading…</p>
 
     return (
         <div className="p-6 space-y-8">
@@ -158,8 +196,8 @@ export default function AdminCharacterDetail() {
                     <h2 className="text-2xl">{label}</h2>
                     <ul className="space-y-1">
                         {assetsByCat[key].map(a=>(
-                            <li key={a._id} className="flex justify-between bg-gray-800 p-2 rounded">
-                                <div>
+                            <li key={String(a._id)} className="flex justify-between bg-gray-800 p-2 rounded">
+                                <div className="pr-4 flex-1">
                                     <strong>{a.name}</strong>
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {a.level}
@@ -189,15 +227,15 @@ export default function AdminCharacterDetail() {
                                     )}
                                     <p className="text-gray-200">{a.description}</p>
                                 </div>
-                                <div className="space-x-1">
+                                <div className="flex-none flex space-x-1 whitespace-nowrap">
                                     <button
-                                        className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
+                                        className="btn-sm bg-blue-600 text-white px-2 py-1 rounded cursor-pointer"
                                         onClick={() => setEditingAsset(a)}
                                     >
                                         Edit
                                     </button>
                                     <button
-                                        className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
+                                        className="btn-sm bg-red-600 text-white px-2 py-1 rounded cursor-pointer"
                                         onClick={async () => {
                                             await fetch(`/api/character-assets/${a._id}`, { method: 'DELETE' });
                                             mutate(`/api/character-assets?character=${id}&category=${key}`);
@@ -226,18 +264,12 @@ export default function AdminCharacterDetail() {
                     + New Phase
                 </button>
 
-                {phases?.map((ph: any) => (
-                    <div
-                        key={ph._id}
-                        className="bg-gray-800 p-4 rounded-lg space-y-4"
-                    >
-                        {/* Phase header */}
-                        <div className="flex justify-between items-center">
-                            <h4 className="text-indigo-300 font-semibold">
-                                Phase {ph.number}
-                            </h4>
+                {phases!.map(ph => (
+                    <div key={String(ph._id)} className="bg-gray-800 p-4 rounded-lg space-y-4">
+                        <div className="flex justify-between">
+                            <h4 className="text-indigo-300 font-semibold">Phase {ph.number}</h4>
                             <button
-                                className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
+                                className="btn-sm bg-blue-600 text-white px-2 py-1 rounded cursor-pointer"
                                 onClick={() => setEditingPhase(ph)}
                             >
                                 Edit

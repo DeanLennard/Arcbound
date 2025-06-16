@@ -8,42 +8,77 @@ import Diplomacy from '@/models/Diplomacy'
 import '@/models/Effect'
 import '@/models/EventLog'
 import Arcship from '@/models/Arcship'
+import type { ArcshipDocument }     from '@/models/Arcship'
+import type { ModuleDoc as ModuleDocument }      from '@/models/Module'
+import type { EffectDoc as EffectDocument }      from '@/models/Effect'
+import type { DiplomacyDoc as DiplomacyDocument }   from '@/models/Diplomacy'
+import type { EventLogDoc as EventLogDocument }    from '@/models/EventLog'
+import type { CharacterDocument }   from '@/models/Character'
+import type { UserDocument } from '@/models/User'
+
+/**  All of ArcshipDocument *plus* the things you populated… */
+type PopulatedArcship =
+    Omit<ArcshipDocument,
+        'modules'|'effects'|'diplomacy'|'eventLog'|'commanders'|'prevCommanders'
+    > & {
+    modules:        ModuleDocument[];
+    effects:        EffectDocument[];
+    diplomacy:      DiplomacyDocument[];
+    eventLog:       EventLogDocument[];
+    commanders:     PopulatedCommander[];
+    prevCommanders: PopulatedCommander[];
+};
 
 interface Props { params: { id: string } }
 
+interface ShipSummary {
+    _id: string
+    name: string
+}
+
+type DiplomacyWithShips = Omit<DiplomacyDocument, 'ships'> & {
+    ships: ShipSummary[]
+}
+
+type PopulatedCommander = Omit<CharacterDocument, 'user'> & {
+    user: Pick<UserDocument, 'playerName'>
+}
+
 export default async function ArcshipPage({ params: { id } }: Props) {
     await dbConnect()
-    const [ ship, agreements ] = await Promise.all([
-        Arcship.findById(id)
-            .populate('modules')                   // your Module docs
-            .populate('effects')             // your Effect docs
-            .populate({
-                path: 'commanders',
-                match: { status: 'Active' },
-                populate: {
-                    path: 'user',
-                    select: 'playerName'
-                }
-            })
-            // only dead or retired in `prevCommanders`
-            .populate({
-                path: 'prevCommanders',
-                match: { status: { $in: ['Dead','Retired'] } },
-                populate: {
-                    path: 'user',
-                    select: 'playerName'
-                }
-            })
-            .populate({
-                path: 'eventLog',
-                options: { sort: { createdAt: -1 } }
-            })
-            .lean(),
-        // ← load all diplomacy docs that include this ship
-        Diplomacy.find({ ships: id })
-            .populate('ships', 'name')
-            .lean(),
-    ])
+
+    const [ rawShip, agreements ]: [
+            PopulatedArcship | null,
+        DiplomacyWithShips[]
+    ] = await Promise.all([
+            Arcship
+                .findById(id)
+                .populate('modules')
+                .populate('effects')
+                .populate({
+                    path: 'diplomacy',
+                    populate: { path: 'ships', select: 'name' }
+                })
+                .populate({
+                    path: 'commanders',
+                    match: { status: 'Active' },
+                    populate: { path: 'user', select: 'playerName' }
+                })
+                .populate({
+                    path: 'prevCommanders',
+                    match: { status: { $in: ['Dead','Retired'] } },
+                    populate: { path: 'user', select: 'playerName' }
+                })
+                .populate({ path: 'eventLog', options: { sort: { createdAt: -1 } } })
+                .lean<PopulatedArcship>(),
+
+            Diplomacy
+                .find({ ships: id })
+                .populate('ships', 'name')
+                .lean<DiplomacyWithShips[]>(),
+        ])
+
+    const ship = rawShip as PopulatedArcship | null;
 
     if (!ship) return <p>Arcship not found</p>
 
@@ -132,6 +167,9 @@ export default async function ArcshipPage({ params: { id } }: Props) {
     const formatNum = (n: number) =>
         n.toLocaleString('en-GB')
 
+    type CoreKey = 'hull'|'core'|'cmd'|'crew'|'nav'|'sense'|'intc';
+    const coreKeys: CoreKey[] = ['hull','core','cmd','crew','nav','sense','intc'];
+
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4 space-y-6">
             {/* Header */}
@@ -154,8 +192,8 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                             </tr>
                             </thead>
                             <tbody>
-                            {(['hull','core','cmd','crew','nav','sense','intc'] as const).map(key => {
-                                const m     = (ship as any)[key];
+                            {coreKeys.map(key => {
+                                const m = ship[key];
                                 const total = m.base + m.mod;
                                 return (
                                     <tr
@@ -255,8 +293,8 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Modules</h2>
                     <ul className="space-y-2 text-gray-100">
-                        {ship.modules.map((mod: any) => (
-                            <li key={mod._id}
+                        {ship.modules.map(mod => (
+                            <li key={String(mod._id)}
                                 className={`
                                     p-2 rounded
                                     ${mod.state === 'Active'   ? 'bg-green-600 text-white'
@@ -278,8 +316,8 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Effects</h2>
                     <ul className="space-y-2">
-                        {ship.effects.map((fx: any) => (
-                            <li key={fx._id}
+                        {ship.effects.map(fx => (
+                            <li key={String(fx._id)}
                                 className={`
                                     p-2 rounded 
                                     ${fx.kind === 'Positive' ? 'bg-green-600 text-white'
@@ -315,14 +353,15 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Diplomatic Arrangements</h2>
                     <ul className="space-y-2 text-gray-100">
-                        {agreements.map((d: any) => {
-                            const others = d.ships
-                                .filter((s: any) => s._id !== ship._id)
-                                .map((s: any) => s.name)
+                        {agreements.map(d => {
+                            const ships = d.ships as ShipSummary[]
+                            const others = ships
+                                .filter(s => s._id !== ship._id)
+                                .map(s => s.name)
                                 .join(', ')
 
                             return (
-                                <li key={d._id} className="bg-gray-800 p-2 rounded">
+                                <li key={String(d._id)} className="bg-gray-800 p-2 rounded">
                                     <strong>{d.name}</strong> ({d.type})
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {d.level}
@@ -347,8 +386,8 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                         <h2 className="text-2xl font-semibold mb-2">Active Commanders</h2>
                         {ship.commanders.length > 0 ? (
                             <ul className="space-y-2 text-gray-100">
-                                {ship.commanders.map((c: any) => (
-                                    <li key={c._id} className="p-2 bg-gray-800 rounded">
+                                {ship.commanders.map(c => (
+                                    <li key={String(c._id)} className="p-2 bg-gray-800 rounded">
                                         {c.charName} <span className="text-sm text-gray-400">({c.user?.playerName || 'Unknown'})</span>
                                     </li>
                                 ))}
@@ -363,8 +402,8 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                         <h2 className="text-2xl font-semibold mb-2">Previous Commanders</h2>
                         {ship.prevCommanders.length > 0 ? (
                             <ul className="space-y-2 text-gray-100">
-                                {ship.prevCommanders.map((c: any) => (
-                                    <li key={c._id} className="p-2 bg-gray-800 rounded">
+                                {ship.prevCommanders.map(c => (
+                                    <li key={String(c._id)} className="p-2 bg-gray-800 rounded">
                                         {c.charName} <span className="text-sm text-gray-400">({c.user?.playerName || 'Unknown'})</span>
                                     </li>
                                 ))}
@@ -392,8 +431,8 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                             </tr>
                             </thead>
                             <tbody>
-                            {ship.eventLog.map((e: any) => (
-                                <tr key={e._id} className="border-t">
+                            {ship.eventLog.map(e => (
+                                <tr key={String(e._id)} className="border-t">
                                     <td className="px-4 py-2">{e.eventName}</td>
                                     <td className="px-4 py-2">{e.effect}</td>
                                     <td className="px-4 py-2">{e.phase}</td>
