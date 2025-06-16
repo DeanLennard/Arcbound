@@ -1,25 +1,38 @@
 // src/app/characters/[id]/page.tsx
-import { notFound } from 'next/navigation'
-import mongoose     from 'mongoose'
+import { notFound, redirect } from 'next/navigation'
+import { getServerSession }     from 'next-auth'
+import authOptions from '@/lib/authOptions'
+import mongoose, { Types } from 'mongoose'
 import { dbConnect } from '@/lib/mongodb'
 import Character    from '@/models/Character'
 import Phase        from '@/models/Phase'
 import CharacterAsset, { AssetCategory } from '@/models/CharacterAsset'
 import type { CharacterDocument } from '@/models/Character'
 import type { ArcshipDocument } from '@/models/Arcship'
-import type { UserDocument } from '@/models/User'
+import '@/models/User'
+import '@/models/Arcship'
 
 interface PageProps {
     params: { id: string }
 }
 
-type PopulatedCharacter = Omit<CharacterDocument, 'arcship' | 'user'> & {
+type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument
-    user?: Pick<UserDocument, 'playerName'>
+    user?: {
+        _id: Types.ObjectId
+        playerName: string
+    } | null
 }
 
 export default async function CharacterPage({ params }: PageProps) {
     const { id } = params
+
+    const session = await getServerSession(authOptions)
+    if (!session) {
+        // not logged in → kick to sign-in
+        return redirect('/login')
+    }
+
     await dbConnect()
 
     if (!mongoose.Types.ObjectId.isValid(id)) notFound()
@@ -30,6 +43,15 @@ export default async function CharacterPage({ params }: PageProps) {
         .populate({ path: 'user', select: 'playerName' })
         .lean<PopulatedCharacter>()
     if (!char) notFound()
+
+    // guard: only the assigned user or an admin can proceed
+    const ownerId = char.user?._id?.toString()
+    const isOwner = ownerId === session.user.id
+    const isAdmin = session.user.role === 'admin'
+    if (!(isOwner || isAdmin)) {
+        // pretend it doesn’t exist
+        return notFound()
+    }
 
     // fetch phase history
     const phases = await Phase.find({ character: id })

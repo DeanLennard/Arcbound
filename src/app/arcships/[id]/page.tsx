@@ -1,6 +1,10 @@
 // src/app/arcships/[id]/page.tsx
 import React from 'react'
+import { redirect, notFound } from 'next/navigation'
+import { getServerSession }   from 'next-auth'
+import authOptions            from '@/lib/authOptions'
 import {dbConnect} from '@/lib/mongodb';
+import type { Types } from 'mongoose'
 import '@/models/Character';
 import '@/models/User';
 import '@/models/Module'
@@ -13,8 +17,6 @@ import type { ModuleDoc as ModuleDocument }      from '@/models/Module'
 import type { EffectDoc as EffectDocument }      from '@/models/Effect'
 import type { DiplomacyDoc as DiplomacyDocument }   from '@/models/Diplomacy'
 import type { EventLogDoc as EventLogDocument }    from '@/models/EventLog'
-import type { CharacterDocument }   from '@/models/Character'
-import type { UserDocument } from '@/models/User'
 
 /**  All of ArcshipDocument *plus* the things you populated… */
 type PopulatedArcship =
@@ -40,11 +42,23 @@ type DiplomacyWithShips = Omit<DiplomacyDocument, 'ships'> & {
     ships: ShipSummary[]
 }
 
-type PopulatedCommander = Omit<CharacterDocument, 'user'> & {
-    user: Pick<UserDocument, 'playerName'>
+type PopulatedCommander = {
+    _id: Types.ObjectId
+    charName: string
+    // any other character props you actually render…
+    user: {
+        _id: Types.ObjectId
+        playerName: string
+    }
 }
 
 export default async function ArcshipPage({ params: { id } }: Props) {
+    const session = await getServerSession(authOptions)
+    if (!session) {
+        // not logged in → send to sign-in
+        return redirect('/login')
+    }
+
     await dbConnect()
 
     const [ rawShip, agreements ]: [
@@ -62,7 +76,7 @@ export default async function ArcshipPage({ params: { id } }: Props) {
                 .populate({
                     path: 'commanders',
                     match: { status: 'Active' },
-                    populate: { path: 'user', select: 'playerName' }
+                    populate: { path: 'user', select: '_id playerName' }
                 })
                 .populate({
                     path: 'prevCommanders',
@@ -81,6 +95,17 @@ export default async function ArcshipPage({ params: { id } }: Props) {
     const ship = rawShip as PopulatedArcship | null;
 
     if (!ship) return <p>Arcship not found</p>
+
+    // guard
+    const isAdmin     = session.user.role === 'admin'
+    const isCommander = ship.commanders.some(c =>
+        c.user?._id.toString() === session.user.id
+    )
+
+    if (!(isAdmin || isCommander)) {
+        // pretend it’s missing for unauthorized folks
+        return notFound()
+    }
 
     // — Core totals
     const hullTotal  = ship.hull.base  + ship.hull.mod

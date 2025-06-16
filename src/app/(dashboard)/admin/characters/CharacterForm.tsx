@@ -74,11 +74,18 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: any) {
     // reset form on new initial
     useEffect(() => {
         if (!initial) return
+        const userValue = initial.user && typeof initial.user === 'object'
+            ? initial.user._id
+            : initial.user ?? ''
+
+        const arcshipValue = initial.arcship && typeof initial.arcship === 'object'
+            ? initial.arcship._id
+            : initial.arcship ?? ''
+
         const normalized = {
             ...initial,
-            user:     typeof initial.user     === 'object' ? initial.user._id     : initial.user,
-            arcship:  typeof initial.arcship  === 'object' ? initial.arcship._id    : initial.arcship,
-            // if you have other nested refs, do them here too…
+            user:    userValue,
+            arcship: arcshipValue,
         }
         reset(normalized)
     }, [initial, reset])
