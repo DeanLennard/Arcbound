@@ -2,6 +2,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Character from '@/models/Character';
+import '@/models/Arcship'
+import '@/models/CharacterAsset'
+import '@/models/Phase'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     const { id } = req.query;
@@ -11,14 +14,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const char = await Character.findById(id)
         .populate([
             'arcship',
-            'items',
-            'shards',
-            'resistances',
-            'weaknesses',
-            'otherEffects',
-            'implants',
-            'rituals',
-            'scrap',
             'phases'
         ])
         .lean();

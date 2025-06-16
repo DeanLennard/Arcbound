@@ -1,129 +1,246 @@
+// src/app/characters/[id]/page.tsx
 import { notFound } from 'next/navigation'
-import Character from '@/models/Character'
-import {dbConnect} from '@/lib/mongodb';
-import mongoose from 'mongoose'
+import mongoose     from 'mongoose'
+import { dbConnect } from '@/lib/mongodb'
+import Character    from '@/models/Character'
+import Phase        from '@/models/Phase'
+import CharacterAsset, { AssetCategory } from '@/models/CharacterAsset'
 
 interface PageProps {
     params: { id: string }
 }
 
 export default async function CharacterPage({ params }: PageProps) {
+    const { id } = params
     await dbConnect()
 
-    // validate ObjectId
-    if (!mongoose.Types.ObjectId.isValid(params.id)) notFound()
+    if (!mongoose.Types.ObjectId.isValid(id)) notFound()
 
-    const char = await Character.findById(params.id)
-        .populate([
-            'arcship',
-            'items',
-            'shards',
-            'resistances',
-            'weaknesses',
-            'otherEffects',
-            'implants',
-            'rituals',
-            'compendium',
-            'phases',
-        ])
+    // fetch the character (just core fields & arcship)
+    const char = await Character.findById(id)
+        .populate('arcship')
+        .populate({ path: 'user', select: 'playerName' })
         .lean()
-
     if (!char) notFound()
 
+    // fetch phase history
+    const phases = await Phase.find({ character: id })
+        .sort({ number: 1 })
+        .lean()
+
+    // fetch all assets and bucket them by category
+    const allAssets = await CharacterAsset.find({ character: id }).lean()
+    const bucket = (category: AssetCategory) =>
+        allAssets.filter(a => a.category === category)
+
+    const items         = bucket('Item')
+    const shards        = bucket('Shard')
+    const resistances   = bucket('Resistance')
+    const weaknesses    = bucket('Weakness')
+    const otherEffects  = bucket('OtherEffect')
+
+    const implants      = bucket('Implant')
+    const thresholdforms= bucket('ThresholdForm')
+    const genomethreads = bucket('GenomeThread')
+    const vitalsignatures= bucket('VitalSignature')
+    const rituals       = bucket('Ritual')
+    const scrapcode     = bucket('Scrapcode')
+
     return (
-        <div className="prose p-6">
-            <h1>{char.charName}</h1>
-            <p>
-                <strong>Player:</strong> {char.playerName} &nbsp;|&nbsp;
-                <strong>Status:</strong> {char.status} &nbsp;|&nbsp;
-                <strong>Faction:</strong> {char.faction} &nbsp;|&nbsp;
-                <strong>Archetype:</strong> {char.archetype}
-            </p>
+        <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4 space-y-6">
+            {/* Header */}
+            <header className="bg-gray-800 p-6 rounded-lg">
+                <h1 className="text-4xl font-bold text-white">{char.charName}</h1>
+                <p className="text-gray-400 mt-2">
+                    Player: <span className="text-white">{char.user?.playerName ?? 'Unknown'}</span> •{' '}
+                    Status: <span className="italic">{char.status}</span> •{' '}
+                    Faction: <span className="text-indigo-300">{char.faction}</span> •{' '}
+                    Archetype: <span className="text-green-300">{char.archetype}</span>
+                </p>
+            </header>
 
-            <section>
-                <h2>Resources & Stats</h2>
-                <ul>
-                    <li>Ascension Points: {char.ascPoints.spent} spent, {char.ascPoints.remaining} remaining</li>
-                    <li>Essence Burn: {char.essenceBurn.spent} spent, {char.essenceBurn.remaining} remaining</li>
-                    <li>Credits: {char.credits}</li>
-                </ul>
+            {/* Resources & Stats */}
+            <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-xl font-semibold text-white mb-2">Ascension Points</h2>
+                    <p className="text-gray-200">
+                        Spent: <strong>{char.ascPoints.spent}</strong><br/>
+                        Total: <strong>{char.ascPoints.remaining}</strong>
+                    </p>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-xl font-semibold text-white mb-2">Essence Burn</h2>
+                    <p className="text-gray-200">
+                        Spent: <strong>{char.essenceBurn.spent}</strong><br/>
+                        Total: <strong>{char.essenceBurn.remaining}</strong>
+                    </p>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-xl font-semibold text-white mb-2">Credits</h2>
+                    <p className="text-gray-200">{char.credits.toLocaleString()}</p>
+                </div>
             </section>
 
-            <section>
-                <h2>Background</h2>
-                <p>{char.background}</p>
+            {/* Background & Objective */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-gray-800 p-6 rounded-lg">
+                    <h2 className="text-2xl font-semibold text-white mb-2">Background</h2>
+                    <p className="text-gray-200">{char.background || <em>None</em>}</p>
+                </div>
+                <div className="bg-gray-800 p-6 rounded-lg">
+                    <h2 className="text-2xl font-semibold text-white mb-2">Faction Objective</h2>
+                    <p className="text-gray-200">{char.factionObjective || <em>None</em>}</p>
+                </div>
             </section>
 
-            <section>
-                <h2>Faction Objective</h2>
-                <p>{char.factionObjective}</p>
-            </section>
+            {/* Relations */}
+            {[
+                { data: items,        label: 'Items'        },
+                { data: shards,       label: 'Shards'       },
+                { data: resistances,  label: 'Resistances'  },
+                { data: weaknesses,   label: 'Weaknesses'   },
+                { data: otherEffects, label: 'Other Effects'},
+            ].map(({ data, label }) => (
+                <section key={label}>
+                    <h2 className="text-2xl font-semibold mb-2 text-white">{label}</h2>
+                    {data.length > 0 ? (
+                        <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            {data.map((rel: any) => (
+                                <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
+                                    <strong className="text-indigo-300">{rel.name}</strong>{' '}
+                                    <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                        {rel.level}
+                                    </span>
+                                    <span
+                                        className={`
+                                            ml-2
+                                            text-xs px-1 py-0.5 rounded
+                                            ${rel.state === 'Active'
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-red-600 text-white'
+                                        }
+                                        `}
+                                    >
+                                        {rel.state}
+                                    </span>
+                                    {typeof rel.apcost === 'number' && rel.apcost > 0 && (
+                                        <span className="ml-2 text-xs px-1 py-0.5 bg-amber-500 text-white rounded">
+                                            {rel.apcost} AP
+                                        </span>
+                                    )}
 
-            {/* Relations: items, shards, etc. */}
-            {['items','shards','resistances','weaknesses','otherEffects'].map((rel: any) => (
-                <section key={rel}>
-                    <h3>{rel.charAt(0).toUpperCase() + rel.slice(1)}</h3>
-                    {char[rel].length > 0 ? (
-                        <ul>
-                            {char[rel].map((it: any) => (
-                                <li key={it._id}>
-                                    <strong>{it.name}</strong> (PL {it.power}) – {it.desc || it.description}
+                                    {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
+                                        <span className="ml-2 text-xs px-1 py-0.5 bg-teal-500 text-white rounded">
+                                            {rel.ebcost} EB
+                                        </span>
+                                    )}
+                                    <p className="text-gray-200 mt-1">{rel.description}</p>
                                 </li>
                             ))}
                         </ul>
                     ) : (
-                        <p><em>None.</em></p>
+                        <p className="text-gray-400"><em>None.</em></p>
                     )}
                 </section>
             ))}
 
-            <section>
-                <h2>Role-Specific</h2>
-                {char.implants?.length > 0 && (
-                    <>
-                        <h3>Implants</h3>
-                        <ul>
-                            {char.implants.map((imp: any) => (
-                                <li key={imp._id}>{imp.name} (PL {imp.power}) – {imp.description}</li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-                {char.rituals?.length > 0 && (
-                    <>
-                        <h3>Codified Rituals</h3>
-                        <ul>
-                            {char.rituals.map((rit: any) => (
-                                <li key={rit._id}>{rit.name} (PL {rit.power}) – {rit.description}</li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-                {char.compendium?.length > 0 && (
-                    <>
-                        <h3>Scrapcode Compendium</h3>
-                        <ul>
-                            {char.compendium.map((scr: any) => (
-                                <li key={scr._id}>{scr.name} (PL {scr.power}) – {scr.description}</li>
-                            ))}
-                        </ul>
-                    </>
-                )}
-            </section>
+            {[
+                { data: implants,         label: 'Implants',        color: 'green-300' },
+                { data: thresholdforms,   label: 'Threshold Forms',  color: 'blue-300'  },
+                { data: genomethreads,    label: 'Genome Threads',   color: 'teal-300'  },
+                { data: vitalsignatures,  label: 'Vital Signatures',  color: 'pink-300'  },
+                { data: rituals,          label: 'Codified Rituals',  color: 'purple-300'},
+                { data: scrapcode,        label: 'Scrapcode Compendium', color: 'yellow-300' },
+            ].map(({ data, label, color }) =>
+                data.length > 0 ? (
+                    <section key={label}>
+                        <h2 className={`text-2xl font-semibold mb-2 text-${color}`}>{label}</h2>
+                        <ul className="space-y-2">
+                            {data.map(rel => (
+                                <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
+                                    <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
+                                        <strong className="text-indigo-300">{rel.name}</strong>{' '}
+                                        <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                        {rel.level}
+                                    </span>
+                                        <span
+                                            className={`
+                                            ml-2
+                                            text-xs px-1 py-0.5 rounded
+                                            ${rel.state === 'Active'
+                                                ? 'bg-green-600 text-white'
+                                                : 'bg-red-600 text-white'
+                                            }
+                                        `}
+                                        >
+                                        {rel.state}
+                                    </span>
+                                        {typeof rel.apcost === 'number' && rel.apcost > 0 && (
+                                            <span className="ml-2 text-xs px-1 py-0.5 bg-amber-500 text-white rounded">
+                                            {rel.apcost} AP
+                                        </span>
+                                        )}
 
+                                        {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
+                                            <span className="ml-2 text-xs px-1 py-0.5 bg-teal-500 text-white rounded">
+                                            {rel.ebcost} EB
+                                        </span>
+                                        )}
+                                        <p className="text-gray-200 mt-1">{rel.description}</p>
+                                    </li>
+                                </li>
+                            ))}
+                        </ul>
+                    </section>
+                ) : null
+            )}
+
+            {/* Phase History */}
             <section>
-                <h2>Phase History</h2>
-                {char.phases.length > 0 ? (
-                    char.phases.map((ph: any) => (
-                        <div key={ph._id} className="mb-4">
-                            <h4>Phase {ph.number}</h4>
-                            <p><strong>Interaction:</strong> {ph.interaction}</p>
-                            <p><strong>Gambit:</strong> {ph.gambit}</p>
-                            <p><strong>Resolution:</strong> {ph.resolution}</p>
-                        </div>
-                    ))
+                <h2 className="text-2xl font-semibold mb-4 text-white">Phase History</h2>
+                {phases.length ? (
+                    <div className="space-y-4">
+                        {phases.map((ph: any) => (
+                            <div
+                                key={ph._id}
+                                className="bg-gray-800 p-4 rounded-lg space-y-4"
+                            >
+                                {/* Phase header */}
+                                <h4 className="text-indigo-300 font-semibold">
+                                    Phase {ph.number}
+                                </h4>
+
+                                {/* Interaction */}
+                                <div>
+                                    <p className="font-semibold text-gray-200 mb-1">Interaction</p>
+                                    <div
+                                        className="prose prose-sm prose-white max-w-none tiptap"
+                                        dangerouslySetInnerHTML={{ __html: ph.interaction }}
+                                    />
+                                </div>
+
+                                {/* Gambit */}
+                                <div>
+                                    <p className="font-semibold text-gray-200 mb-1">Gambit</p>
+                                    <div
+                                        className="prose prose-sm prose-white max-w-none tiptap"
+                                        dangerouslySetInnerHTML={{ __html: ph.gambit }}
+                                    />
+                                </div>
+
+                                {/* Resolution */}
+                                <div>
+                                    <p className="font-semibold text-gray-200 mb-1">Resolution</p>
+                                    <div
+                                        className="prose prose-sm prose-white max-w-none tiptap"
+                                        dangerouslySetInnerHTML={{ __html: ph.resolution }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 ) : (
-                    <p><em>No phase history yet.</em></p>
+                    <p className="text-gray-400"><em>No phase history yet.</em></p>
                 )}
             </section>
         </div>

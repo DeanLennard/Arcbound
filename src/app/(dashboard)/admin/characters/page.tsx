@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import useSWR       from 'swr'
 import CharacterForm from './CharacterForm'
+import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -35,7 +36,15 @@ export default function AdminCharacters() {
                             {char.user?.playerName || '— no player —'}
                             )
                         </span>
-                        <button onClick={() => setEditing(char)} className="btn-sm">Edit</button>
+                        <div className="space-x-2">
+                            <Link
+                                href={`/admin/characters/${char._id}`}
+                                className="btn-sm"
+                            >
+                                Manage
+                            </Link>
+                            <button onClick={() => setEditing(char)} className="btn-sm">Edit</button>
+                        </div>
                     </li>
                 ))}
             </ul>

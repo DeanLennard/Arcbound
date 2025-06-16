@@ -5,14 +5,7 @@ import Character                       from '@/models/Character'
 // side-effect imports so Mongoose knows about all your schemas
 import '@/models/User'
 import '@/models/Arcship'
-import '@/models/Item'
-import '@/models/Shard'
-import '@/models/Resistance'
-import '@/models/Weakness'
-import '@/models/OtherEffect'
-import '@/models/Implant'
-import '@/models/Ritual'
-import '@/models/Scrap'
+import '@/models/CharacterAsset'
 import '@/models/Phase'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -24,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // bring in only the playerName from the linked User
                 .populate({ path: 'user', select: 'playerName' })
                 // all your other populates...
-                .populate('arcship items shards resistances weaknesses otherEffects implants rituals scrap phases')
+                .populate('arcship phases')
                 .lean()
             return res.status(200).json(chars)
         }
