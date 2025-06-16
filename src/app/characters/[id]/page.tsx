@@ -115,13 +115,13 @@ export default async function CharacterPage({ params }: PageProps) {
                         <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             {data.map((rel) => (
                                 <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
-                                    <strong className="text-indigo-300">{rel.name}</strong>{' '}
-                                    <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                    <strong className="block text-indigo-300 text-lg mb-2">{rel.name}</strong>{' '}
+                                    <span className="inline-block ml-0 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
                                     </span>
                                     <span
                                         className={`
-                                            ml-2
+                                            inline-block ml-2
                                             text-xs px-1 py-0.5 rounded
                                             ${rel.state === 'Active'
                                             ? 'bg-green-600 text-white'
@@ -132,13 +132,13 @@ export default async function CharacterPage({ params }: PageProps) {
                                         {rel.state}
                                     </span>
                                     {typeof rel.apcost === 'number' && rel.apcost > 0 && (
-                                        <span className="ml-2 text-xs px-1 py-0.5 bg-amber-500 text-white rounded">
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
                                             {rel.apcost} AP
                                         </span>
                                     )}
 
                                     {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
-                                        <span className="ml-2 text-xs px-1 py-0.5 bg-teal-500 text-white rounded">
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
                                             {rel.ebcost} EB
                                         </span>
                                     )}
@@ -167,13 +167,13 @@ export default async function CharacterPage({ params }: PageProps) {
                             {data.map(rel => (
                                 <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
                                     <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
-                                        <strong className="text-indigo-300">{rel.name}</strong>{' '}
-                                        <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                        <strong className="block text-indigo-300 text-lg mb-2">{rel.name}</strong>{' '}
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
                                     </span>
                                         <span
                                             className={`
-                                            ml-2
+                                            inline-block ml-2
                                             text-xs px-1 py-0.5 rounded
                                             ${rel.state === 'Active'
                                                 ? 'bg-green-600 text-white'
@@ -184,13 +184,13 @@ export default async function CharacterPage({ params }: PageProps) {
                                         {rel.state}
                                     </span>
                                         {typeof rel.apcost === 'number' && rel.apcost > 0 && (
-                                            <span className="ml-2 text-xs px-1 py-0.5 bg-amber-500 text-white rounded">
+                                            <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
                                             {rel.apcost} AP
                                         </span>
                                         )}
 
                                         {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
-                                            <span className="ml-2 text-xs px-1 py-0.5 bg-teal-500 text-white rounded">
+                                            <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
                                             {rel.ebcost} EB
                                         </span>
                                         )}
