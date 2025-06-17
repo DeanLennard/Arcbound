@@ -5,6 +5,8 @@ import authOptions from '@/lib/authOptions'
 import { dbConnect } from '@/lib/mongodb'
 import Arcship from '@/models/Arcship'
 import Diplomacy from '@/models/Diplomacy'
+import EventLog   from '@/models/EventLog';
+import GamePhase  from '@/models/GamePhase';
 
 type ResourceKey =
     | 'alloysBalance'
@@ -30,6 +32,9 @@ export default async function handler(
 
     const session = await getServerSession(req, res, authOptions)
     if (!session) return res.status(401).end()
+
+    const gp = await GamePhase.findOne();
+    if (!gp.isOpen) return res.status(401).end()
 
     // cast & destructure
     const { fromShip, toShip, resource, amount } =
@@ -88,6 +93,22 @@ export default async function handler(
 
     await me.save()
     await other.save()
+
+    // record to event log
+    const pretty = {
+        alloysBalance:   'Alloys',
+        energyBalance:   'Energy',
+        dataBalance:     'Data',
+        essenceBalance:  'Essence'
+    }[resource];
+    await EventLog.create({
+        eventName: 'Resource Transfer',
+        effect:    `${amt} ${pretty} transferred from ${me.name} to ${other.name}`,
+        phase:     gp?.name ?? 'Unknown',
+        level:     'SPARK',
+        ongoing:   false,
+        arcship:   me._id
+    });
 
     return res.status(200).json({ success: true })
 }

@@ -5,6 +5,8 @@ import authOptions from '@/lib/authOptions'
 import { dbConnect } from '@/lib/mongodb'
 import Arcship from '@/models/Arcship'
 import Character from '@/models/Character'
+import EventLog   from '@/models/EventLog';
+import GamePhase  from '@/models/GamePhase';
 
 export default async function handler(req:NextApiRequest, res:NextApiResponse) {
     if (req.method !== 'POST') {
@@ -13,6 +15,9 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
     }
     const session = await getServerSession(req, res, authOptions)
     if (!session) return res.status(401).end()
+
+    const gp = await GamePhase.findOne();
+    if (!gp.isOpen) return res.status(401).end()
 
     const { fromShip, targetType, targetId, amount } = req.body
     const amt = Number(amount)
@@ -41,11 +46,42 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
         if (!other) return res.status(400).json({ error: 'Invalid target' })
         other.creditsBalance += amt   // now both sides are numbers
         await other.save()
+
+        // record to your event log
+        await EventLog.create({
+            eventName: 'Credit Transfer',
+            effect:    `${amt} credits transferred from ${me.name} to ${other.name}`,
+            phase:     gp?.name ?? 'Unknown',
+            level:     'SPARK',
+            ongoing:   false,
+            arcship:   me._id
+        });
+
+        // record to their event log
+        await EventLog.create({
+            eventName: 'Credit Transfer',
+            effect:    `${amt} credits transferred from ${me.name} to ${other.name}`,
+            phase:     gp?.name ?? 'Unknown',
+            level:     'SPARK',
+            ongoing:   false,
+            arcship:   other._id
+        });
+
     } else {
         const char = await Character.findById(targetId)
         if (!char) return res.status(400).json({ error: 'Invalid target' })
         char.credits += amt
         await char.save()
+
+        // record to your event log
+        await EventLog.create({
+            eventName: 'Credit Transfer',
+            effect:    `${amt} credits transferred from ${me.name} to ${char.name}`,
+            phase:     gp?.name ?? 'Unknown',
+            level:     'SPARK',
+            ongoing:   false,
+            arcship:   me._id
+        });
     }
 
     return res.status(200).json({ success: true })

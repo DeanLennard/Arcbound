@@ -7,6 +7,7 @@ import Character      from '@/models/Character'
 import CharacterAsset from '@/models/CharacterAsset'
 import Arcship        from '@/models/Arcship'
 import { Types } from 'mongoose'
+import GamePhase  from '@/models/GamePhase';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
@@ -15,6 +16,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
     const session = await getServerSession(req, res, authOptions)
     if (!session) return res.status(401).end()
+
+    const gp = await GamePhase.findOne();
+    if (!gp.isOpen) return res.status(401).end()
 
     const { fromChar, targetChar, assetId } = req.body as {
         fromChar: string

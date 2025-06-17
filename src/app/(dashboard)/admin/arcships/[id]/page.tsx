@@ -202,6 +202,32 @@ export default function AdminArcshipDetail() {
                     />
                 </div>
 
+                {/* Persisted Resource Balances */}
+                <section>
+                    <h3 className="text-lg font-semibold text-white mb-2">
+                        Resource Balances
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        {([
+                            ['alloysBalance',  'Alloys Balance'],
+                            ['energyBalance',  'Energy Balance'],
+                            ['dataBalance',    'Data Balance'],
+                            ['essenceBalance', 'Essence Balance'],
+                            ['creditsBalance', 'Credits Balance'],
+                        ] as const).map(([field, label]) => (
+                            <div key={field}>
+                                <label className="block text-xs text-gray-300">{label}</label>
+                                <input
+                                    type="number"
+                                    {...register(field as const, { required: true, min: 0 })}
+                                    className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded
+            focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </section>
+
                 {/* Derived‐stat Modifiers */}
                 <section>
                     <h3 className="text-lg font-semibold text-white mb-2">
