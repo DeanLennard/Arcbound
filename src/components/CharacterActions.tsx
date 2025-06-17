@@ -148,7 +148,7 @@ export default function CharacterActions({
         <>
             <div className="flex gap-2 my-4">
                 <button onClick={()=>setShowCreditModal(true)} className="bg-yellow-500 px-3 py-1 rounded">
-                    Transfer Credit
+                    Transfer Credits
                 </button>
                 <button onClick={()=>setShowItemModal(true)} className="bg-teal-500 px-3 py-1 rounded">
                     Transfer Item
