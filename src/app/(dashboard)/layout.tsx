@@ -17,6 +17,9 @@ export default function DashboardLayout({
                     <Link href="/admin" className="hover:underline">
                         Dashboard Home
                     </Link>
+                    <Link href="/admin/phase" className="hover:underline">
+                        Game Phase
+                    </Link>
                     <Link href="/admin/users" className="hover:underline">
                         Manage Users
                     </Link>
@@ -28,6 +31,12 @@ export default function DashboardLayout({
                     </Link>
                     <Link href="/admin/chats" className="hover:underline">
                         Manage Chats
+                    </Link>
+                    <Link href="/admin/arcships" className="hover:underline">
+                        Manage Arcships
+                    </Link>
+                    <Link href="/admin/characters" className="hover:underline">
+                        Manage Characters
                     </Link>
                 </nav>
             </aside>
