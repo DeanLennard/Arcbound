@@ -6,6 +6,7 @@ import { dbConnect } from '@/lib/mongodb'
 import Character      from '@/models/Character'
 import CharacterAsset from '@/models/CharacterAsset'
 import Arcship        from '@/models/Arcship'
+import { Types } from 'mongoose'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'POST') {
@@ -37,7 +38,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // 3) Figure out if this is a cross‐ship transfer
     const fromShipId = meChar.arcship?.toString()
-    const toCharDoc  = await Character.findById(targetChar).lean()
+    const toCharDoc = await Character
+        .findById(targetChar)
+        .select('arcship')
+        .lean<{ arcship?: Types.ObjectId }>()
     const toShipId   = toCharDoc?.arcship?.toString()
 
     if (fromShipId && fromShipId !== toShipId) {

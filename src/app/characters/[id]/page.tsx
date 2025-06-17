@@ -78,11 +78,6 @@ export default async function CharacterPage({
     const rituals       = bucket('Ritual')
     const scrapcode     = bucket('Scrapcode')
 
-    const arcshipId = char.arcship
-        ? // String() will happily turn anything “.id-ish” into its string form
-        String(char.arcship._id)
-        : undefined
-
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4 space-y-6">
             {/* Header */}
@@ -99,7 +94,6 @@ export default async function CharacterPage({
             <CharacterActions
                 characterId={id}
                 credits={char.credits}
-                arcshipId={arcshipId}
             />
 
             {/* Resources & Stats */}
