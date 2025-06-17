@@ -17,6 +17,7 @@ import type { ModuleDoc as ModuleDocument }      from '@/models/Module'
 import type { EffectDoc as EffectDocument }      from '@/models/Effect'
 import type { DiplomacyDoc as DiplomacyDocument }   from '@/models/Diplomacy'
 import type { EventLogDoc as EventLogDocument }    from '@/models/EventLog'
+import ArcshipActions from '@/components/ArcshipActions'
 
 /**  All of ArcshipDocument *plus* the things you populated… */
 type PopulatedArcship =
@@ -98,6 +99,10 @@ export default async function ArcshipPage(
     const ship = rawShip as PopulatedArcship | null;
 
     if (!ship) return <p>Arcship not found</p>
+
+    const tradePartners = agreements
+        .filter(d => d.type === 'Trade Agreement')
+        .flatMap(d => d.ships as ShipSummary[])
 
     // guard
     const isAdmin     = session.user.role === 'admin'
@@ -205,6 +210,17 @@ export default async function ArcshipPage(
                 <h1 className="text-4xl font-bold">{ship.name}</h1>
                 <p className="text-gray-400">{ship.faction} • Sector: {ship.currentSector}</p>
             </header>
+
+            {/* ACTION BUTTONS: transfer credits & resources */}
+            <ArcshipActions
+                shipId={id}
+                creditsBalance={ship.creditsBalance}
+                alloysBalance={ship.alloysBalance}
+                energyBalance={ship.energyBalance}
+                dataBalance={ship.dataBalance}
+                essenceBalance={ship.essenceBalance}
+                partners={tradePartners}
+            />
 
             {/* Core Metrics & Derived Values */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
