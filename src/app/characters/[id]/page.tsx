@@ -12,10 +12,6 @@ import type { ArcshipDocument } from '@/models/Arcship'
 import '@/models/User'
 import '@/models/Arcship'
 
-interface PageProps {
-    params: { id: string }
-}
-
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument
     user?: {
@@ -24,8 +20,13 @@ type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     } | null
 }
 
-export default async function CharacterPage({ params }: PageProps) {
-    const { id } = params
+export default async function CharacterPage({
+                                                params,
+                                            }: {
+    params: Promise<{ id: string }>
+}) {
+    // now `params` is a promise, so we await it
+    const { id } = await params;
 
     const session = await getServerSession(authOptions)
     if (!session) {

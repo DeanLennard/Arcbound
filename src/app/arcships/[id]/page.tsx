@@ -31,8 +31,6 @@ type PopulatedArcship =
     prevCommanders: PopulatedCommander[];
 };
 
-interface Props { params: { id: string } }
-
 interface ShipSummary {
     _id: string
     name: string
@@ -52,7 +50,12 @@ type PopulatedCommander = {
     }
 }
 
-export default async function ArcshipPage({ params: { id } }: Props) {
+export default async function ArcshipPage(
+    { params }: { params: Promise<{ id: string }> }
+) {
+    // first await the incoming params
+    const { id } = await params;
+
     const session = await getServerSession(authOptions)
     if (!session) {
         // not logged in → send to sign-in
