@@ -36,6 +36,8 @@ export default function AdminArcships() {
                         className="py-2 flex items-center justify-between"
                     >
                         <span>{ship.name}</span>
+                        <span>{ship.faction}</span>
+                        <span>{ship.currentSector}</span>
                         <div className="space-x-2">
                             <Link
                                 href={`/arcships/${ship._id}`}
