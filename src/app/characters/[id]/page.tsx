@@ -84,7 +84,7 @@ export default async function CharacterPage({
             <header className="bg-gray-800 p-6 rounded-lg">
                 <h1 className="text-4xl font-bold text-white">{char.charName}</h1>
                 <p className="text-gray-400 mt-2">
-                    Player: <span className="text-white">{char.user?.playerName ?? 'Unknown'}</span> •{' '}
+                    Player: <span className="text-white">{char.user?.playerName ?? 'Unknown'} ({char.role})</span> •{' '}
                     Status: <span className="italic">{char.status}</span> •{' '}
                     Faction: <span className="text-indigo-300">{char.faction}</span> •{' '}
                     Archetype: <span className="text-green-300">{char.race}</span>
