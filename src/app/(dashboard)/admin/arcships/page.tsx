@@ -38,6 +38,12 @@ export default function AdminArcships() {
                         <span>{ship.name}</span>
                         <div className="space-x-2">
                             <Link
+                                href={`/arcships/${ship._id}`}
+                                className="btn-sm"
+                            >
+                                View
+                            </Link>
+                            <Link
                                 href={`/admin/arcships/${ship._id}`}
                                 className="btn-sm"
                             >

@@ -39,6 +39,12 @@ export default function AdminCharacters() {
                         </span>
                         <div className="space-x-2">
                             <Link
+                                href={`/characters/${char._id}`}
+                                className="btn-sm"
+                            >
+                                View
+                            </Link>
+                            <Link
                                 href={`/admin/characters/${char._id}`}
                                 className="btn-sm"
                             >
