@@ -101,6 +101,16 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
     // load arcships
     const { data: arcData, error: arcError } = useSWR<ArcshipOption[]>('/api/arcships', fetcher)
 
+    // arcData may be undefined until it loads, so default to an empty array
+    const sortedArcships = (arcData ?? [])
+        .slice()  // make a shallow copy
+        .sort((a, b) => a.name.localeCompare(b.name))
+
+    // userData may be undefined too, and userData.users may be undefined
+    const sortedUsers = (userData?.users ?? [])
+        .slice()
+        .sort((a, b) => a.playerName.localeCompare(b.playerName))
+
     // reset form on new initial
     useEffect(() => {
         if (!initial) return
@@ -171,7 +181,7 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
                          focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">— Unassigned —</option>
-                    {arcData.map(a => (
+                    {sortedArcships.map(a => (
                         <option key={a._id} value={a._id}>
                             {a.name}
                         </option>
@@ -188,7 +198,7 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
                      focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                     <option value="">— Select Player —</option>
-                    {users.map(u => (
+                    {sortedUsers.map(u => (
                         <option key={u._id} value={u._id}>{u.playerName}</option>
                     ))}
                 </select>
