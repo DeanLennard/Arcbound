@@ -31,7 +31,7 @@ interface AddDiplomacyModalProps {
     onClose(): void
 }
 
-export default function AddDiplomacyModal({ arcshipId, onClose, }: AddDiplomacyModalProps) {
+export default function AddDiplomacyModal({ onClose }: AddDiplomacyModalProps) {
     const { id: selfId } = useParams()!
     const { data: allShips } = useSWR<ArcshipOption[]>('/api/arcships', fetcher)
     const partners = allShips?.filter(s => s._id !== selfId) || []
@@ -42,7 +42,17 @@ export default function AddDiplomacyModal({ arcshipId, onClose, }: AddDiplomacyM
     )
 
     const { register, control, handleSubmit, formState: { errors, isSubmitting } } =
-        useForm<FormValues>({ defaultValues: { name:'', description:'', type: '' as any, partnerIds: [] } })
+        useForm<FormValues>({
+            defaultValues: {
+                name:        '',
+                description: '',
+                // pick any valid DiplomacyType here:
+                type:        'Trade Agreement',
+                // likewise supply a default level:
+                level:       'SPARK',
+                partnerIds:  [],
+            }
+        })
 
     const onSubmit: SubmitHandler<FormValues> = async vals => {
         // include yourself plus partners

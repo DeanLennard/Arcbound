@@ -1,7 +1,7 @@
 // src/app/(dashboard)/admin/characters/CharacterForm.tsx
 'use client'
 
-import { useForm } from 'react-hook-form'
+import { useForm, SubmitHandler } from 'react-hook-form'
 import useSWR from 'swr'
 import { useEffect } from 'react'
 
@@ -54,15 +54,45 @@ const ALL_RACES = Array.from(
     new Set(Object.values(RACES_BY_FACTION).flat())
 ).sort()
 
-export default function CharacterForm({ initial, onSuccess, onCancel }: any) {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        watch,
-        setValue,
-        formState: { isSubmitting }
-    } = useForm({ defaultValues: initial })
+interface CharacterFormValues {
+    _id?: string
+    arcship: string
+    user:    string
+    charName: string
+    status:  'Active' | 'Dead' | 'Retired'
+    faction: string
+    factionCustom?: string
+    role:    string
+    roleCustom?: string
+    race:    string
+    raceCustom?: string
+    archetype: string
+}
+
+export interface CharacterFormData {
+    _id?:          string;
+    arcship:       string;
+    user:          string;
+    charName:      string;
+    status:        'Active'|'Dead'|'Retired';
+    faction:       string;
+    factionCustom?: string;
+    role:          string;
+    roleCustom?:   string;
+    race:          string;
+    raceCustom?:   string;
+    archetype:     string;
+}
+
+interface CharacterFormProps {
+    initial: Partial<CharacterFormValues>
+    onSuccess(): void
+    onCancel(): void
+}
+
+export default function CharacterForm({ initial, onSuccess, onCancel }: CharacterFormProps) {
+    const { register, handleSubmit, watch, reset, setValue, formState: { isSubmitting } } =
+        useForm<CharacterFormData>({ defaultValues: initial })
 
     const isEdit = Boolean(initial._id)
 
@@ -74,20 +104,7 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: any) {
     // reset form on new initial
     useEffect(() => {
         if (!initial) return
-        const userValue = initial.user && typeof initial.user === 'object'
-            ? initial.user._id
-            : initial.user ?? ''
-
-        const arcshipValue = initial.arcship && typeof initial.arcship === 'object'
-            ? initial.arcship._id
-            : initial.arcship ?? ''
-
-        const normalized = {
-            ...initial,
-            user:    userValue,
-            arcship: arcshipValue,
-        }
-        reset(normalized)
+        reset(initial as CharacterFormData)
     }, [initial, reset])
 
     // watch fields for dynamic logic
@@ -103,11 +120,11 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: any) {
         }
     }, [selectedRace, setValue])
 
-    const onSubmit = async (data: any) => {
+    const onSubmit: SubmitHandler<CharacterFormValues> = async (data) => {
         // swap in custom values if “Other”
-        if (data.faction === 'Other') data.faction = data.factionCustom
-        if (data.role    === 'Other') data.role    = data.roleCustom
-        if (data.race    === 'Other') data.race    = data.raceCustom
+        if (data.faction === 'Other') data.faction = data.factionCustom!
+        if (data.role    === 'Other') data.role    = data.roleCustom!
+        if (data.race    === 'Other') data.race    = data.raceCustom!
 
         delete data.factionCustom
         delete data.roleCustom

@@ -2,7 +2,6 @@
 'use client'
 
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { mutate }                 from 'swr'
 import { AssetCategory }          from '@/models/CharacterAsset'
 
 export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'

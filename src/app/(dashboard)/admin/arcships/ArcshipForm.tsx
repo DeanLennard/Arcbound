@@ -1,6 +1,6 @@
 // src/app/(dashboard)/admin/arcships/ArcshipForm.tsx
 'use client';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 // static lists
 const FACTIONS = [
@@ -13,18 +13,73 @@ const FACTIONS = [
     'Other',
 ]
 
-export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
-    const { register, handleSubmit, watch, formState: { isSubmitting } } =
-        useForm({ defaultValues: initial });
+type Faction = typeof FACTIONS[number] | string;
+
+interface CoreMetric {
+    base: number;
+    mod: number;
+}
+
+export interface ArcshipFormData {
+    _id?: string;
+    name: string;
+    faction: Faction;
+    factionCustom?: string;
+    currentSector: string;
+    benefit: string;
+    challenge: string;
+    // core metrics
+    hull: CoreMetric;
+    core: CoreMetric;
+    cmd: CoreMetric;
+    crew: CoreMetric;
+    nav: CoreMetric;
+    sense: CoreMetric;
+    intc: CoreMetric;
+    history?: string;
+    // derived‐stat modifiers
+    offensiveMod?: number;
+    defensiveMod?: number;
+    tacticalMod?: number;
+    movementInteractionMod?: number;
+    movementResolutionMod?: number;
+    targetRangeMod?: number;
+    shippingItemsMod?: number;
+    moduleSlotsMod?: number;
+}
+
+interface ArcshipFormProps {
+    initial: ArcshipFormData;
+    onSuccess: () => void;
+    onCancel: () => void;
+}
+
+export default function ArcshipForm({
+        initial,
+        onSuccess,
+        onCancel,
+    }: ArcshipFormProps) {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { isSubmitting },
+    } = useForm<ArcshipFormData>({ defaultValues: initial });
+
     const isEdit = Boolean(initial._id);
 
     const selectedFaction = watch('faction')
 
-    const onSubmit = async (data: any) => {
+    const onSubmit: SubmitHandler<ArcshipFormData> = async (data) => {
+        // if they chose “Other”…
+        if (data.faction === 'Other') data.faction = data.factionCustom!;
+        delete data.factionCustom;
+
         const method = isEdit ? 'PUT' : 'POST';
-        const url    = isEdit
+        const url = isEdit
             ? `/api/arcships/${initial._id}`
             : '/api/arcships';
+
         const res = await fetch(url, {
             method,
             headers: { 'Content-Type': 'application/json' },
@@ -32,6 +87,8 @@ export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
         });
         if (res.ok) onSuccess();
     };
+
+    const textFields = ['currentSector','benefit','challenge'] as const;
 
     return (
         <form
@@ -74,11 +131,12 @@ export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
 
             {/* currentSector, benefit, challenge */}
             <div className="grid grid-cols-3 gap-4">
-                {['currentSector','benefit','challenge'].map(field => (
+                {textFields.map((field) => (
                     <div key={field}>
                         <label className="block text-sm font-medium text-white">
                             {field.charAt(0).toUpperCase() + field.slice(1)}
                         </label>
+                        {/* now TS knows `field` is one of those three literals */}
                         <input
                             {...register(field)}
                             className="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
@@ -89,9 +147,9 @@ export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
 
             {/* Core metrics */}
             <div className="grid grid-cols-3 gap-6">
-                {['hull','core','cmd','crew','nav','sense','intc'].map(key => (
+                {(['hull', 'core', 'cmd', 'crew', 'nav', 'sense', 'intc'] as const).map((key) => (
                     <div key={key}>
-                        <h4 className="text-white font-semibold mb-1">{key.toUpperCase()}</h4>
+
                         <label className="block text-xs text-gray-300">Base</label>
                         <input
                             type="number"
@@ -119,27 +177,30 @@ export default function ArcshipForm({ initial, onSuccess, onCancel }: any) {
                 />
             </div>
 
-            {/* Derived‐stat Modifiers */}
+            {/* Derived‐stat modifiers */}
             <section>
-                <h3 className="text-lg font-semibold text-white mb-2">Derived Stats Modifiers</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                    Derived Stats Modifiers
+                </h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                        ['offensiveMod',           'Offensive FP Δ'],
-                        ['defensiveMod',           'Defensive FP Δ'],
-                        ['tacticalMod',            'Tactical AP Δ'],
-                        ['movementInteractionMod', 'Movement Int Δ'],
-                        ['movementResolutionMod',  'Movement Res Δ'],
-                        ['targetRangeMod',         'Target Range Δ'],
-                        ['shippingItemsMod',       'Shipping Δ'],
-                        ['moduleSlotsMod',         'Module Slots Δ'],
-                    ].map(([field,label]) => (
+                    {(
+                        [
+                            ['offensiveMod', 'Offensive FP Δ'],
+                            ['defensiveMod', 'Defensive FP Δ'],
+                            ['tacticalMod', 'Tactical AP Δ'],
+                            ['movementInteractionMod', 'Movement Int Δ'],
+                            ['movementResolutionMod', 'Movement Res Δ'],
+                            ['targetRangeMod', 'Target Range Δ'],
+                            ['shippingItemsMod', 'Shipping Δ'],
+                            ['moduleSlotsMod', 'Module Slots Δ'],
+                        ] as const
+                    ).map(([field, label]) => (
                         <div key={field}>
                             <label className="block text-xs text-gray-300">{label}</label>
                             <input
                                 type="number"
-                                {...register(field as any)}
-                                className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded
-                     focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                {...register(field)}
+                                className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             />
                         </div>
                     ))}

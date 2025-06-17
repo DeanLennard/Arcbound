@@ -1,34 +1,52 @@
 // pages/api/diplomacy/[id].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { dbConnect } from '@/lib/mongodb'
-import Diplomacy from '@/models/Diplomacy'
+import { dbConnect }                           from '@/lib/mongodb'
+import Diplomacy, { type DiplomacyDoc }        from '@/models/Diplomacy'
+import type { UpdateQuery }                    from 'mongoose'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    const { id } = req.query
+interface ShipsPayload {
+    add?: string
+    remove?: string
+}
+
+export default async function handler(
+    req: NextApiRequest,
+    res: NextApiResponse
+) {
+    // normalize id to a string
+    const rawId = req.query.id
+    const id = Array.isArray(rawId) ? rawId[0] : rawId
+
     await dbConnect()
 
     switch (req.method) {
         case 'PUT': {
-            // expects { ships: { add?: string, remove?: string } }
-            const { ships } = req.body
-            const update: any = {}
-            if (ships?.add)    update.$addToSet = { ships: ships.add }
-            if (ships?.remove) update.$pull     = { ships: ships.remove }
+            // explicitly type what you expect in the body
+            const { ships }: { ships?: ShipsPayload } = req.body
 
-            const updated = await Diplomacy.findByIdAndUpdate(id, update, { new: true }).lean()
-            res.status(200).json(updated)  // <- call json(), don’t return it
-            return                         // <- then exit
+            // use UpdateQuery<DiplomacyDoc> instead of `any`
+            const update: UpdateQuery<DiplomacyDoc> = {}
+
+            if (ships?.add) {
+                update.$addToSet = { ships: ships.add }
+            }
+            if (ships?.remove) {
+                update.$pull = { ships: ships.remove }
+            }
+
+            const updated = await Diplomacy
+                .findByIdAndUpdate(id, update, { new: true })
+                .lean()
+            return res.status(200).json(updated)
         }
 
         case 'DELETE': {
             await Diplomacy.findByIdAndDelete(id)
-            res.status(204).end()          // <- call end(), don’t return it
-            return
+            return res.status(204).end()
         }
 
         default:
-            res.setHeader('Allow', ['PUT','DELETE'])
-            res.status(405).end(`Method ${req.method} Not Allowed`)
-            return
+            res.setHeader('Allow', ['PUT', 'DELETE'])
+            return res.status(405).end(`Method ${req.method} Not Allowed`)
     }
 }

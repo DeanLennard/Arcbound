@@ -3,14 +3,15 @@
 
 import { useState } from 'react'
 import useSWR       from 'swr'
-import CharacterForm from './CharacterForm'
 import Link from "next/link";
+import CharacterForm, { CharacterFormData } from './CharacterForm'
+import type { CharacterSummary } from './types'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 export default function AdminCharacters() {
-    const { data, error, mutate } = useSWR<any[]>('/api/characters', fetcher)
-    const [editing, setEditing]   = useState<any>(null)
+    const { data, error, mutate } = useSWR<CharacterSummary[]>('/api/characters', fetcher)
+    const [editing, setEditing] = useState<Partial<CharacterFormData> | null>(null)
 
     if (error) return <p className="p-6">Failed to load</p>
     if (!data) return <p className="p-6">Loading…</p>
@@ -43,7 +44,24 @@ export default function AdminCharacters() {
                             >
                                 Manage
                             </Link>
-                            <button onClick={() => setEditing(char)} className="btn-sm">Edit</button>
+                            <button
+                                onClick={() => {
+                                    setEditing({
+                                        _id:      char._id,
+                                        charName: char.charName,
+                                        status:   char.status,
+                                        faction:  char.faction,
+                                        role:     char.role,
+                                        race:     char.race,
+                                        archetype: char.archetype,
+                                        user:    char.user?._id ?? '',
+                                        arcship: char.arcship?._id ?? '',
+                                    })
+                                }}
+                                className="btn-sm"
+                            >
+                                Edit
+                            </button>
                         </div>
                     </li>
                 ))}

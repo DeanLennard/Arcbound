@@ -3,8 +3,6 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { mutate }                 from 'swr';
 
-const fetcher = (url: string) => fetch(url).then(r => r.json());
-
 interface FormValues {
     name:        string;
     description: string;
