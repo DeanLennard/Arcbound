@@ -159,7 +159,6 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
     if (!userData || !arcData) {
         return <p className="p-6">Loading…</p>
     }
-    const users = userData.users
 
     // pick race list: either faction‐based or all
     const races =
