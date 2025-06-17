@@ -74,9 +74,6 @@ const RESOURCE_FIELDS = [
     ['creditsBalance', 'Credits Balance'],
 ] as const
 
-type ResourceFieldTuple = typeof RESOURCE_FIELDS[number]
-type ResourceField      = ResourceFieldTuple[0]
-
 interface ModuleDoc {
     _id: string
     name: string
