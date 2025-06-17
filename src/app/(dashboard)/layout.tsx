@@ -17,6 +17,9 @@ export default function DashboardLayout({
                     <Link href="/admin" className="hover:underline">
                         Dashboard Home
                     </Link>
+                    <Link href="/admin/phase" className="hover:underline">
+                        Game Phase
+                    </Link>
                     <Link href="/admin/users" className="hover:underline">
                         Manage Users
                     </Link>

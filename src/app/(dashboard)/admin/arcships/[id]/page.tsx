@@ -66,6 +66,17 @@ const derivedStats: { field: StatField; label: string }[] = [
     { field: 'moduleSlotsMod',         label: 'Module Slots Δ' },
 ]
 
+const RESOURCE_FIELDS = [
+    ['alloysBalance',  'Alloys Balance'],
+    ['energyBalance',  'Energy Balance'],
+    ['dataBalance',    'Data Balance'],
+    ['essenceBalance', 'Essence Balance'],
+    ['creditsBalance', 'Credits Balance'],
+] as const
+
+type ResourceFieldTuple = typeof RESOURCE_FIELDS[number]
+type ResourceField      = ResourceFieldTuple[0]
+
 interface ModuleDoc {
     _id: string
     name: string
@@ -208,20 +219,15 @@ export default function AdminArcshipDetail() {
                         Resource Balances
                     </h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {([
-                            ['alloysBalance',  'Alloys Balance'],
-                            ['energyBalance',  'Energy Balance'],
-                            ['dataBalance',    'Data Balance'],
-                            ['essenceBalance', 'Essence Balance'],
-                            ['creditsBalance', 'Credits Balance'],
-                        ] as const).map(([field, label]) => (
+                        {RESOURCE_FIELDS.map(([field, label]) => (
                             <div key={field}>
                                 <label className="block text-xs text-gray-300">{label}</label>
                                 <input
                                     type="number"
-                                    {...register(field as const, { required: true, min: 0 })}
-                                    className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded
-            focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    {...register(field, { required: true, min: 0 })}
+                                    className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white
+                     border border-gray-600 rounded focus:outline-none
+                     focus:ring-2 focus:ring-indigo-500"
                                 />
                             </div>
                         ))}
