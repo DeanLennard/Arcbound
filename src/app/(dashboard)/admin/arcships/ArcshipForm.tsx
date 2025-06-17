@@ -150,13 +150,13 @@ export default function ArcshipForm({
                 {(['hull', 'core', 'cmd', 'crew', 'nav', 'sense', 'intc'] as const).map((key) => (
                     <div key={key}>
 
-                        <label className="block text-xs text-gray-300">Base</label>
+                        <label className="block text-xs text-gray-300 uppercase">{key}: Base</label>
                         <input
                             type="number"
                             {...register(`${key}.base`)}
                             className="mt-1 block w-full px-2 py-1 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
-                        <label className="block text-xs text-gray-300 mt-2">Mod</label>
+                        <label className="block text-xs text-gray-300 mt-2 uppercase">{key}: Mod</label>
                         <input
                             type="number"
                             {...register(`${key}.mod`)}

@@ -86,7 +86,7 @@ export default async function CharacterPage({
                     Player: <span className="text-white">{char.user?.playerName ?? 'Unknown'}</span> •{' '}
                     Status: <span className="italic">{char.status}</span> •{' '}
                     Faction: <span className="text-indigo-300">{char.faction}</span> •{' '}
-                    Archetype: <span className="text-green-300">{char.archetype}</span>
+                    Archetype: <span className="text-green-300">{char.race}</span>
                 </p>
             </header>
 
@@ -189,36 +189,34 @@ export default async function CharacterPage({
                         <ul className="space-y-2">
                             {data.map(rel => (
                                 <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
-                                    <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
-                                        <strong className="block text-indigo-300 text-lg mb-2">{rel.name}</strong>{' '}
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                    <strong className="block text-indigo-300 text-lg mb-2">{rel.name}</strong>{' '}
+                                    <span className="inline-block ml-0 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
                                     </span>
-                                        <span
-                                            className={`
-                                            inline-block ml-2
-                                            text-xs px-1 py-0.5 rounded
-                                            ${rel.state === 'Active'
-                                                ? 'bg-green-600 text-white'
-                                                : 'bg-red-600 text-white'
-                                            }
-                                        `}
-                                        >
-                                        {rel.state}
+                                    <span
+                                        className={`
+                                        inline-block ml-2
+                                        text-xs px-1 py-0.5 rounded
+                                        ${rel.state === 'Active'
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-red-600 text-white'
+                                        }
+                                    `}
+                                    >
+                                    {rel.state}
+                                </span>
+                                    {typeof rel.apcost === 'number' && rel.apcost > 0 && (
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
+                                        {rel.apcost} AP
                                     </span>
-                                        {typeof rel.apcost === 'number' && rel.apcost > 0 && (
-                                            <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
-                                            {rel.apcost} AP
-                                        </span>
-                                        )}
+                                    )}
 
-                                        {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
-                                            <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
-                                            {rel.ebcost} EB
-                                        </span>
-                                        )}
-                                        <p className="text-gray-200 mt-1">{rel.description}</p>
-                                    </li>
+                                    {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
+                                        {rel.ebcost} EB
+                                    </span>
+                                    )}
+                                    <p className="text-gray-200 mt-1">{rel.description}</p>
                                 </li>
                             ))}
                         </ul>
@@ -243,7 +241,7 @@ export default async function CharacterPage({
 
                                 {/* Interaction */}
                                 <div>
-                                    <p className="font-semibold text-gray-200 mb-1">Interaction</p>
+                                    <p className="font-semibold text-gray-200 mb-1">Interaction:</p>
                                     <div
                                         className="prose prose-sm prose-white max-w-none tiptap"
                                         dangerouslySetInnerHTML={{ __html: ph.interaction }}
@@ -252,7 +250,7 @@ export default async function CharacterPage({
 
                                 {/* Gambit */}
                                 <div>
-                                    <p className="font-semibold text-gray-200 mb-1">Gambit</p>
+                                    <p className="font-semibold text-gray-200 mb-1">Gambit:</p>
                                     <div
                                         className="prose prose-sm prose-white max-w-none tiptap"
                                         dangerouslySetInnerHTML={{ __html: ph.gambit }}
@@ -261,7 +259,7 @@ export default async function CharacterPage({
 
                                 {/* Resolution */}
                                 <div>
-                                    <p className="font-semibold text-gray-200 mb-1">Resolution</p>
+                                    <p className="font-semibold text-gray-200 mb-1">Resolution:</p>
                                     <div
                                         className="prose prose-sm prose-white max-w-none tiptap"
                                         dangerouslySetInnerHTML={{ __html: ph.resolution }}
