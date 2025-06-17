@@ -100,9 +100,17 @@ export default async function ArcshipPage(
 
     if (!ship) return <p>Arcship not found</p>
 
-    const tradePartners = agreements
+    // build an array of plain‐old JS objects
+    const tradePartners: ShipSummary[] = agreements
         .filter(d => d.type === 'Trade Agreement')
-        .flatMap(d => d.ships as ShipSummary[])
+        .flatMap(d =>
+            d.ships.map(s => ({
+                // String(...) will turn either an ObjectId or a string
+                // into a plain JS string
+                _id:   String(s._id),
+                name:  s.name,
+            }))
+        )
 
     // guard
     const isAdmin     = session.user.role === 'admin'

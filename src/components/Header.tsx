@@ -1,52 +1,60 @@
 // src/components/Header.tsx
-'use client';
+'use client'
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { useSession, signOut } from 'next-auth/react'
+import useSWR from 'swr'
+import { useRouter } from 'next/navigation'
+import { BellIcon, Menu, X } from 'lucide-react'
+import { Combobox } from '@headlessui/react'
 
-import React, { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { useSession, signOut } from 'next-auth/react';
-import useSWR from 'swr';
-import { BellIcon, Menu, X } from 'lucide-react';
+// pull in your summary types
+import type { CharacterSummary } from '@/pages/api/characters/my'
+import type { ShipSummary }      from '@/pages/api/arcships/my'
 
-const fetcher = (url: string) => fetch(url).then(r => r.json());
+const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 export default function Header() {
-    const { data: session } = useSession();
-    const [unreadCount, setUnreadCount] = useState(0);
-    const [menuOpen, setMenuOpen] = useState(false);
+    const router = useRouter()
+    const { data: session } = useSession()
+    const [unread, setUnread] = useState(0)
+    const [menuOpen, setMenuOpen] = useState(false)
 
-    // fetch unread notifications count
     useEffect(() => {
         if (session) {
             fetch('/api/notifications/unread-count')
-                .then(res => res.json())
-                .then(data => setUnreadCount(data.unreadCount || 0))
-                .catch(console.error);
+                .then(r => r.json())
+                .then(d => setUnread(d.unreadCount || 0))
+                .catch(console.error)
         }
-    }, [session]);
+    }, [session])
 
-    // 1) fetch this user’s *single* active character (or null)
-    const { data: activeChar } = useSWR(
-        session ? '/api/characters/me' : null,
+    // 1) all my chars & ships, properly typed
+    const { data: myChars } = useSWR<CharacterSummary[]>(
+        session ? '/api/characters/my' : null,
         fetcher
-    );
-
-    // 2) if that character has an arcship, grab its ID (could be string or populated object)
-    const arcId =
-        typeof activeChar?.arcship === 'string'
-            ? activeChar.arcship
-            : activeChar?.arcship?._id;
-
-    // 3) fetch the arcship details only when arcId is set
-    const { data: ship } = useSWR(
-        arcId ? `/api/arcships/${arcId}` : null,
+    )
+    const { data: myShips } = useSWR<ShipSummary[]>(
+        session ? '/api/arcships/my' : null,
         fetcher
-    );
+    )
 
-    const toggleMenu = () => setMenuOpen(o => !o);
+    // 2) local query & filtering for multi-select
+    const [charQuery, setCharQuery] = useState('')
+    const filteredChars = (myChars || []).filter(c =>
+        c.charName.toLowerCase().includes(charQuery.toLowerCase())
+    )
+
+    const [shipQuery, setShipQuery] = useState('')
+    const filteredShips = (myShips || []).filter(s =>
+        s.name.toLowerCase().includes(shipQuery.toLowerCase())
+    )
+
+    const toggleMenu = () => setMenuOpen(o => !o)
 
     return (
         <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center relative">
-            {/* Left: Logo + desktop nav */}
+            {/* Left: Logo + nav */}
             <div className="flex items-center gap-4">
                 <Link href="/forum" className="text-xl font-bold hover:underline">
                     Arcbound
@@ -65,32 +73,102 @@ export default function Header() {
                         {/* notifications */}
                         <Link href="/notifications" className="relative">
                             <BellIcon className="w-6 h-6" />
-                            {unreadCount > 0 && (
+                            {unread > 0 && (
                                 <span className="absolute top-0 right-0 bg-red-600 text-xs rounded-full px-1">
-                  {unreadCount}
+                  {unread}
                 </span>
                             )}
                         </Link>
 
-                        {/* link to character (if any) */}
-                        {activeChar && (
+                        {/* single vs multiple chars */}
+                        {myChars && myChars.length === 1 ? (
                             <Link
-                                href={`/characters/${activeChar._id}`}
+                                href={`/characters/${myChars[0]._id}`}
                                 className="bg-indigo-600 hover:bg-indigo-700 px-2 py-1 rounded text-sm"
                             >
-                                My Character: {activeChar.charName}
+                                My Character: {myChars[0].charName}
                             </Link>
-                        )}
+                        ) : myChars && myChars.length > 1 ? (
+                            <Combobox<CharacterSummary | undefined>
+                                value={undefined}
+                                onChange={(c?: CharacterSummary) => {
+                                    if (c) router.push(`/characters/${c._id}`)
+                                }}
+                            >
+                                <div className="relative">
+                                    <Combobox.Button className="absolute inset-y-0 right-0 px-2 flex items-center">
+                                        ▼
+                                    </Combobox.Button>
+                                    <Combobox.Input
+                                        className="bg-indigo-600 text-white px-2 py-1 rounded text-sm"
+                                        placeholder="Choose Character…"
+                                        onFocus={() => setCharQuery('')}
+                                        onChange={e => setCharQuery(e.target.value)}
+                                        displayValue={(c?: CharacterSummary) => c?.charName || ''}
+                                    />
+                                    <Combobox.Options className="absolute mt-1 w-full bg-gray-800 rounded max-h-48 overflow-auto z-50">
+                                        {filteredChars.map(c => (
+                                            <Combobox.Option
+                                                key={c._id}
+                                                value={c}
+                                                className={({ active }) =>
+                                                    `px-3 py-1 cursor-pointer ${
+                                                        active ? 'bg-indigo-700 text-white' : 'text-gray-200'
+                                                    }`
+                                                }
+                                            >
+                                                {c.charName}
+                                            </Combobox.Option>
+                                        ))}
+                                    </Combobox.Options>
+                                </div>
+                            </Combobox>
+                        ) : null}
 
-                        {/* link to ship (if any) */}
-                        {ship && (
+                        {/* single vs multiple ships */}
+                        {myShips && myShips.length === 1 ? (
                             <Link
-                                href={`/arcships/${ship._id}`}
+                                href={`/arcships/${myShips[0]._id}`}
                                 className="bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-sm"
                             >
-                                My Ship: {ship.name}
+                                My Ship: {myShips[0].name}
                             </Link>
-                        )}
+                        ) : myShips && myShips.length > 1 ? (
+                            <Combobox<ShipSummary | undefined>
+                                value={undefined}
+                                onChange={(s?: ShipSummary) => {
+                                    if (s) router.push(`/arcships/${s._id}`)
+                                }}
+                            >
+                                <div className="relative">
+                                    <Combobox.Button className="absolute inset-y-0 right-0 px-2 flex items-center">
+                                        ▼
+                                    </Combobox.Button>
+                                    <Combobox.Input
+                                        className="bg-green-600 text-white px-2 py-1 rounded text-sm"
+                                        placeholder="Choose Ship…"
+                                        onFocus={() => setShipQuery('')}
+                                        onChange={e => setShipQuery(e.target.value)}
+                                        displayValue={(s?: ShipSummary) => s?.name || ''}
+                                    />
+                                    <Combobox.Options className="absolute mt-1 w-full bg-gray-800 rounded max-h-48 overflow-auto z-50">
+                                        {filteredShips.map(s => (
+                                            <Combobox.Option
+                                                key={s._id}
+                                                value={s}
+                                                className={({ active }) =>
+                                                    `px-3 py-1 cursor-pointer ${
+                                                        active ? 'bg-green-700 text-white' : 'text-gray-200'
+                                                    }`
+                                                }
+                                            >
+                                                {s.name}
+                                            </Combobox.Option>
+                                        ))}
+                                    </Combobox.Options>
+                                </div>
+                            </Combobox>
+                        ) : null}
 
                         {/* profile & logout */}
                         <Link
@@ -108,18 +186,8 @@ export default function Header() {
                     </>
                 ) : (
                     <>
-                        <Link
-                            href="/login"
-                            className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded hidden md:inline"
-                        >
-                            Login
-                        </Link>
-                        <Link
-                            href="/register"
-                            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded hidden md:inline"
-                        >
-                            Register
-                        </Link>
+                        <Link href="/login"    className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded hidden md:inline">Login</Link>
+                        <Link href="/register" className="bg-blue-600  hover:bg-blue-700 px-3 py-1 rounded hidden md:inline">Register</Link>
                     </>
                 )}
 
@@ -132,45 +200,22 @@ export default function Header() {
             {/* mobile dropdown */}
             {menuOpen && (
                 <div className="absolute top-full left-0 w-full bg-gray-900 flex flex-col gap-2 px-4 py-3 z-50">
-                    <Link href="/" className="hover:underline" onClick={toggleMenu}>Home</Link>
-                    <Link href="/forum" className="hover:underline" onClick={toggleMenu}>Relay</Link>
-                    <Link href="/tools" className="hover:underline" onClick={toggleMenu}>Tools</Link>
+                    <Link href="/"      onClick={toggleMenu} className="hover:underline">Home</Link>
+                    <Link href="/forum" onClick={toggleMenu} className="hover:underline">Relay</Link>
+                    <Link href="/tools" onClick={toggleMenu} className="hover:underline">Tools</Link>
                     {session ? (
                         <>
-                            <Link
-                                href={`/profile/${session.user.id}`}
-                                className="hover:underline"
-                                onClick={toggleMenu}
-                            >
-                                Profile
-                            </Link>
-                            <button
-                                onClick={() => { signOut(); toggleMenu(); }}
-                                className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded"
-                            >
-                                Logout
-                            </button>
+                            <Link href={`/profile/${session.user.id}`} onClick={toggleMenu} className="hover:underline">Profile</Link>
+                            <button onClick={() => { signOut(); toggleMenu() }} className="bg-red-600 hover:bg-red-700 px-3 py-1 rounded">Logout</button>
                         </>
                     ) : (
                         <>
-                            <Link
-                                href="/login"
-                                className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded"
-                                onClick={toggleMenu}
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/register"
-                                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded"
-                                onClick={toggleMenu}
-                            >
-                                Register
-                            </Link>
+                            <Link href="/login"    onClick={toggleMenu} className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded">Login</Link>
+                            <Link href="/register" onClick={toggleMenu} className="bg-blue-600  hover:bg-blue-700 px-3 py-1 rounded">Register</Link>
                         </>
                     )}
                 </div>
             )}
         </header>
-    );
+    )
 }
