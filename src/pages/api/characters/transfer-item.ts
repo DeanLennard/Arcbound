@@ -31,12 +31,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await dbConnect()
 
-    // 1) If not admin, verify ownership
-    let meChar: ReturnType<typeof Character.findById> | null = null
+    // 1) Make sure the “from” character exists and belongs to you
+    let meChar = await Character.findById(fromChar)
     if (!isAdmin) {
-        meChar = await Character.findById(fromChar)
         if (!meChar || meChar.user.toString() !== session.user.id) {
-            return res.status(403).json({ error: 'Not allowed' })
+            return res.status(403).json({error: 'Not allowed'})
         }
     } else {
         // for admins, you can still load the fromChar doc if you need arcship info below
@@ -57,7 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .findById(targetChar)
             .select('arcship')
             .lean<{ arcship?: Types.ObjectId }>()
-        const toShipId   = toCharDoc?.arcship?.toString()
+        const toShipId = toCharDoc?.arcship?.toString()
 
         if (fromShipId && fromShipId !== toShipId) {
             // 4) Load the “from” arcship
@@ -82,16 +81,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (
                 totalShipping <= 0 ||
                 fromShip.alloysBalance < 2000 ||
-                fromShip.dataBalance  < 2000
+                fromShip.dataBalance < 2000
             ) {
                 return res
                     .status(400)
-                    .json({ error: 'Ship lacks capacity or cannot pay the 2 000/alloys+data fee' })
+                    .json({error: 'Ship lacks capacity or cannot pay the 2 000/alloys+data fee'})
             }
 
             // 8) Deduct the fee
             fromShip.alloysBalance -= 2000
-            fromShip.dataBalance   -= 2000
+            fromShip.dataBalance -= 2000
 
             // 9) Consume one shipping slot
             fromShip.shippingItemsMod = modShipping - 1
