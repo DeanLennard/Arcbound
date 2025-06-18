@@ -72,6 +72,7 @@ export default async function CharacterPage({
     const shards        = bucket('Shard')
     const resistances   = bucket('Resistance')
     const weaknesses    = bucket('Weakness')
+    const threatLedger  = bucket('ThreatLedger')
     const otherEffects  = bucket('OtherEffect')
 
     const implants      = bucket('Implant')
@@ -192,6 +193,7 @@ export default async function CharacterPage({
             ))}
 
             {[
+                { data: threatLedger,     label: 'Threat Ledger',    color: 'red-300'},
                 { data: implants,         label: 'Implants',        color: 'green-300' },
                 { data: thresholdforms,   label: 'Threshold Forms',  color: 'blue-300'  },
                 { data: genomethreads,    label: 'Genome Threads',   color: 'teal-300'  },

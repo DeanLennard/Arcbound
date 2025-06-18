@@ -71,6 +71,7 @@ export default function AdminCharacterDetail() {
         { key:'Resistance',     label:'Resistances'     },
         { key:'Weakness',       label:'Weaknesses'      },
         { key:'OtherEffect',    label:'Other Effects'   },
+        { key:'ThreatLedger',   label:'Threat Ledger'        },
         { key:'Implant',        label:'Implants'        },
         { key:'ThresholdForm',  label:'Threshold Forms' },
         { key:'GenomeThread',   label:'Genome Threads'  },
@@ -85,6 +86,7 @@ export default function AdminCharacterDetail() {
     const resistancesRes  = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Resistance`,  fetcher)
     const weaknessesRes   = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Weakness`,    fetcher)
     const otherEffectsRes = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=OtherEffect`,fetcher)
+    const threatLedgerRes     = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=ThreatLedger`,    fetcher)
     const implantsRes     = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Implant`,    fetcher)
     const thresholdRes    = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=ThresholdForm`,fetcher)
     const genomeRes       = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=GenomeThread`, fetcher)
@@ -98,6 +100,7 @@ export default function AdminCharacterDetail() {
         Shard:          shardsRes.data       || [],
         Resistance:     resistancesRes.data  || [],
         Weakness:       weaknessesRes.data   || [],
+        ThreatLedger:   threatLedgerRes.data || [],
         OtherEffect:    otherEffectsRes.data || [],
         Implant:        implantsRes.data     || [],
         ThresholdForm:  thresholdRes.data    || [],

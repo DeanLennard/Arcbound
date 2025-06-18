@@ -9,6 +9,7 @@ export type AssetCategory =
     | 'Resistance'
     | 'Weakness'
     | 'OtherEffect'
+    | 'ThreatLedger'
     | 'Implant'
     | 'ThresholdForm'
     | 'GenomeThread'
@@ -36,7 +37,7 @@ const CharacterAssetSchema = new mongoose.Schema<CharacterAssetDoc>({
     ebcost: { type: Number, default: 0 },
     category:    { type: String, enum: [
             'Tag','Item','Shard','Resistance','Weakness','OtherEffect',
-            'Implant','ThresholdForm','GenomeThread','VitalSignature',
+            'ThreatLedger','Implant','ThresholdForm','GenomeThread','VitalSignature',
             'Ritual','Scrapcode'
         ], required: true },
     character:   { type: mongoose.Schema.Types.ObjectId, ref: 'Character', required: true },
