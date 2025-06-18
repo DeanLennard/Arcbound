@@ -18,6 +18,7 @@ import type { EffectDoc as EffectDocument }      from '@/models/Effect'
 import type { DiplomacyDoc as DiplomacyDocument }   from '@/models/Diplomacy'
 import type { EventLogDoc as EventLogDocument }    from '@/models/EventLog'
 import ArcshipActions from '@/components/ArcshipActions'
+import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
 
 /**  All of ArcshipDocument *plus* the things you populated… */
 type PopulatedArcship =
@@ -484,7 +485,10 @@ export default async function ArcshipPage(
 
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">History</h2>
-                    <p className="text-gray-100 break-smart">{ship.history}</p>
+                    <div
+                        className="text-gray-100 prose max-w-none tiptap break-smart"
+                        dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(ship.history) }}
+                    />
                 </section>
 
                 <section>
