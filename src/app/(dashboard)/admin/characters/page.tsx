@@ -16,6 +16,10 @@ export default function AdminCharacters() {
     if (error) return <p className="p-6">Failed to load</p>
     if (!data) return <p className="p-6">Loading…</p>
 
+    const sortedChars = [...data].sort((a, b) =>
+        a.charName.localeCompare(b.charName, undefined, { sensitivity: 'base' })
+    );
+
     return (
         <div className="p-6 space-y-4">
             <h1 className="text-2xl font-bold">Manage Characters</h1>
@@ -30,7 +34,7 @@ export default function AdminCharacters() {
             )}
 
             <ul className="divide-y">
-                {data.map((char) => (
+                {sortedChars.map((char) => (
                     <li key={char._id} className="py-2 flex justify-between">
                         <span>
                           {char.charName} (

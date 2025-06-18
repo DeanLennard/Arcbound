@@ -14,6 +14,10 @@ export default function AdminArcships() {
     if (error) return <p className="p-6">Failed to load</p>;
     if (!data)  return <p className="p-6">Loading…</p>;
 
+    const sortedShips = [...data].sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+    );
+
     return (
         <div className="p-6 space-y-4">
             <h1 className="text-2xl font-bold">Manage Arcships</h1>
@@ -30,7 +34,7 @@ export default function AdminArcships() {
             )}
 
             <ul className="divide-y">
-                {data.map(ship => (
+                {sortedShips.map(ship => (
                     <li
                         key={ship._id}
                         className="py-2 flex items-center justify-between"
