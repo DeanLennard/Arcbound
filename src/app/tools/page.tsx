@@ -120,12 +120,12 @@ export default function ToolsPage() {
                 {/* Column 2 */}
                 <div className="space-y-4">
                     <ToolButton label="Sector Map" link="https://miro.com/app/board/uXjVIJD6C_M=/?share_link_id=18936603177" />
-                    <ToolButton label="The Ledger" link="https://docs.google.com/document/d/1lD5DNBUxFVmtjBcBng4VY-k-Ssg37z9DoC3HoIKTOXQ/edit?usp=sharing" />
-                    <ToolButton label="General Arcship Modules" link="https://docs.google.com/document/d/1gMFkhX_yIvgwFEwyStmThvl0xCdAvYutwD3vkLdW51w/edit?usp=sharing" />
+                    <ToolButton label="The Ledger" link="https://docs.google.com/document/d/1NEvFhh8uYreNRV6xGKUgH7pUOPQ1Sg1_WHl1talpDrs/edit?usp=sharing" />
+                    <ToolButton label="General Arcship Modules" link="https://docs.google.com/document/d/10dG6ko-TbMY7tDl3tPtLaNoipRMXYQaHbOJne5xZ7Qw/edit?usp=sharing" />
                 </div>
                 {/* Column 3 */}
                 <div className="space-y-4">
-                    <ToolButton label="Rulebook" link="https://docs.google.com/document/d/1xNm3ATJLBjnorL39ZdyZ4hsi21F5TIzTDOPZ-lU4yRY/edit?usp=sharing" />
+                    <ToolButton label="Rulebook" link="https://docs.google.com/document/d/1j72B69r4PFGzMF5YOVXMgkHqqPZZCDwFf1qwywjUXZg/edit?usp=sharing" />
                     <ToolButton label="New Arcship Form" link="https://forms.gle/JbrodrZBrqFTErBZ8" />
                     <ToolButton label="New Character Form" link="https://forms.gle/WNwvtz8WV4o5eeNZ8" />
                 </div>
@@ -133,18 +133,14 @@ export default function ToolsPage() {
 
             {/* 2 Rows of 6 Smaller Buttons */}
             <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                <SmallToolButton label="Vanguard" link="https://docs.google.com/document/d/12FD9omcp1_ejR3cp3BMihJIuomx6fiMQpiyrt1VG980/edit?usp=drive_link" />
-                <SmallToolButton label="Tactician" link="https://docs.google.com/document/d/1T7M-dEVeYTvb05gFkkqX6pZ85IUrN8B-hiOGnxtXnfs/edit?usp=drive_link" />
-                <SmallToolButton label="Operative" link="https://docs.google.com/document/d/1pppVQFI2TvcVcZ3EgKqlPrFWJnx2R1ISo4bf8TMJkTA/edit?usp=drive_link" />
-                <SmallToolButton label="Echochanter" link="https://docs.google.com/document/d/1vg4ed-XltWjnj0uuVcjdnsBm3GE3HnJZbhVjhtZKD6w/edit?usp=drive_link" />
-                <SmallToolButton label="Systems Architect" link="https://docs.google.com/document/d/1R3SHlrgkr8hTdoY4EeT-oN0QmvdEBELMJTUoX-at644/edit?usp=drive_link" />
-                <SmallToolButton label="Envoy" link="https://docs.google.com/document/d/1v2eCLr7gLZyRtLALkowf7AD-yzowU5gj6xrysDu7Y98/edit?usp=drive_link" />
-                <SmallToolButton label="Shadowbroker" link="https://docs.google.com/document/d/1ew6ye7BOmndG-wbqAg3VxIbYCtIT8d4FaGprOwEWw-U/edit?usp=drive_link" />
-                <SmallToolButton label="Gunslinger" link="https://docs.google.com/document/d/1NisOqGieujIPdvaUcyyd0lvMz5i4f2lC1axEUShaAik/edit?usp=drive_link" />
-                <SmallToolButton label="Technomancer" link="https://docs.google.com/document/d/14SbV3Uts5J2UD9qyhuYuq5RnKbzpvjCkX7qXonTulCM/edit?usp=drive_link" />
-                <SmallToolButton label="Wyrdweaver" link="https://docs.google.com/document/d/1v1wHtXGF2S3Kk0qfYnZIUfAZWjWG0SvDb5i_I_y8X8E/edit?usp=drive_link" />
-                <SmallToolButton label="Void Mechanic" link="https://docs.google.com/document/d/1EiWy7qbogcoc7OWvqbKkdkdcwhh9Eytwae6ujkubm7E/edit?usp=drive_link" />
-                <SmallToolButton label="Fixer" link="https://docs.google.com/document/d/1pk4mmDDIEEaJhXHUIj9BvmUMqTsndSHlxxiROjx1Ir8/edit?usp=drive_link" />
+                <SmallToolButton label="Echo Weaver" link="https://docs.google.com/document/d/10dG6ko-TbMY7tDl3tPtLaNoipRMXYQaHbOJne5xZ7Qw/edit?usp=sharing" />
+                <SmallToolButton label="Envoy" link="https://docs.google.com/document/d/1ylHHpu4S1bmm8gWIR29j7vilaPPTxdeKBmyVL0bxk8I/edit?usp=sharing" />
+                <SmallToolButton label="Gunslinger" link="https://docs.google.com/document/d/1Q_B_t-oY8l8Bv1RkjHVM4lX6NFhiyS3QHJ1uG2chs9U/edit?usp=sharing" />
+                <SmallToolButton label="Shadow Operative" link="https://docs.google.com/document/d/10zEl-l050pid5pr6Hf6HYErxE-9Mn2xixxciyqKuU20/edit?usp=sharing" />
+                <SmallToolButton label="Systems Fixer" link="https://docs.google.com/document/d/1aG4J0mawFJ1_YgNvUuH_RgWnGzRkTS26hZ6Xni2YNog/edit?usp=sharing" />
+                <SmallToolButton label="Technomancer" link="https://docs.google.com/document/d/159iWkVzRkAjGRHUDJa0pdyypOtPAU-6wqySjejRhhDk/edit?usp=sharing" />
+                <SmallToolButton label="Vanguard" link="https://docs.google.com/document/d/1zLyZpdIckhum9bmULqVK7ZeDISCCrifK15j6DmH1Ysk/edit?usp=sharing" />
+                <SmallToolButton label="Void Mechanic" link="https://docs.google.com/document/d/1JTNdoyuNiCO_ZnhusSAMdBc83gIsI_etZab8BUio32g/edit?usp=sharing" />
             </section>
 
             <section className="mt-12">
