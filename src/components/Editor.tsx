@@ -13,6 +13,24 @@ import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import ResizeImage from 'tiptap-extension-resize-image';
+import Heading from '@tiptap/extension-heading';
+import {
+    Bold,
+    Italic,
+    Underline as UnderlineIcon,
+    List,
+    ListOrdered,
+    Image as ImageIcon,
+    Link2 as LinkIcon,
+    Youtube as YoutubeIcon,
+    Quote as QuoteIcon,
+    Code as CodeIcon,
+    Table as TableIcon,
+    Columns as ColumnsIcon,
+    Trash2 as TrashIcon,
+    Rows as RowsIcon,
+    Minus
+} from 'lucide-react';
 
 interface EditorProps {
     value: string;
@@ -33,6 +51,7 @@ export default function Editor({ value, onChange }: EditorProps) {
             Link.configure({
                 openOnClick: false,
             }),
+            Heading.configure({ levels: [1, 2, 3] }),
             Underline,
             Placeholder.configure({
                 placeholder: 'Start typing here...',
@@ -111,6 +130,24 @@ export default function Editor({ value, onChange }: EditorProps) {
         <div className="border rounded p-2">
             {/* Toolbar */}
             <div className="flex flex-wrap gap-2 mb-2">
+                {/* Heading dropdown */}
+                <select
+                    className="bg-gray-700 text-white px-2 py-1 rounded"
+                    onChange={e => {
+                        const lvl = Number(e.target.value);
+                        editor.chain().focus().setHeading({ level: lvl }).run();
+                    }}
+                    value={
+                        editor.isActive('heading', { level: 1 }) ? '1' :
+                            editor.isActive('heading', { level: 2 }) ? '2' :
+                                editor.isActive('heading', { level: 3 }) ? '3' : '0'
+                    }
+                >
+                    <option value="0">Paragraph</option>
+                    <option value="1">Heading 1</option>
+                    <option value="2">Heading 2</option>
+                    <option value="3">Heading 3</option>
+                </select>
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBold().run()}
@@ -118,7 +155,7 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    B
+                    <Bold size={16} />
                 </button>
                 <button
                     type="button"
@@ -127,7 +164,7 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    I
+                    <Italic size={16} />
                 </button>
                 <button
                     type="button"
@@ -136,7 +173,7 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    U
+                    <UnderlineIcon size={16} />
                 </button>
                 <button
                     type="button"
@@ -145,7 +182,7 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    Bullet List
+                    <List size={16} />
                 </button>
                 <button
                     type="button"
@@ -154,21 +191,21 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('orderedList') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    Numbered List
+                    <ListOrdered size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={addImage}
                     className="px-2 py-1 rounded bg-green-600 text-white"
                 >
-                    Insert Image
+                    <ImageIcon size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={addLink}
                     className="px-2 py-1 rounded bg-purple-600 text-white"
                 >
-                    Add Link
+                    <LinkIcon size={16} />
                 </button>
                 <button
                     type="button"
@@ -186,7 +223,7 @@ export default function Editor({ value, onChange }: EditorProps) {
                     }}
                     className="px-2 py-1 rounded bg-red-600 text-white"
                 >
-                    Insert YouTube
+                    <YoutubeIcon size={16} />
                 </button>
                 <button
                     type="button"
@@ -195,7 +232,7 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('blockquote') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    Blockquote
+                    <QuoteIcon size={16} />
                 </button>
                 <button
                     type="button"
@@ -204,50 +241,50 @@ export default function Editor({ value, onChange }: EditorProps) {
                         editor.isActive('code') ? 'bg-blue-600 text-white' : 'bg-gray-500'
                     }`}
                 >
-                    Code
+                    <CodeIcon size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
                     className="px-2 py-1 rounded bg-yellow-600 text-white"
                 >
-                    Insert Table
+                    <TableIcon size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().addColumnAfter().run()}
                     className="px-2 py-1 rounded bg-yellow-600 text-white"
                 >
-                    Add Column
+                    <ColumnsIcon size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().addRowAfter().run()}
                     className="px-2 py-1 rounded bg-yellow-600 text-white"
                 >
-                    Add Row
+                    <RowsIcon size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().deleteTable().run()}
                     className="px-2 py-1 rounded bg-red-600 text-white"
                 >
-                    Delete Table
+                    <TrashIcon size={16} />
                 </button>
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().deleteRow().run()}
                     className="px-2 py-1 rounded bg-red-600 text-white"
                 >
-                    Delete Row
+                    <Minus size={16} />
                 </button>
 
                 <button
                     type="button"
                     onClick={() => editor.chain().focus().deleteColumn().run()}
-                    className="px-2 py-1 rounded bg-red-600 text-white"
+                    className="px-2 py-1 rounded bg-red-600 text-white transform rotate-90"
                 >
-                    Delete Column
+                    <Minus size={16} />
                 </button>
             </div>
 

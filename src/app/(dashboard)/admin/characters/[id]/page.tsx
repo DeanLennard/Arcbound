@@ -13,7 +13,16 @@ import EditAssetModal     from './EditAssetModal'
 import AddPhaseModal      from './AddPhaseModal'
 import EditPhaseModal     from './EditPhaseModal'
 
-const fetcher = (url: string) => fetch(url).then(r => r.json())
+const fetcher = async (url: string) => {
+    const res = await fetch(url)
+    // no body → just return an empty array (or whatever sensible default)
+    if (res.status === 204 || res.status === 304) return []
+    if (!res.ok) {
+        // you could also return [] here, or let it throw to show an error UI
+        throw new Error(`Fetch error: ${res.status}`)
+    }
+    return res.json()
+}
 
 type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
 
@@ -176,13 +185,11 @@ export default function AdminCharacterDetail() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm text-white">Background</label>
+                        <label className="block text-sm text-white">Background 1</label>
                         <Editor
                             value={background}
                             onChange={html => setValue('background', html)}
                         />
-                        <textarea {...register('background')} rows={3}
-                                  className="mt-1 w-full p-2 bg-gray-700 text-white rounded"/>
                     </div>
                     <div>
                         <label className="block text-sm text-white">Faction Objective</label>
@@ -190,8 +197,6 @@ export default function AdminCharacterDetail() {
                             value={factionObjective}
                             onChange={html => setValue('factionObjective', html)}
                         />
-                        <textarea {...register('factionObjective')} rows={3}
-                                  className="mt-1 w-full p-2 bg-gray-700 text-white rounded"/>
                     </div>
                 </div>
 
