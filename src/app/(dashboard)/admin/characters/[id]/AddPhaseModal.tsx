@@ -69,7 +69,6 @@ export default function AddPhaseModal({
                     <Controller
                         name="interaction"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                             <Editor
                                 value={field.value}
@@ -88,7 +87,6 @@ export default function AddPhaseModal({
                     <Controller
                         name="gambit"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                             <Editor
                                 value={field.value}
@@ -107,7 +105,6 @@ export default function AddPhaseModal({
                     <Controller
                         name="resolution"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                             <Editor
                                 value={field.value}

@@ -74,7 +74,6 @@ export default function EditPhaseModal({
                     <Controller
                         name="interaction"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                             <Editor value={field.value} onChange={field.onChange} />
                         )}
@@ -90,7 +89,6 @@ export default function EditPhaseModal({
                     <Controller
                         name="gambit"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                             <Editor value={field.value} onChange={field.onChange} />
                         )}
@@ -106,7 +104,6 @@ export default function EditPhaseModal({
                     <Controller
                         name="resolution"
                         control={control}
-                        rules={{ required: true }}
                         render={({ field }) => (
                             <Editor value={field.value} onChange={field.onChange} />
                         )}
