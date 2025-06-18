@@ -4,6 +4,7 @@
 import { useForm, SubmitHandler } from 'react-hook-form'
 import useSWR from 'swr'
 import { useEffect } from 'react'
+import Editor from '@/components/Editor'
 
 interface UserOption {
     _id: string
@@ -82,6 +83,8 @@ export interface CharacterFormData {
     race:          string;
     raceCustom?:   string;
     archetype:     string;
+    background?:         string
+    factionObjective?:   string
 }
 
 interface CharacterFormProps {
@@ -121,6 +124,8 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
     const selectedFaction = watch('faction')
     const selectedRole    = watch('role')
     const selectedRace    = watch('race')
+    const bg      = watch('background') || ''
+    const factionObj = watch('factionObjective') || ''
 
     // auto‐set archetype when a non‐Other race is chosen
     useEffect(() => {
@@ -316,7 +321,22 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
                 </div>
             </div>
 
-            {/* …and your other fields remain unchanged… */}
+            <div className="grid grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm text-white">Background</label>
+                    <Editor
+                        value={bg}
+                        onChange={(html) => setValue('background', html)}
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm text-white">Faction Objective</label>
+                    <Editor
+                        value={factionObj}
+                        onChange={(html) => setValue('factionObjective', html)}
+                    />
+                </div>
+            </div>
 
             <div className="flex space-x-4 pt-4">
                 <button

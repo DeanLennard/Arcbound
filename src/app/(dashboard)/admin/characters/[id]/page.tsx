@@ -6,6 +6,7 @@ import { useState, useEffect }    from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import useSWR, { mutate }         from 'swr'
 import type { AssetCategory } from '@/models/CharacterAsset'
+import Editor                     from '@/components/Editor'
 
 import AddAssetModal      from './AddAssetModal'
 import EditAssetModal     from './EditAssetModal'
@@ -101,10 +102,13 @@ export default function AdminCharacterDetail() {
     const [editingPhase, setEditingPhase]     = useState<Phase | null>(null)
 
     // form
-    const { register, handleSubmit, reset, formState } = useForm<CharacterForm>({
+    const { register, handleSubmit, reset, formState, watch, setValue } = useForm<CharacterForm>({
         defaultValues: char
     })
     useEffect(() => { if (char) reset(char) }, [char, reset])
+
+    const background        = watch('background')        || ''
+    const factionObjective  = watch('factionObjective')  || ''
 
     const onSubmit: SubmitHandler<CharacterForm> = async data => {
         await fetch(`/api/characters/${id}`, {
@@ -173,11 +177,19 @@ export default function AdminCharacterDetail() {
                 <div className="grid grid-cols-2 gap-4">
                     <div>
                         <label className="block text-sm text-white">Background</label>
+                        <Editor
+                            value={background}
+                            onChange={html => setValue('background', html)}
+                        />
                         <textarea {...register('background')} rows={3}
                                   className="mt-1 w-full p-2 bg-gray-700 text-white rounded"/>
                     </div>
                     <div>
                         <label className="block text-sm text-white">Faction Objective</label>
+                        <Editor
+                            value={factionObjective}
+                            onChange={html => setValue('factionObjective', html)}
+                        />
                         <textarea {...register('factionObjective')} rows={3}
                                   className="mt-1 w-full p-2 bg-gray-700 text-white rounded"/>
                     </div>
