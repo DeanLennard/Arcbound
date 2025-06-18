@@ -437,7 +437,7 @@ export default async function ArcshipPage(
                                     <div className="mt-1 text-sm text-gray-400">
                                         Partners: {others || 'None'}
                                     </div>
-                                    <div className="mt-1 text-xs text-gray-500">{d.description}</div>
+                                    <div className="mt-1 text-s">{d.description}</div>
                                 </li>
                             )
                         })}
