@@ -39,12 +39,12 @@ export default function ArcshipActions({
 
     // ─── fetch your lists ─────────────────────────────────────────────────────
     const { data: rawChars } = useSWR<CharacterSummary[]>(
-        '/api/characters?status=Active', fetcher
+        '/api/characters/summary?status=Active', fetcher
     )
     const chars = Array.isArray(rawChars) ? rawChars : []
 
     const { data: rawShips } = useSWR<ArcshipSummary[]>(
-        '/api/arcships', fetcher
+        '/api/arcships/summary', fetcher
     )
     const ships = Array.isArray(rawShips) ? rawShips : []
 

@@ -21,12 +21,12 @@ export default function CharacterActions({
 
     // ─── fetch your lists ─────────────────────────────────────────────────────
     const { data: rawChars } = useSWR<CharacterSummary[]>(
-        '/api/characters?status=Active', fetcher
+        '/api/characters/summary?status=Active', fetcher
     )
     const chars = Array.isArray(rawChars) ? rawChars : []
 
     const { data: rawShips } = useSWR<ArcshipSummary[]>(
-        '/api/arcships', fetcher
+        '/api/arcships/summary', fetcher
     )
     const ships = Array.isArray(rawShips) ? rawShips : []
 
@@ -93,7 +93,7 @@ export default function CharacterActions({
 
         setCreditErrorMsg(null);
         setShowCreditModal(false)
-        mutate('/api/characters?status=Active')
+        mutate('/api/characters/summary?status=Active')
     }
 
     // ─── item form ────────────────────────────────────────────────────────────

@@ -7,6 +7,7 @@ import { useForm, SubmitHandler } from 'react-hook-form'
 import useSWR, { mutate }         from 'swr'
 import type { AssetCategory } from '@/models/CharacterAsset'
 import Editor                     from '@/components/Editor'
+import CharacterActions from "@/components/CharacterActions";
 
 import AddAssetModal      from './AddAssetModal'
 import EditAssetModal     from './EditAssetModal'
@@ -212,6 +213,12 @@ export default function AdminCharacterDetail() {
                     Save Character
                 </button>
             </form>
+
+            {/* ─── CHAR & ARCSHIP TRANSFERS ───────────────────────────── */}
+            <CharacterActions
+                characterId={id}
+                credits={char.credits}
+            />
 
             {/* 2) All the little relation‐lists with “+ Add” */}
             {assetCategories.map(({key,label}) => (
