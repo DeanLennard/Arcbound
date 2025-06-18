@@ -17,6 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const session = await getServerSession(req, res, authOptions)
     if (!session) return res.status(401).end()
 
+    // allow admins to bypass costs
+    const isAdmin = session.user.role === 'admin'
+
     const gp = await GamePhase.findOne();
     if (!gp.isOpen) return res.status(401).end()
 
@@ -28,10 +31,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     await dbConnect()
 
-    // 1) Make sure the “from” character exists and belongs to you
-    const meChar = await Character.findById(fromChar)
-    if (!meChar || meChar.user.toString() !== session.user.id) {
-        return res.status(403).json({ error: 'Not allowed' })
+    // 1) If not admin, verify ownership
+    let meChar: ReturnType<typeof Character.findById> | null = null
+    if (!isAdmin) {
+        meChar = await Character.findById(fromChar)
+        if (!meChar || meChar.user.toString() !== session.user.id) {
+            return res.status(403).json({ error: 'Not allowed' })
+        }
+    } else {
+        // for admins, you can still load the fromChar doc if you need arcship info below
+        meChar = await Character.findById(fromChar)
     }
 
     // 2) Fetch the asset & ensure it really belongs to that character
@@ -40,52 +49,55 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Invalid asset' })
     }
 
-    // 3) Figure out if this is a cross‐ship transfer
-    const fromShipId = meChar.arcship?.toString()
-    const toCharDoc = await Character
-        .findById(targetChar)
-        .select('arcship')
-        .lean<{ arcship?: Types.ObjectId }>()
-    const toShipId   = toCharDoc?.arcship?.toString()
+    // 3) Only non-admins pay shipping fees and consume capacity
+    if (!isAdmin) {
+        // 3) Figure out if this is a cross‐ship transfer
+        const fromShipId = meChar.arcship?.toString()
+        const toCharDoc = await Character
+            .findById(targetChar)
+            .select('arcship')
+            .lean<{ arcship?: Types.ObjectId }>()
+        const toShipId   = toCharDoc?.arcship?.toString()
 
-    if (fromShipId && fromShipId !== toShipId) {
-        // 4) Load the “from” arcship
-        const fromShip = await Arcship.findById(fromShipId)
-        if (!fromShip) return res.status(500).end()
+        if (fromShipId && fromShipId !== toShipId) {
+            // 4) Load the “from” arcship
+            const fromShip = await Arcship.findById(fromShipId)
+            if (!fromShip) return res.status(500).end()
 
-        // 5) Compute baseShipping from senseTotal
-        const senseTotal = (fromShip.sense.base ?? 0) + (fromShip.sense.mod ?? 0)
-        const baseShipping = (() => {
-            if (senseTotal <= 1) return 0
-            if (senseTotal <= 4) return 1
-            if (senseTotal <= 7) return 2
-            if (senseTotal <= 9) return 3
-            return 5
-        })()
+            // 5) Compute baseShipping from senseTotal
+            const senseTotal = (fromShip.sense.base ?? 0) + (fromShip.sense.mod ?? 0)
+            const baseShipping = (() => {
+                if (senseTotal <= 1) return 0
+                if (senseTotal <= 4) return 1
+                if (senseTotal <= 7) return 2
+                if (senseTotal <= 9) return 3
+                return 5
+            })()
 
-        // 6) Read modShipping and sum up
-        const modShipping = fromShip.shippingItemsMod ?? 0
-        const totalShipping = baseShipping + modShipping
+            // 6) Read modShipping and sum up
+            const modShipping = fromShip.shippingItemsMod ?? 0
+            const totalShipping = baseShipping + modShipping
 
-        // 7) Validate capacity & fee
-        if (
-            totalShipping <= 0 ||
-            fromShip.alloysBalance < 2000 ||
-            fromShip.dataBalance  < 2000
-        ) {
-            return res
-                .status(400)
-                .json({ error: 'Ship lacks capacity or cannot pay the 2 000/alloys+data fee' })
+            // 7) Validate capacity & fee
+            if (
+                totalShipping <= 0 ||
+                fromShip.alloysBalance < 2000 ||
+                fromShip.dataBalance  < 2000
+            ) {
+                return res
+                    .status(400)
+                    .json({ error: 'Ship lacks capacity or cannot pay the 2 000/alloys+data fee' })
+            }
+
+            // 8) Deduct the fee
+            fromShip.alloysBalance -= 2000
+            fromShip.dataBalance   -= 2000
+
+            // 9) Consume one shipping slot
+            fromShip.shippingItemsMod = modShipping - 1
+
+            await fromShip.save()
         }
-
-        // 8) Deduct the fee
-        fromShip.alloysBalance -= 2000
-        fromShip.dataBalance   -= 2000
-
-        // 9) Consume one shipping slot
-        fromShip.shippingItemsMod = modShipping - 1
-
-        await fromShip.save()
     }
 
     // 10) Finally transfer asset
