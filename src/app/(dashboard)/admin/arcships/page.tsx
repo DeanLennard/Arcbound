@@ -33,7 +33,7 @@ export default function AdminArcships() {
                 />
             )}
 
-            <ul className="divide-y">
+            <ul className="divide-y divide-gray-600">
                 {sortedShips.map(ship => (
                     <li
                         key={ship._id}

@@ -33,7 +33,7 @@ export default function AdminCharacters() {
                 />
             )}
 
-            <ul className="divide-y">
+            <ul className="divide-y divide-gray-600">
                 {sortedChars.map((char) => (
                     <li key={char._id} className="py-2 flex justify-between odd:bg-gray-800 even:bg-gray-700">
                         <span>
