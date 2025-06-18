@@ -84,9 +84,7 @@ export default function AddAssetModal({
                         Description
                     </label>
                     <textarea
-                        {...register('description', {
-                            required: 'Description is required',
-                        })}
+                        {...register('description')}
                         className="w-full p-2 bg-gray-700 text-white rounded h-24"
                     />
                     {errors.description && (
