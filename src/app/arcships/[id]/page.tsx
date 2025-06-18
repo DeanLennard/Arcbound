@@ -230,6 +230,22 @@ export default async function ArcshipPage(
                 partners={tradePartners}
             />
 
+            {/* ——— Benefit & Challenge ——— */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-xl font-semibold text-white mb-2">Benefit</h2>
+                    <p className="text-gray-200">
+                        {ship.benefit || <em>None</em>}
+                    </p>
+                </div>
+                <div className="bg-gray-800 p-4 rounded-lg">
+                    <h2 className="text-xl font-semibold text-white mb-2">Challenge</h2>
+                    <p className="text-gray-200">
+                        {ship.challenge || <em>None</em>}
+                    </p>
+                </div>
+            </div>
+
             {/* Core Metrics & Derived Values */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 <section>
