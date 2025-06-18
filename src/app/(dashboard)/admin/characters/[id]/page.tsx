@@ -65,6 +65,7 @@ export default function AdminCharacterDetail() {
 
     // lists
     const assetCategories: { key: AssetCategory; label: string }[] = [
+        { key:'Tag',           label:'Tag'           },
         { key:'Item',           label:'Items'           },
         { key:'Shard',          label:'Shards'          },
         { key:'Resistance',     label:'Resistances'     },
@@ -78,6 +79,7 @@ export default function AdminCharacterDetail() {
         { key:'Scrapcode',      label:'Scrapcode Compendium'}
     ]
 
+    const tagRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Tag`,        fetcher)
     const itemsRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Item`,        fetcher)
     const shardsRes       = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Shard`,       fetcher)
     const resistancesRes  = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Resistance`,  fetcher)
@@ -91,6 +93,7 @@ export default function AdminCharacterDetail() {
     const scrapRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Scrapcode`,   fetcher)
 
     const assetsByCat: Record<AssetCategory, CharacterAsset[]> = {
+        Tag:            tagRes.data          || [],
         Item:           itemsRes.data        || [],
         Shard:          shardsRes.data       || [],
         Resistance:     resistancesRes.data  || [],

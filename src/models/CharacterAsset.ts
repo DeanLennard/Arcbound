@@ -3,6 +3,7 @@ import mongoose, { Document, Types } from 'mongoose';
 
 export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
 export type AssetCategory =
+    | 'Tag'
     | 'Item'
     | 'Shard'
     | 'Resistance'
@@ -28,13 +29,13 @@ export interface CharacterAssetDoc extends Document {
 
 const CharacterAssetSchema = new mongoose.Schema<CharacterAssetDoc>({
     name:        { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     state:       { type: String, enum: ['Active','Inactive'], default: 'Active' },
     level:       { type: String, enum: ['SPARK','SURGE','FLUX','BREAK','ASCENDANCE'], default: 'SPARK' },
     apcost: { type: Number, default: 0 },
     ebcost: { type: Number, default: 0 },
     category:    { type: String, enum: [
-            'Item','Shard','Resistance','Weakness','OtherEffect',
+            'Tag','Item','Shard','Resistance','Weakness','OtherEffect',
             'Implant','ThresholdForm','GenomeThread','VitalSignature',
             'Ritual','Scrapcode'
         ], required: true },

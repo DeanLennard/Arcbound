@@ -67,6 +67,7 @@ export default async function CharacterPage({
     const bucket = (category: AssetCategory) =>
         allAssets.filter(a => a.category === category)
 
+    const tags         = bucket('Tag')
     const items         = bucket('Item')
     const shards        = bucket('Shard')
     const resistances   = bucket('Resistance')
@@ -140,6 +141,7 @@ export default async function CharacterPage({
 
             {/* Relations */}
             {[
+                { data: tags,         label: 'Tags'        },
                 { data: items,        label: 'Items'        },
                 { data: shards,       label: 'Shards'       },
                 { data: resistances,  label: 'Resistances'  },
