@@ -188,7 +188,7 @@ export default function AdminCharacterDetail() {
 
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm text-white">Background 1</label>
+                        <label className="block text-sm text-white">Background</label>
                         <Editor
                             value={background}
                             onChange={html => setValue('background', html)}
