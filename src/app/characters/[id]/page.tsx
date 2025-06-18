@@ -123,14 +123,14 @@ export default async function CharacterPage({
             {/* Background & Objective */}
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gray-800 p-6 rounded-lg">
-                    <h2 className="text-2xl font-semibold text-white mb-2">Background</h2>
+                    <h2 className="text-2xl font-semibold text-white mb-2 break-smart">Background</h2>
                     <div
                         className="prose max-w-none tiptap"
                         dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(char.background) }}
                     />
                 </div>
                 <div className="bg-gray-800 p-6 rounded-lg">
-                    <h2 className="text-2xl font-semibold text-white mb-2">Faction Objective</h2>
+                    <h2 className="text-2xl font-semibold text-white mb-2 break-smart">Faction Objective</h2>
                     <div
                         className="prose max-w-none tiptap"
                         dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(char.factionObjective) }}
@@ -257,7 +257,7 @@ export default async function CharacterPage({
                                 <div>
                                     <p className="font-semibold text-gray-200 mb-1">Interaction:</p>
                                     <div
-                                        className="prose prose-sm prose-white max-w-none tiptap"
+                                        className="prose prose-sm prose-white max-w-none tiptap break-smart"
                                         dangerouslySetInnerHTML={{ __html: ph.interaction }}
                                     />
                                 </div>
@@ -266,7 +266,7 @@ export default async function CharacterPage({
                                 <div>
                                     <p className="font-semibold text-gray-200 mb-1">Gambit:</p>
                                     <div
-                                        className="prose prose-sm prose-white max-w-none tiptap"
+                                        className="prose prose-sm prose-white max-w-none tiptap break-smart"
                                         dangerouslySetInnerHTML={{ __html: ph.gambit }}
                                     />
                                 </div>
@@ -275,7 +275,7 @@ export default async function CharacterPage({
                                 <div>
                                     <p className="font-semibold text-gray-200 mb-1">Resolution:</p>
                                     <div
-                                        className="prose prose-sm prose-white max-w-none tiptap"
+                                        className="prose prose-sm prose-white max-w-none tiptap break-smart"
                                         dangerouslySetInnerHTML={{ __html: ph.resolution }}
                                     />
                                 </div>
