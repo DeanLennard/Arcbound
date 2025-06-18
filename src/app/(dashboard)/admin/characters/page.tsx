@@ -35,7 +35,7 @@ export default function AdminCharacters() {
 
             <ul className="divide-y">
                 {sortedChars.map((char) => (
-                    <li key={char._id} className="py-2 flex justify-between">
+                    <li key={char._id} className="py-2 flex justify-between odd:bg-gray-800 even:bg-gray-700">
                         <span>
                           {char.charName} (
                             {char.user?.playerName || '— no player —'}

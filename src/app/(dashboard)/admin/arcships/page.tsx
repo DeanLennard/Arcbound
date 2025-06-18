@@ -37,7 +37,7 @@ export default function AdminArcships() {
                 {sortedShips.map(ship => (
                     <li
                         key={ship._id}
-                        className="py-2 flex items-center justify-between"
+                        className="py-2 flex items-center justify-between odd:bg-gray-800 even:bg-gray-700"
                     >
                         <span>{ship.name}</span>
                         <span>{ship.faction}</span>
