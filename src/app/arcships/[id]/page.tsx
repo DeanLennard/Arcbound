@@ -234,13 +234,13 @@ export default async function ArcshipPage(
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-xl font-semibold text-white mb-2">Benefit</h2>
-                    <p className="text-gray-200">
+                    <p className="text-gray-200 break-smart">
                         {ship.benefit || <em>None</em>}
                     </p>
                 </div>
                 <div className="bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-xl font-semibold text-white mb-2">Challenge</h2>
-                    <p className="text-gray-200">
+                    <p className="text-gray-200 break-smart">
                         {ship.challenge || <em>None</em>}
                     </p>
                 </div>
@@ -374,7 +374,7 @@ export default async function ArcshipPage(
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {mod.level}
                                 </span>
-                                <p className="text-sm">{mod.description}</p>
+                                <p className="text-sm break-smart">{mod.description}</p>
                             </li>
                         ))}
                     </ul>
@@ -397,7 +397,7 @@ export default async function ArcshipPage(
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {fx.level}
                                 </span>
-                                <p className="text-sm">{fx.description}</p>
+                                <p className="text-sm break-smart">{fx.description}</p>
                                 <div className="mt-1 text-xs">
                                     Status:{' '}
                                     <span
@@ -434,10 +434,10 @@ export default async function ArcshipPage(
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {d.level}
                                     </span>
-                                    <div className="mt-1 text-sm text-gray-400">
+                                    <div className="mt-1 text-sm text-gray-400 break-smart">
                                         Partners: {others || 'None'}
                                     </div>
-                                    <div className="mt-1 text-s">{d.description}</div>
+                                    <div className="mt-1 text-s break-smart">{d.description}</div>
                                 </li>
                             )
                         })}
@@ -484,7 +484,7 @@ export default async function ArcshipPage(
 
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">History</h2>
-                    <p className="text-gray-100">{ship.history}</p>
+                    <p className="text-gray-100 break-smart">{ship.history}</p>
                 </section>
 
                 <section>
@@ -502,7 +502,7 @@ export default async function ArcshipPage(
                             {ship.eventLog.map(e => (
                                 <tr key={String(e._id)} className="border-t">
                                     <td className="px-4 py-2">{e.eventName}</td>
-                                    <td className="px-4 py-2">{e.effect}</td>
+                                    <td className="px-4 py-2 break-smart">{e.effect}</td>
                                     <td className="px-4 py-2">{e.phase}</td>
                                     <td className="px-4 py-2">{e.level}</td>
                                     <td className="px-4 py-2">{e.ongoing ? 'Yes' : 'No'}</td>
