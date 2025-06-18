@@ -12,6 +12,8 @@ import type { ArcshipDocument } from '@/models/Arcship'
 import '@/models/User'
 import '@/models/Arcship'
 import CharacterActions from "@/components/CharacterActions";
+import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
+import React from "react";
 
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument
@@ -122,11 +124,17 @@ export default async function CharacterPage({
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="bg-gray-800 p-6 rounded-lg">
                     <h2 className="text-2xl font-semibold text-white mb-2">Background</h2>
-                    <p className="text-gray-200 tiptap">{char.background || <em>None</em>}</p>
+                    <div
+                        className="prose max-w-none tiptap"
+                        dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(char.background) }}
+                    />
                 </div>
                 <div className="bg-gray-800 p-6 rounded-lg">
                     <h2 className="text-2xl font-semibold text-white mb-2">Faction Objective</h2>
-                    <p className="text-gray-200 tiptap">{char.factionObjective || <em>None</em>}</p>
+                    <div
+                        className="prose max-w-none tiptap"
+                        dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(char.factionObjective) }}
+                    />
                 </div>
             </section>
 
