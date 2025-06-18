@@ -175,9 +175,17 @@ export default function Header() {
                         </div>
 
                         {/* profile & logout */}
+                        {session?.user?.role === 'admin' && (
+                            <Link
+                                href="/admin"
+                                className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded hidden md:inline"
+                            >
+                                Admin
+                            </Link>
+                        )}
                         <Link
                             href={`/profile/${session.user.id}`}
-                            className="bg-gray-600 hover:bg-gray-700 px-3 py-1 rounded hidden md:inline"
+                            className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded hidden md:inline"
                         >
                             Profile
                         </Link>
@@ -275,10 +283,18 @@ export default function Header() {
                     {/* profile & logout */}
                     {session ? (
                         <>
+                            {session?.user?.role === 'admin' && (
+                                <Link
+                                    href="/admin"
+                                    className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-center"
+                                >
+                                    Admin
+                                </Link>
+                            )}
                             <Link
                                 href={`/profile/${session.user.id}`}
                                 onClick={toggleMenu}
-                                className="hover:underline"
+                                className="bg-blue-600 hover:bg-blue-700 px-3 py-1 rounded text-center"
                             >
                                 Profile
                             </Link>
