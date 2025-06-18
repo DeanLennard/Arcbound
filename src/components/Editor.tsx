@@ -13,7 +13,7 @@ import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import ResizeImage from 'tiptap-extension-resize-image';
-import Heading from '@tiptap/extension-heading';
+import Heading, { type Level } from '@tiptap/extension-heading';
 import {
     Bold,
     Italic,
@@ -134,19 +134,32 @@ export default function Editor({ value, onChange }: EditorProps) {
                 <select
                     className="bg-gray-700 text-white px-2 py-1 rounded"
                     onChange={e => {
-                        const lvl = Number(e.target.value);
-                        editor.chain().focus().setHeading({ level: lvl }).run();
+                        const val = e.target.value
+                        if (val === '0') {
+                            editor.chain().focus().setParagraph().run()
+                        } else {
+                            // val is "1" | "2" | "3" here
+                            editor
+                                .chain()
+                                .focus()
+                                .setHeading({ level: Number(val) as Level })
+                                .run()
+                        }
                     }}
                     value={
-                        editor.isActive('heading', { level: 1 }) ? '1' :
-                            editor.isActive('heading', { level: 2 }) ? '2' :
-                                editor.isActive('heading', { level: 3 }) ? '3' : '0'
+                        editor.isActive('heading', { level: 1 })
+                            ? '1'
+                            : editor.isActive('heading', { level: 2 })
+                                ? '2'
+                                : editor.isActive('heading', { level: 3 })
+                                    ? '3'
+                                    : '0'
                     }
                 >
                     <option value="0">Paragraph</option>
-                    <option value="1">Heading 1</option>
-                    <option value="2">Heading 2</option>
-                    <option value="3">Heading 3</option>
+                    <option value="1">H1</option>
+                    <option value="2">H2</option>
+                    <option value="3">H3</option>
                 </select>
                 <button
                     type="button"
