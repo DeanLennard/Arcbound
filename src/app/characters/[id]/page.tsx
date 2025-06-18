@@ -14,6 +14,8 @@ import '@/models/Arcship'
 import CharacterActions from "@/components/CharacterActions";
 import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
 import React from "react";
+import PhaseHistoryClient from '@/components/PhaseHistoryClient'
+import type { Phase as PhaseClientType } from '@/components/PhaseHistory'
 
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument
@@ -57,10 +59,27 @@ export default async function CharacterPage({
         return notFound()
     }
 
-    // fetch phase history
-    const phases = await Phase.find({ character: id })
+    // 1) Fetch raw phases with lean, typing only the fields we expect at runtime:
+    type RawPhase = {
+        _id: mongoose.Types.ObjectId
+        number: number
+        interaction: string
+        gambit: string
+        resolution: string
+    }
+
+    const rawPhases = await Phase.find({ character: id })
         .sort({ number: 1 })
-        .lean()
+        .lean<RawPhase[]>()
+
+    // 2) Map to pure JSONable PhaseClientType objects:
+    const phases: PhaseClientType[] = rawPhases.map(p => ({
+        _id:         p._id.toString(),
+        number:      p.number,
+        interaction: p.interaction,
+        gambit:      p.gambit,
+        resolution:  p.resolution
+    }))
 
     // fetch all assets and bucket them by category
     const allAssets = await CharacterAsset.find({ character: id }).lean()
@@ -244,51 +263,13 @@ export default async function CharacterPage({
 
             {/* Phase History */}
             <section>
-                <h2 className="text-2xl font-semibold mb-4 text-white">Phase History</h2>
-                {phases.length ? (
-                    <div className="space-y-4">
-                        {phases.map((ph) => (
-                            <div
-                                key={String(ph._id)}
-                                className="bg-gray-800 p-4 rounded-lg space-y-4"
-                            >
-                                {/* Phase header */}
-                                <h4 className="text-indigo-300 font-semibold">
-                                    Phase {ph.number}
-                                </h4>
-
-                                {/* Interaction */}
-                                <div>
-                                    <p className="font-semibold text-gray-200 mb-1">Interaction:</p>
-                                    <div
-                                        className="prose prose-sm prose-white max-w-none tiptap break-smart"
-                                        dangerouslySetInnerHTML={{ __html: ph.interaction }}
-                                    />
-                                </div>
-
-                                {/* Gambit */}
-                                <div>
-                                    <p className="font-semibold text-gray-200 mb-1">Gambit:</p>
-                                    <div
-                                        className="prose prose-sm prose-white max-w-none tiptap break-smart"
-                                        dangerouslySetInnerHTML={{ __html: ph.gambit }}
-                                    />
-                                </div>
-
-                                {/* Resolution */}
-                                <div>
-                                    <p className="font-semibold text-gray-200 mb-1">Resolution:</p>
-                                    <div
-                                        className="prose prose-sm prose-white max-w-none tiptap break-smart"
-                                        dangerouslySetInnerHTML={{ __html: ph.resolution }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-gray-400"><em>No phase history yet.</em></p>
-                )}
+                <h2 className="text-2xl font-semibold mb-4 text-white">
+                    Phase History
+                </h2>
+                <div className="space-y-4">
+                    {/* now this is a Client Component */}
+                    <PhaseHistoryClient phases={phases} />
+                </div>
             </section>
         </div>
     )
