@@ -94,7 +94,7 @@ export default function EditDiplomacyModal({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
             <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="bg-gray-800 p-6 rounded-lg w-full max-w-md space-y-4"
+                className="bg-gray-800 p-6 rounded-lg w-full max-w-4xl space-y-4"
             >
                 <h3 className="text-xl font-semibold text-white">Edit Diplomacy</h3>
 
