@@ -110,7 +110,7 @@ export default async function CharacterPage({
                     Player: <span className="text-white">{char.user?.playerName ?? 'Unknown'}</span> •{' '}
                     Status: <span className="italic">{char.status}</span> •{' '}
                     Faction: <span className="text-indigo-300">{char.faction}</span> •{' '}
-                    Archetype: <span className="text-green-300">{char.race}</span>
+                    Race: <span className="text-green-300">{char.race}</span>
                 </p>
             </header>
 
