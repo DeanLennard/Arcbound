@@ -1,7 +1,7 @@
 // src/app/(dashboard)/admin/arcships/[id]/page.tsx
 'use client'
 import { useParams } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm }       from 'react-hook-form'
 import useSWR, { mutate } from 'swr'
 import type { EventLogDoc }        from '@/models/EventLog'
@@ -286,7 +286,15 @@ export default function AdminArcshipDetail() {
                 <h2 className="text-xl font-semibold">Modules</h2>
                 <ul className="space-y-2">
                     {mods.map(m => (
-                        <li key={m._id} className="flex justify-between bg-gray-800 p-2 rounded">
+                        <li
+                            key={m._id}
+                            className={`
+                                    flex justify-between p-2 rounded
+                                    ${m.state === 'Active'   ? 'bg-green-600 text-white'
+                                    : m.state === 'Inactive' ? 'bg-red-600   text-white'
+                                    : 'bg-gray-800 text-gray-100'}
+                                `}
+                        >
                             <div className="pr-4 flex-1">
                                 <strong>{m.name}</strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
@@ -341,13 +349,25 @@ export default function AdminArcshipDetail() {
                 <h2 className="text-xl font-semibold">Effects</h2>
                 <ul className="space-y-2">
                     {effects.map(ef => (
-                        <li key={ef._id} className="flex justify-between bg-gray-800 p-2 rounded">
+                        <li
+                            key={ef._id}
+                            className={`
+                                    flex justify-between p-2 rounded 
+                                    ${ef.kind === 'Positive' ? 'bg-green-600 text-white'
+                                    : ef.kind === 'Negative'   ? 'bg-red-600   text-white'
+                                    : 'bg-gray-600 text-gray-100'}
+                                `}
+                        >
                             <div className="pr-4 flex-1">
                                 <strong>{ef.name}</strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {ef.level}
                                 </span>
                                 <p className="text-sm">{ef.description}</p>
+                                <div className="mt-1 text-xs">
+                                    Status:{' '}
+                                    <span>{ef.kind}</span>
+                                </div>
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
                                 <button

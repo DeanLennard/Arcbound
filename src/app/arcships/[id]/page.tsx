@@ -410,17 +410,7 @@ export default async function ArcshipPage(
                                 <p className="text-sm break-smart">{fx.description}</p>
                                 <div className="mt-1 text-xs">
                                     Status:{' '}
-                                    <span
-                                        className={
-                                            fx.kind === 'Positive'
-                                                ? 'text-green-400'
-                                                : fx.kind === 'Negative'
-                                                    ? 'text-red-400'
-                                                    : 'text-gray-400'
-                                        }
-                                    >
-                                      {fx.kind}
-                                    </span>
+                                    <span>{fx.kind}</span>
                                 </div>
                             </li>
                         ))}
