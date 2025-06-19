@@ -1,13 +1,7 @@
 // models/Diplomacy.ts
 import mongoose, { Document } from 'mongoose'
 
-export type DiplomacyType =
-    | 'Trade Agreement'
-    | 'Non Aggression Pact'
-    | 'Alliance'
-    | 'War'
-    | 'Total Annihilation'
-    | 'Vassal'
+export type DiplomacyType = 'Trade Agreement' | 'Non Aggression Pact' | 'Alliance' | 'War' | 'Total Annihilation' | 'Vassal'
 
 export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
 

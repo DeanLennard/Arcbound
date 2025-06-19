@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[id]/page.tsx (client component)
+// src/app/(dashboard)/admin/arcships/[id]/page.tsx
 'use client'
 import { useParams } from 'next/navigation'
 import { useState, useEffect } from 'react'
@@ -9,6 +9,10 @@ import AddModuleModal    from './AddModuleModal'
 import AddEffectModal    from './AddEffectModal'
 import AddDiplomacyModal    from './AddDiplomacyModal'
 import AddEventLogModal from './AddEventLogModal'
+import EditEffectModal    from './EditEffectModal'
+import EditModuleModal from './EditModuleModal';
+import EditDiplomacyModal from './EditDiplomacyModal'
+import EditEventLogModal from './EditEventLogModal'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -78,20 +82,23 @@ interface ModuleDoc {
     _id: string
     name: string
     description: string
-    level: string
+    state: 'Active' | 'Inactive'
+    level: 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
+    attachedTo: string;
 }
 interface EffectDoc {
     _id: string
     name: string
     description: string
-    level: string
+    kind: 'Positive'|'Neutral'|'Negative'
+    level: 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
 }
 interface DiplomacyDoc {
     _id: string
     name: string
     description: string
-    type: string
-    level: string
+    type: 'Trade Agreement' | 'Non Aggression Pact' | 'Alliance' | 'War' | 'Total Annihilation' | 'Vassal'
+    level: 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
     ships: { _id: string; name: string }[]
 }
 
@@ -108,7 +115,15 @@ export default function AdminArcshipDetail() {
     const [showModuleModal,    setShowModule]    = useState(false)
     const [showEffectModal,    setShowEffect]    = useState(false)
     const [showDiplomacyModal, setShowDiplomacy] = useState(false)
-    const [ showEventLogModal, setShowEventLogModal ] = useState(false)
+    const [showEventLogModal, setShowEventLogModal ] = useState(false)
+    const [selectedEffect,       setSelectedEffect]       = useState<EffectDoc | null>(null)
+    const [showEditEffectModal,  setShowEditEffectModal]  = useState(false)
+    const [selectedModule,       setSelectedModule]       = useState<ModuleDoc | null>(null)
+    const [showEditModuleModal,  setShowEditModuleModal]  = useState(false)
+    const [selectedDip, setSelectedDip] = useState<DiplomacyDoc | null>(null)
+    const [showEditDipModal, setShowEditDipModal] = useState(false)
+    const [selectedLog, setSelectedLog] = useState<EventLogDoc | null>(null)
+    const [showEditLogModal, setShowEditLogModal] = useState(false)
 
     // hook up RHF
     const { register, handleSubmit, reset, formState } = useForm<Arcship>({
@@ -280,6 +295,15 @@ export default function AdminArcshipDetail() {
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
                                 <button
+                                    className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
+                                    onClick={() => {
+                                        setSelectedModule(m)
+                                        setShowEditModuleModal(true)
+                                    }}
+                                >
+                                    Edit
+                                </button>
+                                <button
                                     className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
                                     onClick={async (e) => {
                                         e.preventDefault()
@@ -303,6 +327,14 @@ export default function AdminArcshipDetail() {
             {showModuleModal && (
                 <AddModuleModal arcshipId={id} onClose={()=>setShowModule(false)} />
             )}
+            {selectedModule && showEditModuleModal && (
+                <EditModuleModal
+                    module={selectedModule}
+                    arcshipId={id!}
+                    isOpen={showEditModuleModal}
+                    onClose={() => setShowEditModuleModal(false)}
+                />
+            )}
             {/* 3) Effects */}
             <section>
                 <h2 className="text-xl font-semibold">Effects</h2>
@@ -318,11 +350,20 @@ export default function AdminArcshipDetail() {
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
                                 <button
+                                    className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
+                                    onClick={() => {
+                                        setSelectedEffect(ef)
+                                        setShowEditEffectModal(true)
+                                    }}
+                                >
+                                    Edit
+                                </button>
+                                <button
                                     className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
                                     onClick={async (e) => {
                                         e.preventDefault()
                                         await fetch(`/api/effects/${ef._id}`, {
-                                            method: 'PUT',
+                                            method: 'DELETE',
                                             headers: {'Content-Type':'application/json'},
                                             body: JSON.stringify({ ships: { remove: id } })
                                         });
@@ -341,6 +382,15 @@ export default function AdminArcshipDetail() {
             {showEffectModal && (
                 <AddEffectModal arcshipId={id} onClose={()=>setShowEffect(false)} />
             )}
+            {selectedEffect && showEditEffectModal && (
+                <EditEffectModal
+                    isOpen={showEditEffectModal}
+                    onClose={() => setShowEditEffectModal(false)}
+                    effect={selectedEffect}
+                    arcshipId={id!}
+                    mutateEffectList={() => mutate(`/api/effects?ship=${id}`)}
+                />
+            )}
             {/* 4) Diplomacy */}
             <section>
                 <h2 className="text-xl font-semibold">Diplomatic Arrangements</h2>
@@ -348,7 +398,7 @@ export default function AdminArcshipDetail() {
                     {diplo.map(d => (
                         <li key={d._id} className="bg-gray-800 p-4 rounded flex justify-between items-start">
                             <div className="pr-4 flex-1">
-                                <strong className="text-white">{d.name}<em>({d.type})</em></strong>
+                                <strong className="text-white">{d.name}<em> ({d.type})</em></strong>
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {d.level}
                                 </span>
@@ -362,6 +412,15 @@ export default function AdminArcshipDetail() {
                                 </p>
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                <button
+                                    className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
+                                    onClick={() => {
+                                        setSelectedDip(d)
+                                        setShowEditDipModal(true)
+                                    }}
+                                >
+                                    Edit
+                                </button>
                                 <button
                                     className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
                                     onClick={async e => {
@@ -384,6 +443,12 @@ export default function AdminArcshipDetail() {
             {showDiplomacyModal && (
                 <AddDiplomacyModal arcshipId={id} onClose={()=>setShowDiplomacy(false)} />
             )}
+            {selectedDip && showEditDipModal && (
+                <EditDiplomacyModal
+                    diplomacy={selectedDip}
+                    onClose={() => setShowEditDipModal(false)}
+                />
+            )}
 
             {/* 5) Event Logs */}
             <section>
@@ -402,6 +467,15 @@ export default function AdminArcshipDetail() {
                                 </div>
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                <button
+                                    className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
+                                    onClick={() => {
+                                        setSelectedLog(l)
+                                        setShowEditLogModal(true)
+                                    }}
+                                >
+                                    Edit
+                                </button>
                                 <button
                                     className="btn-sm bg-red-600 text-white px-2 py-1 rounded"
                                     onClick={async e => {
@@ -430,7 +504,14 @@ export default function AdminArcshipDetail() {
                     onClose={() => setShowEventLogModal(false)}
                 />
             )}
-
+            {selectedLog && showEditLogModal && (
+                <EditEventLogModal
+                    arcshipId={id!}
+                    log={selectedLog}
+                    isOpen={showEditLogModal}
+                    onClose={() => setShowEditLogModal(false)}
+                />
+            )}
         </div>
     )
 }
