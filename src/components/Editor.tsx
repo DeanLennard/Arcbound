@@ -14,6 +14,7 @@ import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
 import ResizeImage from 'tiptap-extension-resize-image';
 import Heading, { type Level } from '@tiptap/extension-heading';
+import TextAlign from '@tiptap/extension-text-align'
 import {
     Bold,
     Italic,
@@ -29,7 +30,11 @@ import {
     Columns as ColumnsIcon,
     Trash2 as TrashIcon,
     Rows as RowsIcon,
-    Minus
+    Minus,
+    AlignLeft,
+    AlignCenter,
+    AlignRight,
+    AlignJustify
 } from 'lucide-react';
 
 interface EditorProps {
@@ -52,6 +57,12 @@ export default function Editor({ value, onChange }: EditorProps) {
                 openOnClick: false,
             }),
             Heading.configure({ levels: [1, 2, 3] }),
+            TextAlign.configure({
+                // which node types it applies to:
+                types: ['heading', 'paragraph'],
+                // which alignment options you want
+                alignments: ['left', 'center', 'right', 'justify'],
+            }),
             Underline,
             Placeholder.configure({
                 placeholder: 'Start typing here...',
@@ -187,6 +198,30 @@ export default function Editor({ value, onChange }: EditorProps) {
                     }`}
                 >
                     <UnderlineIcon size={16} />
+                </button>
+                <button
+                    onClick={() => editor.chain().focus().setTextAlign('left').run()}
+                    className={editor.isActive({ textAlign: 'left' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                >
+                    <AlignLeft size={16} />
+                </button>
+                <button
+                    onClick={() => editor.chain().focus().setTextAlign('center').run()}
+                    className={editor.isActive({ textAlign: 'center' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                >
+                    <AlignCenter size={16} />
+                </button>
+                <button
+                    onClick={() => editor.chain().focus().setTextAlign('right').run()}
+                    className={editor.isActive({ textAlign: 'right' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                >
+                    <AlignRight size={16} />
+                </button>
+                <button
+                    onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+                    className={editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                >
+                    <AlignJustify size={16} />
                 </button>
                 <button
                     type="button"
