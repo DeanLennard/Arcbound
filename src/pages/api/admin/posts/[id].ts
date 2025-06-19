@@ -2,6 +2,7 @@
 import { dbConnect } from '@/lib/mongodb';
 import Post, { PostDocument } from '@/models/Post';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import '@/models/Category'
 
 // Define interfaces for populated fields
 interface PopulatedCategory {

@@ -101,7 +101,8 @@ export async function PUT(req: Request) {
             title,
             content,
             previewImage,
-            category: categoryId
+            category: categoryId,
+            editedAt: new Date(),
         },
         { new: true }
     );

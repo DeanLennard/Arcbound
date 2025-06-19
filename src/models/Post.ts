@@ -10,6 +10,7 @@ export interface PostDocument extends Document {
     likes: mongoose.Types.ObjectId[];
     views: number;
     subscribers: mongoose.Types.ObjectId[];
+    editedAt: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -23,6 +24,7 @@ const postSchema = new mongoose.Schema<PostDocument>({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     views: { type: Number, default: 0 },
     subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    editedAt: { type: Date, default: Date.now },
 }, { timestamps: true });
 
 export default mongoose.models.Post || mongoose.model<PostDocument>('Post', postSchema);

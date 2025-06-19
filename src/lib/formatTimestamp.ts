@@ -9,41 +9,40 @@ export function formatTimestamp(
     const createdTs = new Date(createdAt).getTime()
     const updatedTs = updatedAt ? new Date(updatedAt).getTime() : 0
 
-    // clamp so we never go negative
+    // never negative
     const createdDiffMs = Math.max(0, now - createdTs)
     const createdAgo    = humanize(createdDiffMs)
 
-    // only show an “edited” tag if updatedAt really is after createdAt,
-    // and it was at least 1 minute ago
+    // if edited after creation, compute delta (clamped)
     const editDiffMs = updatedTs > createdTs
-        ? now - updatedTs
+        ? Math.max(0, now - updatedTs)
         : 0
 
-    const editedAgo =
-        updatedTs > createdTs && editDiffMs >= 60_000
-            ? ` (edited ${humanize(editDiffMs)})`
-            : ''
+    const editedAgo = updatedTs > createdTs
+        ? ` (edited ${humanize(editDiffMs)})`
+        : ''
 
     return createdAgo + editedAgo
 }
 
 function humanize(diffMs: number): string {
-    const mins = Math.floor(diffMs / 6e4)
-    const hrs  = Math.floor(diffMs / 3.6e6)
+    const secs = Math.floor(diffMs / 1000)
+    const mins = Math.floor(diffMs / 60_000)
+    const hrs  = Math.floor(diffMs / 3_600_000)
 
-    if (hrs < 24) {
-        if (hrs > 0) {
-            return `${hrs} hour${hrs > 1 ? 's' : ''} ago`
-        } else {
-            return `${mins} minute${mins !== 1 ? 's' : ''} ago`
-        }
+    if (mins < 1) {
+        return `${secs} second${secs !== 1 ? 's' : ''} ago`
+    } else if (hrs < 1) {
+        return `${mins} minute${mins !== 1 ? 's' : ''} ago`
+    } else if (hrs < 24) {
+        return `${hrs} hour${hrs !== 1 ? 's' : ''} ago`
+    } else {
+        const d    = new Date(Date.now() - diffMs)
+        const day  = d.getDate()
+        const mon  = d.toLocaleString('default', { month: 'short' })
+        const yr   = String(d.getFullYear()).slice(-2)
+        return `${day}${getSuffix(day)} ${mon} ${yr}`
     }
-
-    const d    = new Date(Date.now() - diffMs)
-    const day  = d.getDate()
-    const mon  = d.toLocaleString('default', { month: 'short' })
-    const yr   = String(d.getFullYear()).slice(-2)
-    return `${day}${getSuffix(day)} ${mon} ${yr}`
 }
 
 function getSuffix(day: number): string {

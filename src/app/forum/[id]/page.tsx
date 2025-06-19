@@ -21,6 +21,7 @@ interface Post {
         _id: string;
         name: string;
     };
+    editedAt?: string;
     createdAt?: string;
     updatedAt?: string;
     likes?: number;
@@ -188,7 +189,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
                                 Category: {post.category?.name || 'Uncategorized'}
                             </p>
                             <p className="text-xs text-gray-300 mb-4">
-                                Posted: {formatTimestamp(post.createdAt ?? '', post.updatedAt ?? '')}
+                                Posted: {formatTimestamp(post.createdAt ?? '', post.editedAt ?? '')}
                             </p>
                             <div
                                 className="prose max-w-none tiptap"
