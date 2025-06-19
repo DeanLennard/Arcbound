@@ -8,7 +8,7 @@ import type { Types } from 'mongoose'
 import '@/models/Character';
 import '@/models/User';
 import '@/models/Module'
-import Diplomacy from '@/models/Diplomacy'
+import Diplomacy, {DiplomacyType} from '@/models/Diplomacy'
 import '@/models/Effect'
 import '@/models/EventLog'
 import Arcship from '@/models/Arcship'
@@ -211,6 +211,15 @@ export default async function ArcshipPage(
 
     type CoreKey = 'hull'|'core'|'cmd'|'crew'|'nav'|'sense'|'intc';
     const coreKeys: CoreKey[] = ['hull','core','cmd','crew','nav','sense','intc'];
+
+    const bgByType: Record<DiplomacyType, string> = {
+        'Trade Agreement':     'bg-green-600 text-white',
+        'Non Aggression Pact': 'bg-blue-600 text-white',
+        'Alliance':            'bg-indigo-600 text-white',
+        'War':                 'bg-red-600 text-white',
+        'Total Annihilation':  'bg-red-900 text-white',
+        'Vassal':              'bg-yellow-600 text-black',
+    }
 
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4 space-y-6">
@@ -430,15 +439,24 @@ export default async function ArcshipPage(
                                 .join(', ')
 
                             return (
-                                <li key={String(d._id)} className="bg-gray-800 p-2 rounded">
+                                <li
+                                    key={String(d._id)}
+                                    className={`
+                                        ${bgByType[d.type]}
+                                        p-2 rounded
+                                    `}
+                                >
                                     <strong>{d.name}</strong> ({d.type})
-                                    <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                    <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded text-white">
                                         {d.level}
                                     </span>
-                                    <div className="mt-1 text-sm text-gray-400 break-smart">
+                                    <div className="mt-1 text-sm text-black break-smart">
                                         Partners: {others || 'None'}
                                     </div>
-                                    <div className="mt-1 text-s break-smart">{d.description}</div>
+                                    <div
+                                        className="mt-1 text-s tiptap break-smart"
+                                        dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(d.description) }}
+                                    />
                                 </li>
                             )
                         })}

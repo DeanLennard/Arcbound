@@ -13,6 +13,7 @@ import EditEffectModal    from './EditEffectModal'
 import EditModuleModal from './EditModuleModal';
 import EditDiplomacyModal from './EditDiplomacyModal'
 import EditEventLogModal from './EditEventLogModal'
+import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -402,7 +403,10 @@ export default function AdminArcshipDetail() {
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {d.level}
                                 </span>
-                                <p className="text-sm text-gray-300">{d.description}</p>
+                                <div
+                                    className="text-sm text-gray-300 tiptap break-smart"
+                                    dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(d.description) }}
+                                />
                                 <p className="text-xs text-gray-400 mt-1">
                                     Partners:{' '}
                                     {d.ships

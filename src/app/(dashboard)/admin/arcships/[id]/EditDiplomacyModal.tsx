@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import useSWR, { mutate } from 'swr'
 import { Combobox } from '@headlessui/react'
+import Editor from '@/components/Editor'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -108,13 +109,23 @@ export default function EditDiplomacyModal({
                 </div>
 
                 {/* Description */}
+                {/* Description */}
                 <div>
                     <label className="block text-sm text-gray-300">Description</label>
-                    <textarea
-                        {...register('description',{ required: true })}
-                        className="w-full p-2 bg-gray-700 text-white rounded h-20"
+                    <Controller
+                        name="description"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange } }) => (
+                            <Editor
+                                value={value}
+                                onChange={onChange}
+                            />
+                        )}
                     />
-                    {errors.description && <p className="text-red-400 text-xs">Required</p>}
+                    {errors.description && (
+                        <p className="text-red-400 text-xs">Required</p>
+                    )}
                 </div>
 
                 {/* Level */}
