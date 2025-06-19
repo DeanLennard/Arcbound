@@ -215,7 +215,7 @@ export default async function ArcshipPage(
     const bgByType: Record<DiplomacyType, string> = {
         'Trade Agreement':     'bg-green-600 text-white',
         'Non Aggression Pact': 'bg-blue-600 text-white',
-        'Alliance':            'bg-indigo-600 text-white',
+        'Alliance':            'bg-cyan-600 text-white',
         'War':                 'bg-red-600 text-white',
         'Total Annihilation':  'bg-red-900 text-white',
         'Vassal':              'bg-yellow-600 text-black',
