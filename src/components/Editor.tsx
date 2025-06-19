@@ -201,25 +201,33 @@ export default function Editor({ value, onChange }: EditorProps) {
                 </button>
                 <button
                     onClick={() => editor.chain().focus().setTextAlign('left').run()}
-                    className={editor.isActive({ textAlign: 'left' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                    className={`px-2 py-1 rounded ${
+                        editor.isActive({ textAlign: 'left' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'
+                    }`}
                 >
                     <AlignLeft size={16} />
                 </button>
                 <button
                     onClick={() => editor.chain().focus().setTextAlign('center').run()}
-                    className={editor.isActive({ textAlign: 'center' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                    className={`px-2 py-1 rounded ${
+                        editor.isActive({ textAlign: 'center' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'
+                    }`}
                 >
                     <AlignCenter size={16} />
                 </button>
                 <button
                     onClick={() => editor.chain().focus().setTextAlign('right').run()}
-                    className={editor.isActive({ textAlign: 'right' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                    className={`px-2 py-1 rounded ${
+                        editor.isActive({ textAlign: 'right' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'
+                    }`}
                 >
                     <AlignRight size={16} />
                 </button>
                 <button
                     onClick={() => editor.chain().focus().setTextAlign('justify').run()}
-                    className={editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'}
+                    className={`px-2 py-1 rounded ${
+                        editor.isActive({ textAlign: 'justify' }) ? 'bg-blue-600 text-white' : 'bg-gray-500'
+                    }`}
                 >
                     <AlignJustify size={16} />
                 </button>
