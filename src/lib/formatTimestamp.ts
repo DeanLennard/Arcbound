@@ -1,48 +1,53 @@
 // src/lib/formatTimestamp.ts
-
-export function formatTimestamp(createdAt?: string, updatedAt?: string): string {
+export function formatTimestamp(
+    createdAt?: string,
+    updatedAt?: string
+): string {
     if (!createdAt) return 'Unknown'
 
-    const created = new Date(createdAt)
-    const updated = updatedAt ? new Date(updatedAt) : null
-    const now = new Date()
+    const now       = Date.now()
+    const createdTs = new Date(createdAt).getTime()
+    const updatedTs = updatedAt ? new Date(updatedAt).getTime() : 0
 
-    // decide whether to show “edited … ago”
-    const showEdit = updated && updated.getTime() - created.getTime() > 1000
+    // clamp so we never go negative
+    const createdDiffMs = Math.max(0, now - createdTs)
+    const createdAgo    = humanize(createdDiffMs)
 
-    // helper to format “X ago” or fallback to date
-    function when(ts: Date): string {
-        const diffMs   = now.getTime() - ts.getTime()
-        const diffHrs  = Math.floor(diffMs / (1000 * 60 * 60))
-        const diffMins = Math.floor(diffMs / (1000 * 60))
+    // only show an “edited” tag if updatedAt really is after createdAt,
+    // and it was at least 1 minute ago
+    const editDiffMs = updatedTs > createdTs
+        ? now - updatedTs
+        : 0
 
-        if (diffHrs < 24) {
-            if (diffHrs >= 1) {
-                return `${diffHrs} hour${diffHrs > 1 ? 's' : ''} ago`
-            } else {
-                return `${diffMins} minute${diffMins !== 1 ? 's' : ''} ago`
-            }
+    const editedAgo =
+        updatedTs > createdTs && editDiffMs >= 60_000
+            ? ` (edited ${humanize(editDiffMs)})`
+            : ''
+
+    return createdAgo + editedAgo
+}
+
+function humanize(diffMs: number): string {
+    const mins = Math.floor(diffMs / 6e4)
+    const hrs  = Math.floor(diffMs / 3.6e6)
+
+    if (hrs < 24) {
+        if (hrs > 0) {
+            return `${hrs} hour${hrs > 1 ? 's' : ''} ago`
         } else {
-            const day   = ts.getDate()
-            const mon   = ts.toLocaleString('default', { month: 'short' })
-            const year  = ts.getFullYear().toString().slice(-2)
-            return `${day}${getDaySuffix(day)} ${mon} ${year}`
+            return `${mins} minute${mins !== 1 ? 's' : ''} ago`
         }
     }
 
-    // format the main “created” bit
-    const base = when(created)
-
-    // if edited, show “(edited X ago)” or date
-    if (showEdit && updated) {
-        return `${base} (edited ${when(updated)})`
-    }
-
-    return base
+    const d    = new Date(Date.now() - diffMs)
+    const day  = d.getDate()
+    const mon  = d.toLocaleString('default', { month: 'short' })
+    const yr   = String(d.getFullYear()).slice(-2)
+    return `${day}${getSuffix(day)} ${mon} ${yr}`
 }
 
-function getDaySuffix(day: number): string {
-    if (day >= 11 && day <= 13) return 'th'
+function getSuffix(day: number): string {
+    if (day > 10 && day < 14) return 'th'
     switch (day % 10) {
         case 1: return 'st'
         case 2: return 'nd'
