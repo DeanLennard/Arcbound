@@ -82,15 +82,15 @@ export default function SectorMapPage() {
     const maxY = Math.max(...allYs) + HEX_SIZE;
 
     return (
-        <div className="w-full h-full p-4 flex justify-center items-center">
+        <div className="pt-12 md:pt-14 w-full h-full p-4 flex justify-center items-center">
             <img
                 src="/map.jpg"
                 alt="Sector background"
-                className="fixed inset-0 w-full h-full object-cover"
+                className="fixed top-[52px] md:top-14 left-0 right-0 bottom-0 w-full h-full object-cover"
             />
 
             <svg
-                className="absolute inset-0"
+                className="absolute top-[52px] md:top-14 left-0 right-0 bottom-0"
                 viewBox={`${minX} ${minY} ${maxX - minX} ${maxY - minY}`}
                 preserveAspectRatio="xMidYMid meet"
             >
