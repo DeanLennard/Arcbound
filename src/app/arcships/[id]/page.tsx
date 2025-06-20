@@ -11,6 +11,7 @@ import '@/models/Module'
 import Diplomacy, {DiplomacyType} from '@/models/Diplomacy'
 import '@/models/Effect'
 import '@/models/EventLog'
+import '@/models/Sector'
 import Arcship from '@/models/Arcship'
 import type { ArcshipDocument }     from '@/models/Arcship'
 import type { ModuleDoc as ModuleDocument }      from '@/models/Module'
@@ -89,6 +90,7 @@ export default async function ArcshipPage(
                     populate: { path: 'user', select: 'playerName' }
                 })
                 .populate({ path: 'eventLog', options: { sort: { createdAt: -1 } } })
+                .populate<{ currentSector: { name: string; x: number; y: number } }>('currentSector')
                 .lean<PopulatedArcship>(),
 
             Diplomacy
@@ -97,9 +99,16 @@ export default async function ArcshipPage(
                 .lean<DiplomacyWithShips[]>(),
         ])
 
-    const ship = rawShip as PopulatedArcship | null;
+    if (!rawShip) return notFound()
+
+    const ship = rawShip as PopulatedArcship & {
+        currentSector: { name: string; x: number; y: number }
+    }
 
     if (!ship) return <p>Arcship not found</p>
+
+    const sectorName = ship.currentSector.name
+    const { x: sx, y: sy } = ship.currentSector
 
     // build an array of plain‐old JS objects
     const tradePartners: ShipSummary[] = agreements
@@ -226,7 +235,7 @@ export default async function ArcshipPage(
             {/* Header */}
             <header className="mb-4">
                 <h1 className="text-4xl font-bold">{ship.name}</h1>
-                <p className="text-gray-400">{ship.faction} • Sector: {ship.currentSector}</p>
+                <p className="text-gray-400">{ship.faction} • Sector: {sectorName} ({sx},{sy})</p>
             </header>
 
             {/* ACTION BUTTONS: transfer credits & resources */}

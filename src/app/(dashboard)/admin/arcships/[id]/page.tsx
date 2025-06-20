@@ -2,7 +2,7 @@
 'use client'
 import { useParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
-import { useForm }       from 'react-hook-form'
+import {Controller, useForm} from 'react-hook-form'
 import useSWR, { mutate } from 'swr'
 import type { EventLogDoc }        from '@/models/EventLog'
 import AddModuleModal    from './AddModuleModal'
@@ -14,6 +14,7 @@ import EditModuleModal from './EditModuleModal';
 import EditDiplomacyModal from './EditDiplomacyModal'
 import EditEventLogModal from './EditEventLogModal'
 import { prepareHtmlForFrontend } from '@/lib/prepareHtmlForFrontend';
+import type { SectorDoc } from '@/models/Sector'
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
@@ -22,6 +23,8 @@ interface Arcship {
     name: string
     faction: string
     currentSector: string
+    xSector: number
+    ySector: number
     benefit: string
     challenge: string
     // … core metrics …
@@ -48,6 +51,8 @@ interface Arcship {
     targetRangeMod:         number
     shippingItemsMod:       number
     moduleSlotsMod:         number
+
+    flagUrl?: string;
 }
 
 type StatField =
@@ -113,6 +118,7 @@ export default function AdminArcshipDetail() {
     const { data: effects, error: effectsErr } = useSWR<EffectDoc[]>(() => id ?    `/api/effects?ship=${id}` : null,     fetcher)
     const { data: diplo,   error: diploErr   } = useSWR<DiplomacyDoc[]>(() => id ? `/api/diplomacy?ship=${id}` : null, fetcher)
     const { data: logs,    error: logsErr    } = useSWR<EventLogDoc[]>(() => id ? `/api/eventlog?arcship=${id}` : null, fetcher)
+    const { data: sectors } = useSWR<SectorDoc[]>('/api/sectors', fetcher)
     const [showModuleModal,    setShowModule]    = useState(false)
     const [showEffectModal,    setShowEffect]    = useState(false)
     const [showDiplomacyModal, setShowDiplomacy] = useState(false)
@@ -127,7 +133,7 @@ export default function AdminArcshipDetail() {
     const [showEditLogModal, setShowEditLogModal] = useState(false)
 
     // hook up RHF
-    const { register, handleSubmit, reset, formState } = useForm<Arcship>({
+    const { register, control, handleSubmit, reset, setValue, watch, formState } = useForm<Arcship>({
         defaultValues: ship
     })
 
@@ -145,11 +151,38 @@ export default function AdminArcshipDetail() {
         mutate(`/api/arcships/${id}`)
     })
 
+    // watch the sector field
+    const watchedSector = watch('currentSector')
+
+    useEffect(() => {
+        if (!watchedSector || !sectors) return
+        const sel = sectors.find(s => s._id === watchedSector)
+        if (sel) {
+            setValue('xSector', sel.x, { shouldDirty: true })
+            setValue('ySector', sel.y, { shouldDirty: true })
+        }
+    }, [watchedSector, sectors, setValue])
+
+    useEffect(() => {
+        if (!ship || !sectors) return
+        // find by x/y
+        const match = sectors.find(s => s.x === ship.xSector && s.y === ship.ySector)
+        if (match) {
+            // set the select’s value…
+            setValue('currentSector', match._id, { shouldDirty: false, shouldValidate: false })
+            // …and also the hidden X/Y (optional, since those should already be on the ship)
+            setValue('xSector', match.x, { shouldDirty: false })
+            setValue('ySector', match.y, { shouldDirty: false })
+        }
+        // if you’d rather pick simply by ship.currentSector, do:
+        // if (ship.currentSector) setValue('currentSector', ship.currentSector)
+    }, [ship, sectors, setValue])
+
     if (id === null) return <p className="p-6 text-red-400">Missing or invalid arcship ID</p>
     if (shipErr || modsErr || effectsErr || diploErr || logsErr) return <p className="p-6 text-red-400">Error loading data</p>
     if (!ship || !mods || !effects || !diplo || !logs)     return <p className="p-6">Loading…</p>
 
-    const simpleFields = ['currentSector', 'benefit', 'challenge'] as const;
+    const simpleFields = ['benefit', 'challenge'] as const;
     type SimpleField = typeof simpleFields[number];
 
     const metricKeys = ['hull','core','cmd','crew','nav','sense','intc'] as const;
@@ -161,6 +194,73 @@ export default function AdminArcshipDetail() {
 
             {/* 1) Core & history & modifiers */}
             <form onSubmit={onSubmit} className="space-y-6">
+
+                {/* Sector picker */}
+                <div>
+                    <label className="block text-sm font-medium text-white">Sector</label>
+                    <Controller
+                        name="currentSector"
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                            <select
+                                {...field}
+                                onChange={e => {
+                                    field.onChange(e);
+                                    const sel = sectors?.find(s => s._id === e.target.value);
+                                    if (sel) {
+                                        setValue('xSector', sel.x);
+                                        setValue('ySector', sel.y);
+                                    }
+                                }}
+                                className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                            >
+                                <option value="">— Select Sector —</option>
+                                {sectors?.map(s => (
+                                    <option key={s._id} value={s._id}>{s.name}</option>
+                                ))}
+                            </select>
+                        )}
+                    />
+                </div>
+
+                {/* Hidden X/Y fields (they’ll get their values via setValue above) */}
+                <input type="hidden" {...register('xSector', { valueAsNumber: true })} />
+                <input type="hidden" {...register('ySector', { valueAsNumber: true })} />
+
+                {/* Flag picker */}
+                <div>
+                    <label className="block text-sm font-medium text-white">Ship Flag</label>
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const data = new FormData();
+                            data.append('file', file);
+                            // upload
+                            const res = await fetch('/api/admin/upload', {
+                                method: 'POST',
+                                body: data,
+                            });
+                            const { url } = await res.json();
+                            // stash in form
+                            setValue('flagUrl', url, { shouldDirty: true });
+                        }}
+                        className="mt-1 w-full text-sm text-gray-200"
+                    />
+                    <input type="hidden" {...register('flagUrl')} />
+                    {/* live preview */}
+                    {watch('flagUrl') && (
+                        <img
+                            src={watch('flagUrl')}
+                            alt="Flag preview"
+                            className="mt-2 h-8 w-auto object-contain border border-gray-600"
+                        />
+                    )}
+                </div>
+
                 {/* Name + Faction */}
                 <div className="grid grid-cols-2 gap-4">
                     <div>

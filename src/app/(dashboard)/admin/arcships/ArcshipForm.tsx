@@ -1,6 +1,11 @@
 // src/app/(dashboard)/admin/arcships/ArcshipForm.tsx
 'use client';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import {useForm, SubmitHandler, Controller} from 'react-hook-form';
+import type { SectorDoc } from '@/models/Sector'
+import useSWR from "swr";
+import React, { useEffect } from "react";
+
+const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 // static lists
 const FACTIONS = [
@@ -26,6 +31,8 @@ export interface ArcshipFormData {
     faction: Faction;
     factionCustom?: string;
     currentSector: string;
+    xSector: number
+    ySector: number
     benefit: string;
     challenge: string;
     // core metrics
@@ -62,13 +69,29 @@ export default function ArcshipForm({
     const {
         register,
         handleSubmit,
+        control,
+        setValue,
         watch,
         formState: { isSubmitting },
     } = useForm<ArcshipFormData>({ defaultValues: initial });
 
+    const { data: sectors } = useSWR<SectorDoc[]>('/api/sectors', fetcher)
+
     const isEdit = Boolean(initial._id);
 
     const selectedFaction = watch('faction')
+
+    // watch the sector field
+    const watchedSector = watch('currentSector')
+
+    useEffect(() => {
+        if (!watchedSector || !sectors) return
+        const sel = sectors.find(s => s._id === watchedSector)
+        if (sel) {
+            setValue('xSector', sel.x, { shouldDirty: true })
+            setValue('ySector', sel.y, { shouldDirty: true })
+        }
+    }, [watchedSector, sectors, setValue])
 
     const onSubmit: SubmitHandler<ArcshipFormData> = async (data) => {
         // if they chose “Other”…
@@ -88,13 +111,46 @@ export default function ArcshipForm({
         if (res.ok) onSuccess();
     };
 
-    const textFields = ['currentSector','benefit','challenge'] as const;
+    const textFields = ['benefit','challenge'] as const;
 
     return (
         <form
             onSubmit={handleSubmit(onSubmit)}
             className="space-y-6 p-6 bg-gray-800 border border-gray-700 rounded-lg"
         >
+            {/* Sector picker */}
+            <div>
+                <label className="block text-sm font-medium text-white">Sector</label>
+                <Controller
+                    name="currentSector"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field }) => (
+                        <select
+                            {...field}
+                            onChange={e => {
+                                field.onChange(e);
+                                const sel = sectors?.find(s => s._id === e.target.value);
+                                if (sel) {
+                                    setValue('xSector', sel.x);
+                                    setValue('ySector', sel.y);
+                                }
+                            }}
+                            className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                        >
+                            <option value="">— Select Sector —</option>
+                            {sectors?.map(s => (
+                                <option key={s._id} value={s._id}>{s.name}</option>
+                            ))}
+                        </select>
+                    )}
+                />
+            </div>
+
+            {/* Hidden X/Y fields (they’ll get their values via setValue above) */}
+            <input type="hidden" {...register('xSector', { valueAsNumber: true })} />
+            <input type="hidden" {...register('ySector', { valueAsNumber: true })} />
+
             <div className="grid grid-cols-2 gap-4">
                 <div>
                     <label className="block text-sm font-medium text-white">Name</label>

@@ -63,6 +63,7 @@ export default function Header() {
                     <Link href="/" className="hover:underline">Home</Link>
                     <Link href="/forum" className="hover:underline">Relay</Link>
                     <Link href="/tools" className="hover:underline">Tools</Link>
+                    <Link href="/sectormap" className="hover:underline">Map</Link>
                 </nav>
             </div>
 
