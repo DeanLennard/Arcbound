@@ -202,25 +202,34 @@ export default function AdminArcshipDetail() {
                         name="currentSector"
                         control={control}
                         rules={{ required: true }}
-                        render={({ field }) => (
-                            <select
-                                {...field}
-                                onChange={e => {
-                                    field.onChange(e);
-                                    const sel = sectors?.find(s => s._id === e.target.value);
-                                    if (sel) {
-                                        setValue('xSector', sel.x);
-                                        setValue('ySector', sel.y);
-                                    }
-                                }}
-                                className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
-                            >
-                                <option value="">— Select Sector —</option>
-                                {sectors?.map(s => (
-                                    <option key={s._id} value={s._id}>{s.name}</option>
-                                ))}
-                            </select>
-                        )}
+                        render={({ field }) => {
+                            // make a sorted copy of sectors by name
+                            const sorted = sectors
+                                ? [ ...sectors ].sort((a, b) => a.name.localeCompare(b.name))
+                                : [];
+
+                            return (
+                                <select
+                                    {...field}
+                                    onChange={e => {
+                                        field.onChange(e);
+                                        const sel = sectors?.find(s => s._id === e.target.value);
+                                        if (sel) {
+                                            setValue('xSector', sel.x);
+                                            setValue('ySector', sel.y);
+                                        }
+                                    }}
+                                    className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                                >
+                                    <option value="">— Select Sector —</option>
+                                    {sorted.map(s => (
+                                        <option key={s._id} value={s._id}>
+                                            {s.name} ({s.x}, {s.y})
+                                        </option>
+                                    ))}
+                                </select>
+                            )
+                        }}
                     />
                 </div>
 
