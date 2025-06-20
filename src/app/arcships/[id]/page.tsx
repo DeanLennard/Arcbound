@@ -247,6 +247,10 @@ export default async function ArcshipPage(
                 dataBalance={ship.dataBalance}
                 essenceBalance={ship.essenceBalance}
                 partners={tradePartners}
+                navTotal={navTotal}
+                intMovement={totalIntMovement}
+                currentX={ship.xSector}
+                currentY={ship.ySector}
             />
 
             {/* ——— Benefit & Challenge ——— */}

@@ -1,11 +1,13 @@
 // src/components/ArcshipActions.tsx
 'use client'
-import { useState } from 'react'
+import {useMemo, useState} from 'react'
 import useSWR, { useSWRConfig } from 'swr'
+import { useRouter } from 'next/navigation'
 import { Dialog, Combobox } from '@headlessui/react'
 import { useForm } from 'react-hook-form'
 import type { CharacterSummary } from '@/app/(dashboard)/admin/characters/types'
 import type { ArcshipSummary }  from '@/app/(dashboard)/admin/arcships/types'
+import {SectorDoc} from "@/models/Sector";
 
 export interface ShipSummary {
     _id: string
@@ -20,7 +22,11 @@ interface Props {
     energyBalance: number
     dataBalance: number
     essenceBalance: number
-    partners: ShipSummary[]     // only ships with a “Trade Agreement”
+    partners: ShipSummary[]
+    navTotal: number
+    intMovement: number
+    currentX: number
+    currentY: number
 }
 
 const fetcher = (url:string) => fetch(url).then(r => r.json())
@@ -32,10 +38,15 @@ export default function ArcshipActions({
                                            energyBalance,
                                            dataBalance,
                                            essenceBalance,
-                                           partners
+                                           partners,
+                                           navTotal,
+                                           intMovement,
+                                           currentX,
+                                           currentY
                                        }: Props) {
     const { mutate } = useSWRConfig()
-
+    const [showMove, setShowMove] = useState(false);
+    const router = useRouter()
 
     // ─── fetch your lists ─────────────────────────────────────────────────────
     const { data: rawChars } = useSWR<CharacterSummary[]>(
@@ -48,6 +59,97 @@ export default function ArcshipActions({
     )
     const ships = Array.isArray(rawShips) ? rawShips : []
 
+    const { data: allSectors = [] } = useSWR<SectorDoc[]>('/api/sectors', fetcher);
+
+    // ── MOVE SHIP ─────────────────────────────────────────────
+
+    function getReachable(
+        sectors: SectorDoc[],
+        curX: number,
+        curY: number
+    ): SectorDoc[] {
+        // flat-top odd-q offset:
+        // odd columns are shifted down by +0.5 hex
+        const evenDeltas: [number, number][] = [
+            [-1, -1], // NW
+            [ 0, -1], // N
+            [ 1, -1], // NE
+            [ 1,  0], // SE
+            [ 0,  1], // S
+            [-1,  0], // SW
+        ];
+
+        const oddDeltas: [number, number][] = [
+            [ -1,  0], // NW
+            [ 0, -1], // N
+            [ 1,  0], // NE
+            [ 1,  1], // SE
+            [ 0,  1], // S
+            [-1,  1], // SW
+        ];
+
+        const deltas = curX % 2 === 0 ? evenDeltas : oddDeltas;
+
+        return sectors.filter(s => {
+            return deltas.some(([dx, dy]) =>
+                s.x === curX + dx && s.y === curY + dy
+            );
+        });
+    }
+
+    const reachable = useMemo(
+        () => getReachable(allSectors, currentX, currentY),
+        [allSectors, currentX, currentY]
+    );
+
+    async function submitMove(to: string) {
+        if (navTotal <= 0 || intMovement <= 0) {
+            alert("Your ship can't move this turn")
+            return
+        }
+        const res = await fetch('/api/arcships/move', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ shipId, toSector: to })
+        })
+        if (!res.ok) {
+            alert('Move failed')
+            return
+        }
+        // close the modal
+        setShowMove(false)
+        // re-fetch the SWR key for just this ship
+        mutate(`/api/arcships/${shipId}`)
+        // *and* tell Next to re-render the current server page
+        router.refresh()
+    }
+
+    // constants for hex math
+    const HEX_SIZE  = 50
+    const H_SPACING = 1.5 * HEX_SIZE
+    const V_SPACING = Math.sqrt(3) * HEX_SIZE
+
+    /** flat-top odd-q → pixel converter */
+    function hexToPixel(x: number, y: number) {
+        const q = x
+        const r = y - (q - (q & 1)) / 2
+        return {
+            px: H_SPACING * q,
+            py: V_SPACING * (r + q/2),
+        }
+    }
+
+    /** build the “hex corners” once */
+    function getHexPoints(size: number) {
+        return Array.from({ length: 6 })
+            .map((_, i) => {
+                const angle = (Math.PI / 3) * i
+                return [size * Math.cos(angle), size * Math.sin(angle)].join(',')
+            })
+            .join(' ')
+    }
+
+    const hexPts = getHexPoints(HEX_SIZE)
 
     // ── TRANSFER CREDITS ─────────────────────────────────────────────
     type CreditFormValues = {
@@ -150,7 +252,82 @@ export default function ArcshipActions({
                 <button onClick={()=>setShowResModal(true)} className="px-3 py-1 bg-blue-500 rounded">
                     Transfer Resources
                 </button>
+                <button
+                    onClick={() => setShowMove(true)}
+                    className="px-3 py-1 rounded bg-purple-500 hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:hover:bg-gray-400"
+                    disabled={navTotal <= 0 || intMovement <= 0}
+                >
+                    Move Arcship
+                </button>
             </div>
+
+            {/* ——— MOVE SHIP MODAL ——— */}
+            <Dialog open={showMove} onClose={() => setShowMove(false)}>
+                <div className="fixed inset-0 bg-black bg-opacity-60" />
+                <div className="fixed inset-0 flex items-center justify-center p-4">
+                    <Dialog.Panel className="bg-gray-800 p-6 rounded max-w-xs w-full">
+                        <Dialog.Title className="text-white text-lg mb-4">
+                            Move Arcship
+                        </Dialog.Title>
+
+                        {reachable.length === 0 ? (
+                            <p className="text-gray-300">No adjacent sectors.</p>
+                        ) : (
+                            <svg
+                                width={HEX_SIZE*6}
+                                height={HEX_SIZE*6}
+                                viewBox={`${-HEX_SIZE*3} ${-HEX_SIZE*3} ${HEX_SIZE*6} ${HEX_SIZE*6}`}
+                            >
+                                {/* highlight the current hex */}
+                                <polygon
+                                    points={hexPts}
+                                    stroke="#FFD700"
+                                    strokeWidth={2}
+                                    fill="none"
+                                />
+
+                                {reachable.map(s => {
+                                    // compute absolute pixels
+                                    const { px: X, py: Y } = hexToPixel(s.x, s.y)
+                                    const { px: CX, py: CY } = hexToPixel(currentX, currentY)
+
+                                    // this hex’s offset around the center
+                                    const dx = X - CX
+                                    const dy = Y - CY
+
+                                    return (
+                                        <g key={s._id} transform={`translate(${dx},${dy})`}>
+                                            <polygon
+                                                points={hexPts}
+                                                stroke="#fff"
+                                                strokeWidth={1}
+                                                fill="rgba(72,187,120,0.8)"
+                                                className="cursor-pointer hover:fill-green-400"
+                                                onClick={() => submitMove(s._id)}
+                                            />
+                                            <foreignObject
+                                                x={-HEX_SIZE * 0.8}
+                                                y={-HEX_SIZE * 0.5}
+                                                width={HEX_SIZE * 1.6}
+                                                height={HEX_SIZE}
+                                                style={{ pointerEvents: 'none' }}
+                                            >
+                                                <div
+                                                    className="w-full h-full flex items-center justify-center text-xs leading-tight text-black text-center break-words"
+                                                    style={{ pointerEvents: 'none' }}
+                                                >
+                                                    {s.name}
+                                                </div>
+                                            </foreignObject>
+                                        </g>
+                                    )
+                                })}
+                            </svg>
+                        )}
+                    </Dialog.Panel>
+                </div>
+            </Dialog>
+
 
             {/* ——— CREDIT MODAL ——— */}
             <Dialog open={showCreditModal} onClose={()=>setShowCreditModal(false)}>
