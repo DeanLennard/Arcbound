@@ -47,6 +47,7 @@ export default function ArcshipActions({
     const { mutate } = useSWRConfig()
     const [showMove, setShowMove] = useState(false);
     const router = useRouter()
+    const [moveError, setMoveError] = useState<string | null>(null)
 
     // ─── fetch your lists ─────────────────────────────────────────────────────
     const { data: rawChars } = useSWR<CharacterSummary[]>(
@@ -104,23 +105,27 @@ export default function ArcshipActions({
 
     async function submitMove(to: string) {
         if (navTotal <= 0 || intMovement <= 0) {
-            alert("Your ship can't move this turn")
+            setMoveError("Your ship can't move this turn")
             return
         }
+        setMoveError(null)
+
         const res = await fetch('/api/arcships/move', {
             method: 'POST',
-            headers: {'Content-Type':'application/json'},
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ shipId, toSector: to })
         })
+
         if (!res.ok) {
-            alert('Move failed')
+            // pull the error message from the JSON, or fall back
+            const { error: msg } = await res.json().catch(() => ({}))
+            setMoveError(msg || 'Move failed')
             return
         }
-        // close the modal
+
+        // on success, close & refresh
         setShowMove(false)
-        // re-fetch the SWR key for just this ship
         mutate(`/api/arcships/${shipId}`)
-        // *and* tell Next to re-render the current server page
         router.refresh()
     }
 
@@ -269,6 +274,10 @@ export default function ArcshipActions({
                         <Dialog.Title className="text-white text-lg mb-4">
                             Move Arcship
                         </Dialog.Title>
+
+                        {moveError && (
+                            <p className="text-red-400 mb-2">{moveError}</p>
+                        )}
 
                         {reachable.length === 0 ? (
                             <p className="text-gray-300">No adjacent sectors.</p>
