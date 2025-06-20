@@ -25,6 +25,12 @@ export interface CharacterAssetDoc extends Document {
     category:    AssetCategory;
     apcost:      number;
     ebcost:      number;
+    buildType:  'ITEM' | 'IMPLANT';
+    buildCredits:  number;
+    buildAlloys:  number;
+    buildEnergy:  number;
+    buildData:  number;
+    buildEssence:  number;
     character:   Types.ObjectId;
 }
 
@@ -35,6 +41,12 @@ const CharacterAssetSchema = new mongoose.Schema<CharacterAssetDoc>({
     level:       { type: String, enum: ['SPARK','SURGE','FLUX','BREAK','ASCENDANCE'], default: 'SPARK' },
     apcost: { type: Number, default: 0 },
     ebcost: { type: Number, default: 0 },
+    buildType:  { type: String, enum: ['ITEM', 'IMPLANT'], default: 'ITEM' },
+    buildCredits: { type: Number, default: 0 },
+    buildAlloys: { type: Number, default: 0 },
+    buildEnergy: { type: Number, default: 0 },
+    buildData: { type: Number, default: 0 },
+    buildEssence: { type: Number, default: 0 },
     category:    { type: String, enum: [
             'Tag','Item','Shard','Resistance','Weakness','OtherEffect',
             'ThreatLedger','Implant','ThresholdForm','GenomeThread','VitalSignature',

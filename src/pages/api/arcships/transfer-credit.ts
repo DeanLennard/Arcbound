@@ -76,7 +76,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
         // record to your event log
         await EventLog.create({
             eventName: 'Credit Transfer',
-            effect:    `${amt} credits transferred from ${me.name} to ${char.name}`,
+            effect:    `${amt} credits transferred from ${me.name} to ${char.charName}`,
             phase:     gp?.name ?? 'Unknown',
             level:     'SPARK',
             ongoing:   false,

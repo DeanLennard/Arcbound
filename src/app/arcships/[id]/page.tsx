@@ -107,6 +107,11 @@ export default async function ArcshipPage(
 
     if (!ship) return <p>Arcship not found</p>
 
+    const eventLog = [...ship.eventLog]
+        .sort((a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
     const sectorName = ship.currentSector.name
     const { x: sx, y: sy } = ship.currentSector
 
@@ -524,7 +529,7 @@ export default async function ArcshipPage(
                             </tr>
                             </thead>
                             <tbody>
-                            {ship.eventLog.map(e => (
+                            {eventLog.map(e => (
                                 <tr key={String(e._id)} className="border-t">
                                     <td className="px-4 py-2">{e.eventName}</td>
                                     <td className="px-4 py-2 break-smart">{e.effect}</td>

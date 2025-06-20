@@ -13,6 +13,12 @@ interface FormValues {
     state:       'Active' | 'Inactive'
     apcost?: number
     ebcost?: number
+    buildType?:  'ITEM' | 'IMPLANT';
+    buildCredits?:  number;
+    buildAlloys?:  number;
+    buildEnergy?:  number;
+    buildData?:  number;
+    buildEssence?:  number;
 }
 
 export default function EditAssetModal({
@@ -28,6 +34,12 @@ export default function EditAssetModal({
         state: 'Active'|'Inactive'
         apcost: number
         ebcost: number
+        buildType: 'ITEM',
+        buildCredits: 0,
+        buildAlloys: 0,
+        buildEnergy: 0,
+        buildData: 0,
+        buildEssence: 0
         category: AssetCategory
     }
     onClose(): void
@@ -39,12 +51,18 @@ export default function EditAssetModal({
         formState: { errors, isSubmitting },
     } = useForm<FormValues>({
         defaultValues: {
-            name:        asset.name,
-            description: asset.description,
-            level:       asset.level,
-            state:       asset.state,
+            name:         asset.name,
+            description:  asset.description,
+            level:        asset.level,
+            state:        asset.state,
             apcost:       asset.apcost,
             ebcost:       asset.ebcost,
+            buildType:    asset.buildType,
+            buildCredits: asset.buildCredits,
+            buildAlloys:  asset.buildAlloys,
+            buildEnergy:  asset.buildEnergy,
+            buildData:    asset.buildData,
+            buildEssence: asset.buildEssence,
         },
     })
 
@@ -159,6 +177,114 @@ export default function EditAssetModal({
                         <option value="Inactive">Inactive</option>
                     </select>
                 </div>
+
+                {/* only show build fields for Scrapcode */}
+                {asset.category === 'Scrapcode' && (
+                    <>
+                        {/* Build Type */}
+                        <div>
+                            <label className="block text-sm text-gray-300 mb-1">Build Type</label>
+                            <select
+                                {...register('buildType', { required: true })}
+                                className="w-full p-2 bg-gray-700 text-white rounded"
+                                defaultValue="ITEM"
+                            >
+                                <option value="ITEM">ITEM</option>
+                                <option value="IMPLANT">IMPLANT</option>
+                            </select>
+                            {errors.buildType && (
+                                <p className="text-red-400 text-xs mt-1">
+                                    Build type is required
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Build Credits */}
+                        <div>
+                            <label className="block text-sm text-gray-300 mb-1">
+                                Build Credits
+                            </label>
+                            <input
+                                type="number"
+                                {...register('buildCredits', { valueAsNumber: true })}
+                                className="w-full p-2 bg-gray-700 text-white rounded"
+                            />
+                            {errors.buildCredits && (
+                                <p className="text-red-400 text-xs mt-1">
+                                    {errors.buildCredits.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Build Alloys */}
+                        <div>
+                            <label className="block text-sm text-gray-300 mb-1">
+                                Build Alloys
+                            </label>
+                            <input
+                                type="number"
+                                {...register('buildAlloys', { valueAsNumber: true })}
+                                className="w-full p-2 bg-gray-700 text-white rounded"
+                            />
+                            {errors.buildAlloys && (
+                                <p className="text-red-400 text-xs mt-1">
+                                    {errors.buildAlloys.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Build Energy */}
+                        <div>
+                            <label className="block text-sm text-gray-300 mb-1">
+                                Build Energy
+                            </label>
+                            <input
+                                type="number"
+                                {...register('buildEnergy', { valueAsNumber: true })}
+                                className="w-full p-2 bg-gray-700 text-white rounded"
+                            />
+                            {errors.buildEnergy && (
+                                <p className="text-red-400 text-xs mt-1">
+                                    {errors.buildEnergy.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Build Data */}
+                        <div>
+                            <label className="block text-sm text-gray-300 mb-1">
+                                Build Data
+                            </label>
+                            <input
+                                type="number"
+                                {...register('buildData', { valueAsNumber: true })}
+                                className="w-full p-2 bg-gray-700 text-white rounded"
+                            />
+                            {errors.buildData && (
+                                <p className="text-red-400 text-xs mt-1">
+                                    {errors.buildData.message}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* Build Essence */}
+                        <div>
+                            <label className="block text-sm text-gray-300 mb-1">
+                                Build Essence
+                            </label>
+                            <input
+                                type="number"
+                                {...register('buildEssence', { valueAsNumber: true })}
+                                className="w-full p-2 bg-gray-700 text-white rounded"
+                            />
+                            {errors.buildEssence && (
+                                <p className="text-red-400 text-xs mt-1">
+                                    {errors.buildEssence.message}
+                                </p>
+                            )}
+                        </div>
+                    </>
+                )}
 
                 {/* Actions */}
                 <div className="flex justify-end space-x-2">

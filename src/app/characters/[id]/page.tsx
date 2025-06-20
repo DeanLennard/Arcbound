@@ -16,6 +16,7 @@ import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
 import React from "react";
 import PhaseHistoryClient from '@/components/PhaseHistoryClient'
 import type { Phase as PhaseClientType } from '@/components/PhaseHistory'
+import ScrapcodeList, {Scrapcode} from '@/components/ScrapcodeList'
 
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument
@@ -99,7 +100,20 @@ export default async function CharacterPage({
     const genomethreads = bucket('GenomeThread')
     const vitalsignatures= bucket('VitalSignature')
     const rituals       = bucket('Ritual')
-    const scrapcode     = bucket('Scrapcode')
+    const scrapcodeRaw      = bucket('Scrapcode')
+    const scrapcode: Scrapcode[] = scrapcodeRaw.map(r => ({
+        _id:          String(r._id),
+        name:         r.name,
+        description:  r.description,
+        level:        r.level,
+        state:        r.state,
+        buildType:    r.buildType,
+        buildCredits: r.buildCredits,
+        buildAlloys:  r.buildAlloys,
+        buildEnergy:  r.buildEnergy,
+        buildData:    r.buildData,
+        buildEssence: r.buildEssence,
+    }))
 
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4 space-y-6">
@@ -218,7 +232,6 @@ export default async function CharacterPage({
                 { data: genomethreads,    label: 'Genome Threads',   color: 'teal-300'  },
                 { data: vitalsignatures,  label: 'Vital Signatures',  color: 'pink-300'  },
                 { data: rituals,          label: 'Codified Rituals',  color: 'purple-300'},
-                { data: scrapcode,        label: 'Scrapcode Compendium', color: 'yellow-300' },
             ].map(({ data, label, color }) =>
                 data.length > 0 ? (
                     <section key={label}>
@@ -241,7 +254,7 @@ export default async function CharacterPage({
                                     `}
                                     >
                                     {rel.state}
-                                </span>
+                                    </span>
                                     {typeof rel.apcost === 'number' && rel.apcost > 0 && (
                                         <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
                                         {rel.apcost} AP
@@ -253,13 +266,15 @@ export default async function CharacterPage({
                                         {rel.ebcost} EB
                                     </span>
                                     )}
-                                    <p className="text-gray-200 mt-1">{rel.description}</p>
+                                    <div className="text-gray-200 mt-1">{rel.description}</div>
                                 </li>
                             ))}
                         </ul>
                     </section>
                 ) : null
             )}
+
+            <ScrapcodeList scrapcode={scrapcode} characterId={id} />
 
             {/* Phase History */}
             <section>

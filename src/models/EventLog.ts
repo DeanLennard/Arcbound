@@ -10,6 +10,7 @@ export interface EventLogDoc extends Document {
     level: PowerLevel;
     ongoing:    boolean;
     arcship:    mongoose.Types.ObjectId;
+    createdAt:     Date;
 }
 const EventLogSchema = new mongoose.Schema<EventLogDoc>({
     eventName:  String,
@@ -18,5 +19,6 @@ const EventLogSchema = new mongoose.Schema<EventLogDoc>({
     level: { type: String, enum: ['SPARK','SURGE','FLUX', 'BREAK', 'ASCENDANCE'], default: 'SPARK' },
     ongoing:    Boolean,
     arcship:    { type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' },
-});
+}, { timestamps: true });
+
 export default mongoose.models.EventLog || mongoose.model<EventLogDoc>('EventLog', EventLogSchema);

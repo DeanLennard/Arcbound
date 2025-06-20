@@ -6,6 +6,7 @@ import { Dialog, Combobox } from '@headlessui/react'
 import { useForm } from 'react-hook-form'
 import type { CharacterSummary } from '@/app/(dashboard)/admin/characters/types'
 import type { ArcshipSummary }  from '@/app/(dashboard)/admin/arcships/types'
+import {useRouter} from "next/navigation";
 
 // minimal asset shape
 interface AssetSummary { _id: string; name: string; category: string }
@@ -16,6 +17,7 @@ export default function CharacterActions({
     characterId: string
     credits:     number
 }) {
+    const router = useRouter()
     const { mutate } = useSWRConfig()
     const fetcher = (url:string) => fetch(url).then(r=>r.json())
 
@@ -94,6 +96,7 @@ export default function CharacterActions({
         setCreditErrorMsg(null);
         setShowCreditModal(false)
         mutate('/api/characters/summary?status=Active')
+        router.refresh()
     }
 
     // ─── item form ────────────────────────────────────────────────────────────
@@ -138,6 +141,7 @@ export default function CharacterActions({
         // only close on success
         setShowItemModal(false)
         mutate(`/api/character-assets?character=${characterId}`)
+        router.refresh()
     }
 
     // ─── UI state ─────────────────────────────────────────────────────────────
