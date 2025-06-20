@@ -8,6 +8,7 @@ import useSWR, { mutate }         from 'swr'
 import type { AssetCategory } from '@/models/CharacterAsset'
 import Editor                     from '@/components/Editor'
 import CharacterActions from "@/components/CharacterActions";
+import type { CharacterAssetDoc } from '@/models/CharacterAsset'
 
 import AddAssetModal      from './AddAssetModal'
 import EditAssetModal     from './EditAssetModal'
@@ -35,6 +36,12 @@ export interface CharacterAsset {
     state:     'Active'|'Inactive'
     apcost:    number
     ebcost:    number
+    buildType?: 'ITEM'|'IMPLANT'
+    buildCredits?: number
+    buildAlloys?: number
+    buildEnergy?: number
+    buildData?: number
+    buildEssence?: number
     category:  AssetCategory
 }
 
@@ -81,21 +88,21 @@ export default function AdminCharacterDetail() {
         { key:'Scrapcode',      label:'Scrapcode Compendium'}
     ]
 
-    const tagRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Tag`,        fetcher)
-    const itemsRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Item`,        fetcher)
-    const shardsRes       = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Shard`,       fetcher)
-    const resistancesRes  = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Resistance`,  fetcher)
-    const weaknessesRes   = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Weakness`,    fetcher)
-    const otherEffectsRes = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=OtherEffect`,fetcher)
-    const threatLedgerRes     = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=ThreatLedger`,    fetcher)
-    const implantsRes     = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Implant`,    fetcher)
-    const thresholdRes    = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=ThresholdForm`,fetcher)
-    const genomeRes       = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=GenomeThread`, fetcher)
-    const vitalRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=VitalSignature`,fetcher)
-    const ritualsRes      = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Ritual`,       fetcher)
-    const scrapRes        = useSWR<CharacterAsset[]>(`/api/character-assets?character=${id}&category=Scrapcode`,   fetcher)
+    const tagRes        = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Tag`,        fetcher)
+    const itemsRes        = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Item`,        fetcher)
+    const shardsRes       = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Shard`,       fetcher)
+    const resistancesRes  = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Resistance`,  fetcher)
+    const weaknessesRes   = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Weakness`,    fetcher)
+    const otherEffectsRes = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=OtherEffect`,fetcher)
+    const threatLedgerRes     = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=ThreatLedger`,    fetcher)
+    const implantsRes     = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Implant`,    fetcher)
+    const thresholdRes    = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=ThresholdForm`,fetcher)
+    const genomeRes       = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=GenomeThread`, fetcher)
+    const vitalRes        = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=VitalSignature`,fetcher)
+    const ritualsRes      = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Ritual`,       fetcher)
+    const scrapRes        = useSWR<CharacterAssetDoc[]>(`/api/character-assets?character=${id}&category=Scrapcode`,   fetcher)
 
-    const assetsByCat: Record<AssetCategory, CharacterAsset[]> = {
+    const assetsByCat: Record<AssetCategory, CharacterAssetDoc[]> = {
         Tag:            tagRes.data          || [],
         Item:           itemsRes.data        || [],
         Shard:          shardsRes.data       || [],
@@ -113,7 +120,7 @@ export default function AdminCharacterDetail() {
 
     // modal state, properly typed
     const [addingAssetFor, setAddingAssetFor] = useState<AssetCategory| null>(null)
-    const [editingAsset, setEditingAsset]     = useState<CharacterAsset | null>(null)
+    const [editingAsset, setEditingAsset]     = useState<CharacterAssetDoc | null>(null)
     const [showPhase, setShowPhase]           = useState(false)
     const [editingPhase, setEditingPhase]     = useState<Phase | null>(null)
 

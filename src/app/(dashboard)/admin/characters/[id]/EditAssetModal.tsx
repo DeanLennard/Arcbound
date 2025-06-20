@@ -2,7 +2,7 @@
 'use client'
 
 import { useForm, SubmitHandler } from 'react-hook-form'
-import { AssetCategory }          from '@/models/CharacterAsset'
+import type { CharacterAssetDoc }  from '@/models/CharacterAsset'
 
 export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
 
@@ -11,14 +11,14 @@ interface FormValues {
     description: string
     level:       PowerLevel
     state:       'Active' | 'Inactive'
-    apcost?: number
-    ebcost?: number
-    buildType?:  'ITEM' | 'IMPLANT';
-    buildCredits?:  number;
-    buildAlloys?:  number;
-    buildEnergy?:  number;
-    buildData?:  number;
-    buildEssence?:  number;
+    apcost?:     number
+    ebcost?:     number
+    buildType?:  'ITEM' | 'IMPLANT'
+    buildCredits?:  number
+    buildAlloys?:   number
+    buildEnergy?:   number
+    buildData?:     number
+    buildEssence?:  number
 }
 
 export default function EditAssetModal({
@@ -26,22 +26,7 @@ export default function EditAssetModal({
                                            onClose,
                                            onSaved,
                                        }: {
-    asset: {
-        _id: string
-        name: string
-        description: string
-        level: PowerLevel
-        state: 'Active'|'Inactive'
-        apcost: number
-        ebcost: number
-        buildType: 'ITEM',
-        buildCredits: 0,
-        buildAlloys: 0,
-        buildEnergy: 0,
-        buildData: 0,
-        buildEssence: 0
-        category: AssetCategory
-    }
+    asset: CharacterAssetDoc
     onClose(): void
     onSaved(): void
 }) {
