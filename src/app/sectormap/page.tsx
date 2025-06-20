@@ -164,7 +164,7 @@ export default function SectorMapPage() {
                                 {/* tiny name below the flag */}
                                 <text
                                     x={0}
-                                    y={10}
+                                    y={9}
                                     textAnchor="middle"
                                     fontSize="3px"
                                     fill="#000"
