@@ -325,7 +325,7 @@ export default function ArcshipActions({
                                                     className="w-full h-full flex items-center justify-center text-xs leading-tight text-black text-center break-words"
                                                     style={{ pointerEvents: 'none' }}
                                                 >
-                                                    {s.name}
+                                                    {s.name} ({s.x}, {s.y})
                                                 </div>
                                             </foreignObject>
                                         </g>
