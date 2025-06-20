@@ -1,15 +1,27 @@
 // src/app/(dashboard)/admin/arcships/page.tsx
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import useSWR from 'swr';
 import ArcshipForm, { ArcshipFormData } from './ArcshipForm';
 import Link from 'next/link';
+import type { SectorDoc } from '@/models/Sector'
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function AdminArcships() {
     const { data, error, mutate } = useSWR<ArcshipFormData[]>('/api/arcships', fetcher);
+    const { data: sectors } = useSWR<SectorDoc[]>('/api/sectors', fetcher)
     const [editing, setEditing] = useState<ArcshipFormData | null>(null);
+
+    // build a lookup map from sector‐ID to {name,x,y}
+    const sectorLookup = useMemo<
+        Record<string, { name: string; x: number; y: number }>
+    >(() => {
+        return (sectors ?? []).reduce((acc, s) => {
+            acc[s._id] = { name: s.name, x: s.x, y: s.y };
+            return acc;
+        }, {} as Record<string, { name: string; x: number; y: number }>);
+    }, [sectors]);
 
     if (error) return <p className="p-6">Failed to load</p>;
     if (!data)  return <p className="p-6">Loading…</p>;
@@ -41,7 +53,7 @@ export default function AdminArcships() {
                     >
                         <span>{ship.name}</span>
                         <span>{ship.faction}</span>
-                        <span>{ship.currentSector}</span>
+                        <span>{sectorLookup[ship.currentSector]?.name ?? ship.currentSector} ({sectorLookup[ship.currentSector]?.x}, {sectorLookup[ship.currentSector]?.y})</span>
                         <div className="space-x-2">
                             <Link
                                 href={`/arcships/${ship._id}`}
