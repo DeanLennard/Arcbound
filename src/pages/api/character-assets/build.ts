@@ -27,7 +27,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3) Check credits
     const cost = scrap.buildCredits || 0
     if (character.credits < cost) {
-        return res.status(400).json({ error: `Not enough credits (${cost} required)` })
+        const formatted = cost.toLocaleString()      // e.g. "1,234"
+        return res
+            .status(400)
+            .json({ error: `Not enough credits (${formatted} required)` })
     }
 
     // 4) Deduct credits and save
