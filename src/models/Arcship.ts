@@ -9,7 +9,9 @@ export interface CoreMetric {
 export interface ArcshipDocument extends Document {
     name: string;
     faction: string;
-    currentSector: string;
+    currentSector: Types.ObjectId
+    xSector: number;
+    ySector: number;
     benefit: string;
     challenge: string;
 
@@ -45,6 +47,8 @@ export interface ArcshipDocument extends Document {
     diplomacy:     Types.ObjectId[]; // ← Diplomacy.ships
     eventLog: Types.ObjectId[];      // EventLog refs
 
+    flagUrl?: string;
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -57,7 +61,13 @@ const CoreMetricSchema = new mongoose.Schema<CoreMetric>({
 const ArcshipSchema = new mongoose.Schema<ArcshipDocument>({
     name:          { type: String, required: true },
     faction:       { type: String, required: true },
-    currentSector: { type: String, required: true },
+    currentSector: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Sector',
+        required: true
+    },
+    xSector:       { type: Number, default: 0 },
+    ySector:       { type: Number, default: 0 },
     benefit:       { type: String, default: '' },
     challenge:     { type: String, default: '' },
 
@@ -86,6 +96,8 @@ const ArcshipSchema = new mongoose.Schema<ArcshipDocument>({
     targetRangeMod:         { type: Number, default: 0 },
     shippingItemsMod:       { type: Number, default: 0 },
     moduleSlotsMod:         { type: Number, default: 0 },
+
+    flagUrl: { type: String, default: '' },
 
 }, { timestamps: true });
 

@@ -38,6 +38,9 @@ export default function DashboardLayout({
                     <Link href="/admin/characters" className="hover:underline">
                         Manage Characters
                     </Link>
+                    <Link href="/admin/sectors" className="hover:underline">
+                        Manage Sectors
+                    </Link>
                 </nav>
             </aside>
 
