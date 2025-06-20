@@ -111,10 +111,10 @@ export default function SectorMapPage() {
                                 x={0}
                                 y={4}
                                 textAnchor="middle"
-                                fontSize="6px"
+                                fontSize="4px"
                                 fill="#fff"
                             >
-                                {s.name}
+                                {s.name} ({s.x}, {s.y})
                             </text>
 
                             {/* 🛰 mission flag */}
@@ -166,7 +166,7 @@ export default function SectorMapPage() {
                                     x={0}
                                     y={10}
                                     textAnchor="middle"
-                                    fontSize="4px"
+                                    fontSize="3px"
                                     fill="#000"
                                     stroke="#fff"
                                     strokeWidth="0.3"
