@@ -216,6 +216,7 @@ export default function Header() {
                     <Link href="/" onClick={toggleMenu} className="hover:underline">Home</Link>
                     <Link href="/forum" onClick={toggleMenu} className="hover:underline">Relay</Link>
                     <Link href="/tools" onClick={toggleMenu} className="hover:underline">Tools</Link>
+                    <Link href="/sectormap" className="hover:underline">Map</Link>
 
                     {/* ——— My Character ——— */}
                     {session && myChars && myChars.length > 0 && (
