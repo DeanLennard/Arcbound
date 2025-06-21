@@ -274,7 +274,9 @@ export default async function CharacterPage({
                 ) : null
             )}
 
-            <ScrapcodeList scrapcode={scrapcode} characterId={id} />
+            {char.role === 'Void Mechanic' && (
+                <ScrapcodeList scrapcode={scrapcode} characterId={id} />
+            )}
 
             {/* Phase History */}
             <section>
