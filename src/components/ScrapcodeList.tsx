@@ -5,6 +5,8 @@ import { useState } from 'react'
 interface Props {
     scrapcode: Scrapcode[]
     characterId: string
+    characterStatus: 'Active' | 'Dead' | 'Retired'
+    isAdmin: boolean
 }
 
 export interface Scrapcode {
@@ -21,7 +23,7 @@ export interface Scrapcode {
     buildEssence: number
 }
 
-export default function ScrapcodeList({ scrapcode, characterId }: Props) {
+export default function ScrapcodeList({ scrapcode, characterId, characterStatus, isAdmin }: Props) {
     const [error, setError] = useState<string | null>(null)
     const [busyId, setBusyId] = useState<string | null>(null)
 
@@ -80,17 +82,19 @@ export default function ScrapcodeList({ scrapcode, characterId }: Props) {
                             {rel.buildData    > 0 && <span>Data:    {rel.buildData.toLocaleString()}</span>}
                             {rel.buildEssence > 0 && <span>Essence: {rel.buildEssence.toLocaleString()}</span>}
                         </div>
-                        <button
-                            disabled={busyId === rel._id}
-                            onClick={() => handleBuild(String(rel._id))}
-                            className={`mt-2 px-3 py-1 rounded ${
-                                busyId === rel._id
-                                    ? 'bg-gray-500 cursor-wait'
-                                    : 'bg-yellow-500 hover:bg-yellow-600'
-                            } text-black`}
-                        >
-                            {busyId === rel._id ? 'Building…' : 'Build'}
-                        </button>
+                        {(characterStatus === 'Active' || isAdmin) && (
+                            <button
+                                disabled={busyId === rel._id}
+                                onClick={() => handleBuild(String(rel._id))}
+                                className={`mt-2 px-3 py-1 rounded ${
+                                    busyId === rel._id
+                                        ? 'bg-gray-500 cursor-wait'
+                                        : 'bg-yellow-500 hover:bg-yellow-600'
+                                } text-black`}
+                            >
+                                {busyId === rel._id ? 'Building…' : 'Build'}
+                            </button>
+                        )}
                     </li>
                 ))}
             </ul>

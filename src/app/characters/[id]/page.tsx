@@ -128,10 +128,12 @@ export default async function CharacterPage({
                 </p>
             </header>
 
-            <CharacterActions
-                characterId={id}
-                credits={char.credits}
-            />
+            {(char?.status === 'Active' || session?.user?.role === 'admin') && (
+                <CharacterActions
+                    characterId={id}
+                    credits={char.credits}
+                />
+            )}
 
             {/* Resources & Stats */}
             <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -152,7 +154,11 @@ export default async function CharacterPage({
                 <div className="bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-xl font-semibold text-white mb-2">Credits & Legacy Thready</h2>
                     <p className="text-gray-200">Credits: {char.credits.toLocaleString()}</p>
-                    <p className="text-gray-200">Legacy Threads: {char.legacythreads.toLocaleString()}</p>
+                    {typeof char.legacythreads === 'number' && (
+                        <p className="text-gray-200">
+                            Legacy Threads: {char.legacythreads.toLocaleString()}
+                        </p>
+                    )}
                 </div>
             </section>
 
@@ -276,7 +282,12 @@ export default async function CharacterPage({
             )}
 
             {char.role === 'Void Mechanic' && (
-                <ScrapcodeList scrapcode={scrapcode} characterId={id} />
+                <ScrapcodeList
+                    scrapcode={scrapcode}
+                    characterId={id}
+                    characterStatus={char.status}
+                    isAdmin={isAdmin}
+                />
             )}
 
             {/* Phase History */}
