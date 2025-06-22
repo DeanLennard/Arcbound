@@ -17,6 +17,7 @@ export interface CharacterDocument extends Document {
     ascPoints: { spent: number; remaining: number };
     essenceBurn: { spent: number; remaining: number };
     credits: number;
+    legacythreads: number;
 
     background: string;
     factionObjective: string;
@@ -65,6 +66,7 @@ const CharacterSchema = new mongoose.Schema<CharacterDocument>({
         remaining: { type: Number, default: 0 },
     },
     credits:     { type: Number, default: 0 },
+    legacythreads:     { type: Number, default: 0 },
 
     background:        { type: String, default: '' },
     factionObjective:  { type: String, default: '' },

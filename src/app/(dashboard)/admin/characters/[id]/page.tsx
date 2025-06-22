@@ -61,6 +61,7 @@ interface CharacterForm {
     ascPoints:       { spent: number; remaining: number }
     essenceBurn:     { spent: number; remaining: number }
     credits:         number
+    legacythreads:   number
     background:      string
     factionObjective:string
 }
@@ -193,6 +194,11 @@ export default function AdminCharacterDetail() {
                     <div>
                         <label className="block text-sm text-white">Credits</label>
                         <input type="number" {...register('credits')}
+                               className="mt-1 w-full p-2 bg-gray-700 text-white rounded"/>
+                    </div>
+                    <div>
+                        <label className="block text-sm text-white">Legacy Threads</label>
+                        <input type="number" {...register('legacythreads')}
                                className="mt-1 w-full p-2 bg-gray-700 text-white rounded"/>
                     </div>
                 </div>
