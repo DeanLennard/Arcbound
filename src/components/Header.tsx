@@ -52,6 +52,15 @@ export default function Header() {
 
     const toggleMenu = () => setMenuOpen(o => !o)
 
+    const { data: meetings } = useSWR<{ _id: string; name: string; participantCount: number }[]>(
+        session ? '/api/meetings/active' : null,
+        fetcher
+    );
+    const [meetingQuery, setMeetingQuery] = useState('');
+    const filteredMeetings = (meetings || []).filter((m) =>
+        m.name.toLowerCase().includes(meetingQuery.toLowerCase())
+    );
+
     return (
         <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center relative">
             {/* Left: Logo + nav */}
@@ -80,6 +89,60 @@ export default function Header() {
                                 </span>
                             )}
                         </Link>
+
+                        {/* Active Meetings */}
+                        {session && meetings && (
+                            <div className="hidden md:block relative">
+                                {meetings.length === 1 ? (
+                                    <Link
+                                        href={`/meet/${meetings[0]._id}`}
+                                        className="bg-purple-600 hover:bg-purple-700 px-2 py-1 rounded text-sm text-white"
+                                    >
+                                        Join Meeting: {meetings[0].name}
+                                    </Link>
+                                ) : meetings.length > 1 ? (
+                                    <Combobox<{ _id: string; name: string }>
+                                        value={undefined}
+                                        onChange={(room) => {
+                                            if (room) router.push(`/meet/${room._id}`)
+                                        }}
+                                    >
+                                        <div className="relative">
+                                            <Combobox.Button className="absolute inset-y-0 right-0 px-2 flex items-center">
+                                                <span className="absolute -top-1 -right-1 bg-red-500 text-xs rounded-full px-1">
+                                                  {meetings.length}
+                                                </span>
+                                                ▼
+                                            </Combobox.Button>
+                                            <Combobox.Input
+                                                className="bg-purple-600 text-white px-2 py-1 rounded text-sm"
+                                                placeholder="Active Meetings…"
+                                                onChange={(e) => setMeetingQuery(e.target.value)}
+                                                displayValue={(r) => r?.name || ''}
+                                            />
+                                            <Combobox.Options className="absolute mt-1 w-full bg-gray-800 rounded max-h-48 overflow-auto z-50">
+                                                {filteredMeetings.map((m) => (
+                                                    <Combobox.Option
+                                                        key={m._id}
+                                                        value={m}
+                                                        className={({ active }) =>
+                                                            `px-3 py-1 cursor-pointer ${
+                                                                active ? 'bg-purple-700 text-white' : 'text-gray-200'
+                                                            }`
+                                                        }
+                                                    >
+                                                        {m.name}{' '}
+                                                        <span className="text-xs text-gray-400">
+                                                          ({m.participantCount})
+                                                        </span>
+                                                    </Combobox.Option>
+                                                ))}
+                                            </Combobox.Options>
+                                        </div>
+                                    </Combobox>
+                                ) : null}
+                            </div>
+                        )}
 
                         {/* single vs multiple chars */}
                         <div className="hidden md:block">
@@ -217,6 +280,27 @@ export default function Header() {
                     <Link href="/forum" onClick={toggleMenu} className="hover:underline">Relay</Link>
                     <Link href="/tools" onClick={toggleMenu} className="hover:underline">Tools</Link>
                     <Link href="/sectormap" onClick={toggleMenu} className="hover:underline">Map</Link>
+
+                    {meetings && meetings.length > 0 && (
+                        <select
+                            className="bg-purple-600 text-white px-2 py-1 rounded text-sm"
+                            defaultValue=""
+                            onChange={(e) => {
+                                const id = e.target.value;
+                                if (id) {
+                                    router.push(`/meet/${id}`);
+                                    toggleMenu();
+                                }
+                            }}
+                        >
+                            <option value="">Join a Meeting…</option>
+                            {meetings?.map((m) => (
+                                <option key={m._id} value={m._id}>
+                                    {m.name} ({m.participantCount})
+                                </option>
+                            ))}
+                        </select>
+                    )}
 
                     {/* ——— My Character ——— */}
                     {session && myChars && myChars.length > 0 && (
