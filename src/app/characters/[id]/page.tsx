@@ -152,7 +152,7 @@ export default async function CharacterPage({
                     </p>
                 </div>
                 <div className="bg-gray-800 p-4 rounded-lg">
-                    <h2 className="text-xl font-semibold text-white mb-2">Credits & Legacy Thready</h2>
+                    <h2 className="text-xl font-semibold text-white mb-2">Credits & Legacy Threads</h2>
                     <p className="text-gray-200">Credits: {char.credits.toLocaleString()}</p>
                     {typeof char.legacythreads === 'number' && (
                         <p className="text-gray-200">
