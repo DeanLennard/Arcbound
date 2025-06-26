@@ -119,7 +119,7 @@ export default function ToolsPage() {
                 </div>
                 {/* Column 2 */}
                 <div className="space-y-4">
-                    <ToolButton label="Sector Map" link="https://miro.com/app/board/uXjVIJD6C_M=/?share_link_id=18936603177" />
+                    <ToolButton label="Sector Map" link="https://www.arcbound.co.uk/sectormap" />
                     <ToolButton label="The Ledger" link="https://docs.google.com/document/d/1NEvFhh8uYreNRV6xGKUgH7pUOPQ1Sg1_WHl1talpDrs/edit?usp=sharing" />
                     <ToolButton label="General Arcship Modules" link="https://docs.google.com/document/d/10dG6ko-TbMY7tDl3tPtLaNoipRMXYQaHbOJne5xZ7Qw/edit?usp=sharing" />
                 </div>
