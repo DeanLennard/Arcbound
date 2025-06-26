@@ -154,13 +154,5 @@ body {
 
 .break-smart {
   overflow-wrap: break-word;
-  word-break: break-word;
-  word-break: break-word;
+  word-break: break-all;
 }
-
-@media (min-width: 640px) {
-  .break-smart {
-    word-break: normal;
-  }
-}
-

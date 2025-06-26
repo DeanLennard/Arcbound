@@ -7,6 +7,7 @@ import data from '@emoji-mart/data';
 import Image from "next/image";
 import type { Chat } from '@/types/chat';
 import Select from 'react-select';
+import Linkify from 'linkify-react';
 
 interface User {
     _id: string;
@@ -428,7 +429,15 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                             {msg.content}
                                         </a>
                                     ) : (
-                                        msg.content
+                                        <Linkify
+                                            options={{
+                                                target: '_blank',
+                                                rel: 'noopener',
+                                                className: 'text-blue-400 underline'
+                                            }}
+                                        >
+                                            {msg.content}
+                                        </Linkify>
                                     )}
                                 </div>
                                 <div
