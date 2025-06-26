@@ -32,6 +32,7 @@ export async function GET(req: Request) {
     const transformedPosts = await Promise.all(posts.map(async post => {
         const { authorId, ...rest } = post;
         const comments = await Comment.find({ postId: post._id }).lean();
+        const commentsCount = await Comment.countDocuments({ postId: post._id })
         return {
             ...rest,
             author: authorId
@@ -42,7 +43,10 @@ export async function GET(req: Request) {
                 : { characterName: 'Unknown', profileImage: null },
             comments: comments.map(comment => ({
                 content: comment.content
-            }))
+            })),
+            views:         post.views ?? 0,
+            likesCount:    Array.isArray(post.likes) ? post.likes.length : 0,
+            commentsCount,
         };
     }));
 

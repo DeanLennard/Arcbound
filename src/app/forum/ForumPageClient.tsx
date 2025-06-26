@@ -18,6 +18,9 @@ interface Post {
     updatedAt?: string;
     author?: { characterName?: string; profileImage?: string };
     comments?: Comment[];
+    views: number
+    likesCount: number
+    commentsCount: number
 }
 
 interface Category {
@@ -355,6 +358,11 @@ export default function ForumPage() {
                                 <p className="text-sm text-gray-100 line-clamp-3">
                                     {stripHtml(post.content)}
                                 </p>
+                                <div className="mt-auto flex w-full items-center justify-center text-xs text-gray-400 gap-4 py-2">
+                                    <span className="flex items-center gap-1">👁 <strong>{post.views.toLocaleString()}</strong></span>
+                                    <span className="flex items-center gap-1">❤️ <strong>{post.likesCount.toLocaleString()}</strong></span>
+                                    <span className="flex items-center gap-1">💬 <strong>{post.commentsCount.toLocaleString()}</strong></span>
+                                </div>
                             </Link>
                         ))
                     ) : (
@@ -402,6 +410,11 @@ export default function ForumPage() {
                                 <p className="text-xs text-gray-100 line-clamp-3">
                                     {stripHtml(post.content)}
                                 </p>
+                                <div className="mt-auto flex w-full items-center justify-center text-xs text-gray-400 gap-4 py-2">
+                                    <span className="flex items-center gap-1">👁 <strong>{post.views.toLocaleString()}</strong></span>
+                                    <span className="flex items-center gap-1">❤️ <strong>{post.likesCount.toLocaleString()}</strong></span>
+                                    <span className="flex items-center gap-1">💬 <strong>{post.commentsCount.toLocaleString()}</strong></span>
+                                </div>
                             </Link>
                         ))}
                     </div>
