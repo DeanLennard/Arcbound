@@ -320,13 +320,18 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         {/* Header */}
             <div className="flex justify-between items-center border-b border-gray-700 mb-2">
                 <h4 className="text-white text-md">
-                    {chat.isGroup
+                    {chat.groupName?.trim()
                         ? chat.groupName
-                        : chat.members.find((m) => {
-                        if (!m || !m._id) return false;
-                        const idString = typeof m._id === 'string' ? m._id : m._id.toString();
-                        return idString !== currentUserId;
-                    })?.characterName || 'Chat'}
+                        : chat.isGroup
+                            ? 'Group Chat'
+                            : chat.members.find(m => {
+                                if (!m || !m._id) return false
+                                const idString = typeof m._id === 'string'
+                                    ? m._id
+                                    : m._id.toString()
+                                return idString !== currentUserId
+                            })?.characterName
+                            || 'Chat'}
                 </h4>
                 <div className="flex items-center gap-2">
                     <button
@@ -350,14 +355,12 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                     </button>
                 </div>
             </div>
-            {chat.isGroup && (
-                <button
-                    onClick={() => setShowGroupMembers(true)}
-                    className="text-gray-400 hover:text-white text-xs underline"
-                >
-                    Group Settings
-                </button>
-            )}
+            <button
+                onClick={() => setShowGroupMembers(true)}
+                className="text-gray-400 hover:text-white text-xs underline"
+            >
+                Group Settings
+            </button>
             {/* Messages */}
             <div
                 ref={messagesContainerRef}
@@ -710,8 +713,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                         body: JSON.stringify({ userId: selectedUser._id })
                                     });
                                     if (res.ok) {
-                                        const updatedChat = await res.json(); // updated chat from backend
-                                        chat.members = updatedChat.chat.members; // update chat object in place
+                                        const { chat: updated } = await res.json();
+                                        // make sure the backend has set `isGroup: true`
+                                        chat.isGroup = updated.isGroup;
+                                        chat.groupName = updated.groupName;
+                                        chat.members  = updated.members;
                                         setSelectedUser(null);
                                         window.dispatchEvent(new Event('refreshChats'));
                                     } else {

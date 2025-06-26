@@ -206,13 +206,27 @@ export default function ChatDock() {
                             </button>
                             <div className="max-h-64 overflow-y-auto">
                                 {chats.map((chat) => {
-                                    const otherMember = chat.members?.find(m => m?._id && m._id.toString() !== currentUserId);
+                                    // figure out whether we should treat this as a group chat
+                                    const isActuallyGroup =
+                                        !!chat.groupName?.trim() ||
+                                        chat.isGroup ||
+                                        (chat.members?.length || 0) > 2;
 
-                                    const chatName = chat.isGroup
-                                        ? chat.groupName ?? 'Unknown'
-                                        : otherMember?.characterName ?? 'Unknown';
+                                    // find the “other” person in a true 1:1 chat
+                                    const otherMember = chat.members?.find(
+                                        (m) =>
+                                            m?._id &&
+                                            m._id.toString() !== currentUserId
+                                    );
 
-                                    const chatImage = chat.isGroup
+                                    // pick the display name
+                                    const chatName = chat.groupName?.trim()
+                                        ? chat.groupName
+                                        : !isActuallyGroup
+                                            ? otherMember?.characterName ?? 'Chat'
+                                            : 'Group Chat';
+
+                                    const chatImage = chat.groupImage?.trim()
                                         ? (chat.groupImage && chat.groupImage.startsWith('/uploads')
                                             ? chat.groupImage
                                             : '/placeholder.jpg')

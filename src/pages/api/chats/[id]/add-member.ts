@@ -59,6 +59,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
 
             chat.members.push(userToAdd._id);
+            if (chat.members.length >= 3) {
+                chat.isGroup = true;
+                chat.groupName ||= 'Group Chat';
+            }
             await chat.save();
 
             // Re-populate members to send updated data
