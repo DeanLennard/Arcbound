@@ -153,6 +153,7 @@ body {
 }
 
 .break-smart {
+  word-break: normal;
   overflow-wrap: break-word;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
