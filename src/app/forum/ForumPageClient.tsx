@@ -341,7 +341,7 @@ export default function ForumPage() {
                                     Category: {post.category?.name || 'Uncategorized'}
                                 </p>
                                 <p className="text-xs text-gray-400 mb-2">
-                                    {formatTimestamp(post.createdAt ?? '', post.editedAt ?? '')}
+                                    {formatTimestamp(post.lastActivity, post.editedAt)}
                                 </p>
                                 {post.previewImage && (
                                     <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
@@ -390,7 +390,7 @@ export default function ForumPage() {
                             >
                                 <h3 className="font-bold text-md mb-1">{post.title}</h3>
                                 <p className="text-xs text-gray-400 mb-2">
-                                    {formatTimestamp(post.createdAt ?? '', post.editedAt ?? '')}
+                                    {formatTimestamp(post.lastActivity, post.editedAt)}
                                 </p>
                                 {post.previewImage && (
                                     <div style={{ position: 'relative', width: '100%', aspectRatio: '4 / 2' }}>
