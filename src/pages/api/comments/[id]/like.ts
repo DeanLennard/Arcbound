@@ -5,20 +5,29 @@ import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
 
-interface Liker { characterName: string }
+type CommentWithLikers = {
+    _id: string
+    likes: Array<{ characterName: string }>
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
     const { id } = req.query; // commentId
 
     if (req.method === 'GET') {
+        // Fetch just characterName on each liker
         const comment = await Comment
             .findById(id)
-            .populate<{ likes: any }>('likes', 'characterName');
-        if (!comment) return res.status(404).json({ error: 'Comment not found' });
+            .populate('likes', 'characterName')
+            // .lean<CommentWithLikers>() tells TS what shape to expect
+            .lean<CommentWithLikers>()
 
-        const likers = comment.likes.map((u: any) => u.characterName);
-        return res.json({ count: likers.length, likers });
+        if (!comment) {
+            return res.status(404).json({ error: 'Comment not found' })
+        }
+
+        const likers = comment.likes.map(u => u.characterName)
+        return res.json({ count: likers.length, likers })
     }
 
     if (req.method === 'POST') {
