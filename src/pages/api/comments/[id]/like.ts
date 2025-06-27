@@ -1,9 +1,11 @@
+// /src/pages/api/comments/[id]/like.ts
 import { dbConnect } from '@/lib/mongodb';
 import Comment from '@/models/Comment';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
+import Notification from "@/models/Notification";
 
 type CommentWithLikers = {
     _id: string
@@ -49,6 +51,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 comment.likes = comment.likes.filter((uid: mongoose.Types.ObjectId) => uid.toString() !== userId);
             } else {
                 comment.likes.push(userId);
+                await Notification.create({
+                    userId: comment.authorId,
+                    postId: comment.postId,
+                    type: 'like', // or 'comment'
+                });
             }
 
             await comment.save();

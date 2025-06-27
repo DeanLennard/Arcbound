@@ -57,7 +57,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 // Like
                 post.likes.push(userId);
                 await Notification.create({
-                    userId: session.user.id,
+                    userId: post.authorId,
                     postId: post._id,
                     type: 'like', // or 'comment'
                 });
