@@ -22,6 +22,7 @@ export async function GET(req: Request) {
     const posts = await Post.find(query)
         .populate('category')
         .populate('authorId', 'characterName profileImage')
+        .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
         .lean()
