@@ -338,19 +338,19 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                     <button
                         onClick={toggleMute}
                         title={isMuted ? 'Unmute Chat' : 'Mute Chat'}
-                        className="text-gray-400 hover:text-yellow-400"
+                        className="p-2 rounded-md text-gray-400 hover:text-yellow-400 hover:bg-gray-700 focus:outline-none focus:ring"
                     >
                         {isMuted ? '🔕' : '🔔'}
                     </button>
                     <button
                         onClick={() => setIsMaximised(!isMaximised)}
-                        className="text-gray-400 hover:text-green-500"
+                        className="p-2 rounded-md text-gray-400 hover:text-green-500 hover:bg-gray-700 focus:outline-none focus:ring"
                     >
                         {isMaximised ? '−' : '⬈'}
                     </button>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-red-500"
+                        className="p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-gray-700 focus:outline-none focus:ring"
                     >
                         X
                     </button>
