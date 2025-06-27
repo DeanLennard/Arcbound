@@ -60,6 +60,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [showGifPicker, setShowGifPicker] = useState(false);
     const [gifResults, setGifResults] = useState<string[]>([]);
     const [isMuted, setIsMuted] = useState(false);
+    const [isSending, setIsSending] = useState(false);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -119,8 +120,10 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     }, [chat._id]);
 
     const sendMessage = async () => {
+        if (isSending) return;
         if (!newMessage.trim()) return;
 
+        setIsSending(true);
         try {
             const res = await fetch(`/api/chats/${chat._id}/send`, {
                 method: 'POST',
@@ -136,6 +139,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             setShowEmojiPicker(false);
         } catch (err) {
             console.error('Failed to send message:', err);
+        } finally {
+            setIsSending(false);
         }
     };
 
@@ -564,8 +569,12 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                             className="flex-1 p-1 rounded bg-gray-700 text-white resize-y min-h-8 max-h-48"
                             placeholder="Type a message..."
                         />
-                        <button onClick={sendMessage} className="px-2 py-1 bg-blue-600 text-white rounded">
-                            Send
+                        <button
+                            onClick={sendMessage}
+                            disabled={isSending}
+                            className="px-2 py-1 bg-blue-600 text-white rounded"
+                        >
+                            {isSending ? 'Sending…' : 'Send'}
                         </button>
                     </div>
                 </div>
