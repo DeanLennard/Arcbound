@@ -7,9 +7,23 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import Notification from '@/models/Notification';
 import mongoose from 'mongoose';
 
+interface LikedUser {
+    characterName: string
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
     const { id } = req.query;
+
+    if (req.method === 'GET') {
+        const raw = await Post.findById(id).populate('likes', 'characterName')
+        if (!raw) return res.status(404).json({ error: 'Post not found' })
+
+        const post = raw as mongoose.Document & { likes: LikedUser[] }
+
+        const likers = post.likes.map((u) => u.characterName)
+        return res.status(200).json({ count: likers.length, likers })
+    }
 
     if (req.method === 'POST') {
         const session = await getServerSession(req, res, authOptions);
@@ -57,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(500).json({ error: 'Failed to like/unlike post' });
         }
     } else {
-        res.setHeader('Allow', ['POST']);
+        res.setHeader('Allow', ['GET', 'POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }

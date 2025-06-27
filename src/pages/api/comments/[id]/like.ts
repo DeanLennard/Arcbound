@@ -5,9 +5,21 @@ import authOptions from '@/lib/authOptions';
 import { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
 
+interface Liker { characterName: string }
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
     const { id } = req.query; // commentId
+
+    if (req.method === 'GET') {
+        const comment = await Comment
+            .findById(id)
+            .populate<{ likes: any }>('likes', 'characterName');
+        if (!comment) return res.status(404).json({ error: 'Comment not found' });
+
+        const likers = comment.likes.map((u: any) => u.characterName);
+        return res.json({ count: likers.length, likers });
+    }
 
     if (req.method === 'POST') {
         const session = await getServerSession(req, res, authOptions);
@@ -37,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return res.status(500).json({ error: 'Failed to like/unlike comment' });
         }
     } else {
-        res.setHeader('Allow', ['POST']);
+        res.setHeader('Allow', ['GET', 'POST']);
         res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }

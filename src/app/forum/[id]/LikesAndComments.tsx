@@ -27,6 +27,9 @@ interface CommentType {
 
 export default function LikesAndComments({ postId, initialLikes }: Props) {
     const [likes, setLikes] = useState(initialLikes ?? 0);
+    const [postLikers,    setPostLikers]    = useState<string[]|null>(null);
+    const [commentLikers, setCommentLikers] = useState<Record<string,string[]>>({});
+    const [tooltipOpen,   setTooltipOpen]   = useState<Record<string,boolean>>({});
     const [comments, setComments] = useState<CommentType[]>([]);
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(false);
@@ -136,12 +139,42 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
                     className="prose max-w-none p-5 break-words break-all"
                     dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(comment.content) }}
                 />
-                <button
-                    onClick={() => handleCommentLike(comment._id)}
-                    className="bg-blue-600 text-white px-2 py-1 rounded mt-1 mr-2"
-                >
-                    👍 {comment.likesCount ?? 0}
-                </button>
+                <div className="relative inline-block">
+                    <button
+                        onClick={() => handleCommentLike(comment._id)}
+                        onMouseEnter={async () => {
+                            // open this comment’s tooltip
+                            setTooltipOpen(o => ({ ...o, [comment._id]: true }));
+                            // load likers only once per comment
+                            if (!commentLikers[comment._id]) {
+                                const res = await fetch(`/api/comments/${comment._id}/like`);
+                                if (res.ok) {
+                                    const { likers } = await res.json();
+                                    setCommentLikers(c => ({ ...c, [comment._id]: likers }));
+                                }
+                            }
+                        }}
+                        onMouseLeave={() => {
+                            setTooltipOpen(o => ({ ...o, [comment._id]: false }));
+                        }}
+                        className="bg-blue-600 text-white px-2 py-1 rounded mt-1 mr-2"
+                    >
+                        👍 {comment.likesCount ?? 0}
+                    </button>
+
+                    {tooltipOpen[comment._id] && commentLikers[comment._id] && (
+                        <div className="
+                            absolute bottom-full left-1/2 transform -translate-x-1/2
+                            bg-gray-800 text-white text-sm rounded shadow p-2
+                            whitespace-nowrap z-10"
+                        >
+                            {commentLikers[comment._id].length > 0
+                                ? commentLikers[comment._id].map((name,i) => <div key={i}>{name}</div>)
+                                : <div className="italic">No likes yet</div>
+                            }
+                        </div>
+                    )}
+                </div>
                 <button
                     onClick={() => setReplyingTo(comment._id)}
                     className="text-sm text-blue-400 hover:underline"
@@ -168,13 +201,35 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
 
     return (
         <div className="mt-6">
-            {/* Like Button */}
-            <button
-                onClick={handleLike}
-                className="bg-blue-600 text-white px-4 py-2 rounded mb-4"
-            >
-                👍 Like ({typeof likes === 'number' ? likes : 0})
-            </button>
+            <div className="relative inline-block mb-4">
+                <button
+                    onClick={handleLike}
+                    onMouseEnter={async () => {
+                        setTooltipOpen(o => ({ ...o, post: true }));
+                        if (postLikers===null) {
+                            const res = await fetch(`/api/posts/${postId}/like`);
+                            if (res.ok) {
+                                const { likers } = await res.json();
+                                setPostLikers(likers);
+                            }
+                        }
+                    }}
+                    onMouseLeave={() => setTooltipOpen(o => ({ ...o, post: false }))}
+                    className="bg-blue-600 text-white px-4 py-2 rounded"
+                >
+                    👍 Like ({likes})
+                </button>
+
+                {tooltipOpen.post && postLikers && (
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2
+                    bg-gray-800 text-white text-sm rounded shadow p-2 whitespace-nowrap z-10">
+                        {postLikers.length > 0
+                            ? postLikers.map((name,i) => <div key={i}>{name}</div>)
+                            : <div className="italic">No likes yet</div>
+                        }
+                    </div>
+                )}
+            </div>
 
             {/* Comment Form */}
             <form onSubmit={e => handleCommentSubmit(e)} className="mt-4 border rounded p-4 bg-gray-800">
