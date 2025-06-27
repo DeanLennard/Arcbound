@@ -28,17 +28,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(400).json({ error: 'Invalid amount' })
     }
 
-    // 1) remove from your character
-    const from = await Character.findByIdAndUpdate(
-        fromChar,
+    const from = await Character.findOneAndUpdate(
+        { _id: fromChar, credits: { $gte: amt } },
         { $inc: { credits: -amt } },
         { new: true }
     )
     if (!from) {
-        return res.status(404).json({ error: 'Source character not found' })
-    }
-    if (from.credits < 0) {
-        return res.status(400).json({ error: 'Insufficient funds' })
+        return res
+            .status(400)
+            .json({ error: 'Insufficient funds or source character not found' })
     }
 
     // 2) add to the target (character or ship)
