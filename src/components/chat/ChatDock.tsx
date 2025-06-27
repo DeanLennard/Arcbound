@@ -192,7 +192,7 @@ export default function ChatDock() {
                                 <h3 className="font-bold mb-2">Chats</h3>
                                 <button
                                     onClick={() => setIsMinimised(true)}
-                                    className="text-gray-400 hover:text-red-500"
+                                    className="p-2 rounded-md text-gray-400 hover:text-red-500 hover:bg-gray-700 focus:outline-none focus:ring"
                                     aria-label="Minimize chat dock"
                                 >
                                     −
