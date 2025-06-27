@@ -122,6 +122,7 @@ export default function ToolsPage() {
                     <ToolButton label="Sector Map" link="https://www.arcbound.co.uk/sectormap" />
                     <ToolButton label="The Ledger" link="https://docs.google.com/document/d/1NEvFhh8uYreNRV6xGKUgH7pUOPQ1Sg1_WHl1talpDrs/edit?usp=sharing" />
                     <ToolButton label="General Arcship Modules" link="https://docs.google.com/document/d/10dG6ko-TbMY7tDl3tPtLaNoipRMXYQaHbOJne5xZ7Qw/edit?usp=sharing" />
+                    <ToolButton label="Global Ritual Library" link="https://docs.google.com/document/d/12uhsGo6pbvJrCmsA07FOQuBzM71S5hfwfBHdvqX4EIk/edit?usp=sharing" />
                 </div>
                 {/* Column 3 */}
                 <div className="space-y-4">
