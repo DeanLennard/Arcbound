@@ -61,7 +61,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
         await EventLog.create({
             eventName: 'Credit Transfer',
             effect:    `${amt} credits transferred from ${me.name} to ${other.name}`,
-            phase:     gp?.name ?? 'Unknown',
+            phase:     gp?.phase ?? 'Unknown',
             level:     'SPARK',
             ongoing:   false,
             arcship:   other._id
@@ -77,7 +77,7 @@ export default async function handler(req:NextApiRequest, res:NextApiResponse) {
         await EventLog.create({
             eventName: 'Credit Transfer',
             effect:    `${amt} credits transferred from ${me.name} to ${char.charName}`,
-            phase:     gp?.name ?? 'Unknown',
+            phase:     gp?.phase ?? 'Unknown',
             level:     'SPARK',
             ongoing:   false,
             arcship:   me._id

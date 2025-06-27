@@ -104,7 +104,7 @@ export default async function handler(
     await EventLog.create({
         eventName: 'Resource Transfer',
         effect:    `${amt} ${pretty} transferred from ${me.name} to ${other.name}`,
-        phase:     gp?.name ?? 'Unknown',
+        phase:     gp?.phase ?? 'Unknown',
         level:     'SPARK',
         ongoing:   false,
         arcship:   me._id

@@ -61,7 +61,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         await EventLog.create({
             eventName: 'Credit Transfer',
             effect:    `${amt} credits transferred from ${fromChar.charName} to ${ship.name}`,
-            phase:     gp?.name ?? 'Unknown',
+            phase:     gp?.phase ?? 'Unknown',
             level:     'SPARK',
             ongoing:   false,
             arcship:   ship._id
