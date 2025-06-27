@@ -82,6 +82,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 );
             }
 
+            // 3) Automatically subscribe the commenter
+            await Post.findByIdAndUpdate(id, {
+                $addToSet: { subscribers: session.user.id }
+            })
+
             return res.status(201).json({
                 comment: {
                     ...comment.toObject(),
