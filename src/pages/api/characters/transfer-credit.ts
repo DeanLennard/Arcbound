@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!from) {
         return res.status(404).json({ error: 'Source character not found' })
     }
-    if (from.credits <= 0) {
+    if (from.credits < 0) {
         return res.status(400).json({ error: 'Insufficient funds' })
     }
 
