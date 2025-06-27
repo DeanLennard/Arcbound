@@ -52,6 +52,7 @@ export async function GET(req: Request) {
             views:       post.views      ?? 0,
             likesCount:  Array.isArray(post.likes) ? post.likes.length : 0,
             commentsCount,
+            createdAt,
             lastActivity,
         }
     }))
