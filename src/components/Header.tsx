@@ -56,12 +56,26 @@ export default function Header() {
         <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center relative">
             {/* Left: Logo + nav */}
             <div className="flex items-center gap-4">
-                <Link href="/forum" className="text-xl font-bold hover:underline">
+                <Link
+                    href="/forum"
+                    onClick={() => {
+                        window.dispatchEvent(new Event('refreshForum'));
+                    }}
+                    className="text-xl font-bold hover:underline"
+                >
                     Arcbound
                 </Link>
                 <nav className="hidden md:flex items-center gap-4">
                     <Link href="/" className="hover:underline">Home</Link>
-                    <Link href="/forum" className="hover:underline">Relay</Link>
+                    <Link
+                        href="/forum"
+                        onClick={() => {
+                            window.dispatchEvent(new Event('refreshForum'));
+                        }}
+                        className="hover:underline"
+                    >
+                        Relay
+                    </Link>
                     <Link href="/tools" className="hover:underline">Tools</Link>
                     <Link href="/sectormap" className="hover:underline">Map</Link>
                 </nav>

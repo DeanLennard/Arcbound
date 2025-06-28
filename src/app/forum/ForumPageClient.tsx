@@ -87,6 +87,11 @@ export default function ForumPage() {
         };
 
         fetchInitialPosts();
+
+        const onRefresh = () => fetchInitialPosts();
+        window.addEventListener('refreshForum', onRefresh);
+        return () => window.removeEventListener('refreshForum', onRefresh);
+
     }, [selectedCategoryId]);
 
     const loadMorePosts = useCallback(async () => {
