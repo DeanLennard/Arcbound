@@ -43,6 +43,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             });
             await comment.populate('authorId', 'characterName profileImage');
 
+            // after creating the comment…
+            await Post.findByIdAndUpdate(id, {
+                lastActivity: new Date()
+            });
+
             // 🔔 Notification logic here:
             const post = await Post.findById(id).lean<{
                 _id: mongoose.Types.ObjectId;

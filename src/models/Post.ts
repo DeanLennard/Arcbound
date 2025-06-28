@@ -13,6 +13,7 @@ export interface PostDocument extends Document {
     editedAt: Date;
     createdAt: Date;
     updatedAt: Date;
+    lastActivity: Date;
 }
 
 const postSchema = new mongoose.Schema<PostDocument>({
@@ -25,6 +26,7 @@ const postSchema = new mongoose.Schema<PostDocument>({
     views: { type: Number, default: 0 },
     subscribers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     editedAt: { type: Date, default: Date.now },
+    lastActivity: { type: Date, default: () => new Date() },
 }, { timestamps: true });
 
 export default mongoose.models.Post || mongoose.model<PostDocument>('Post', postSchema);

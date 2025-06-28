@@ -18,56 +18,39 @@ export async function GET(req: Request) {
         query.category = categoryId;
     }
 
-    // 1) fetch your basic page of posts
     const posts = await Post.find(query)
         .populate('category')
         .populate('authorId', 'characterName profileImage')
-        .sort({ createdAt: -1 })
+        .sort({ lastActivity: -1, createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit)
-        .lean()
+        .lean();
 
-    const totalPosts  = await Post.countDocuments(query)
-    const totalPages  = Math.ceil(totalPosts / limit)
+    const totalPosts = await Post.countDocuments(query);
+    const totalPages = Math.ceil(totalPosts / limit);
 
-    // 2) transform + commentsCount + likesCount + views
-    const transformed = await Promise.all(posts.map(async post => {
-        const { authorId, createdAt, ...rest } = post
-        const comments    = await Comment.find({ postId: post._id }).lean()
-        const commentsCount = comments.length
-
-        const newest = await Comment.findOne({ postId: post._id })
-            .sort({ createdAt: -1 })
-            .select('createdAt')
-            .lean<{ createdAt: Date }>();
-        const lastActivity = newest?.createdAt ?? new Date(createdAt);
-
+    const transformedPosts = await Promise.all(posts.map(async post => {
+        const { authorId, ...rest } = post;
+        const comments = await Comment.find({ postId: post._id }).lean();
+        const commentsCount = await Comment.countDocuments({ postId: post._id })
         return {
             ...rest,
             author: authorId
                 ? {
-                    characterName: authorId.characterName  || 'Unknown',
-                    profileImage:  authorId.profileImage   || null
+                    characterName: authorId.characterName || 'Unknown',
+                    profileImage: authorId.profileImage || null
                 }
                 : { characterName: 'Unknown', profileImage: null },
-            views:       post.views      ?? 0,
-            likesCount:  Array.isArray(post.likes) ? post.likes.length : 0,
+            comments: comments.map(comment => ({
+                content: comment.content
+            })),
+            views:         post.views ?? 0,
+            likesCount:    Array.isArray(post.likes) ? post.likes.length : 0,
             commentsCount,
-            createdAt,
-            lastActivity,
-        }
-    }))
+        };
+    }));
 
-    // 4) sort by that lastActivity descending
-    transformed.sort((a, b) =>
-        b.lastActivity.getTime() - a.lastActivity.getTime()
-    );
-
-    return NextResponse.json({
-        posts: transformed,
-        totalPages,
-        currentPage: page
-    })
+    return NextResponse.json({ posts: transformedPosts, totalPages, currentPage: page });
 }
 
 function extractFirstImage(html: string): string | undefined {
