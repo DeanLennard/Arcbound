@@ -134,7 +134,7 @@ export default function ToolsPage() {
 
             {/* 2 Rows of 6 Smaller Buttons */}
             <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-                <SmallToolButton label="Echo Weaver" link="https://docs.google.com/document/d/10dG6ko-TbMY7tDl3tPtLaNoipRMXYQaHbOJne5xZ7Qw/edit?usp=sharing" />
+                <SmallToolButton label="Echo Weaver" link="https://docs.google.com/document/d/12L3f03yygIHriOtrEaqEXxjhpLwWWzOz8g1sbk7Izic/edit?tab=t.0" />
                 <SmallToolButton label="Envoy" link="https://docs.google.com/document/d/1ylHHpu4S1bmm8gWIR29j7vilaPPTxdeKBmyVL0bxk8I/edit?usp=sharing" />
                 <SmallToolButton label="Gunslinger" link="https://docs.google.com/document/d/1Q_B_t-oY8l8Bv1RkjHVM4lX6NFhiyS3QHJ1uG2chs9U/edit?usp=sharing" />
                 <SmallToolButton label="Shadow Operative" link="https://docs.google.com/document/d/10zEl-l050pid5pr6Hf6HYErxE-9Mn2xixxciyqKuU20/edit?usp=sharing" />
