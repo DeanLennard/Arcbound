@@ -140,6 +140,7 @@ export default async function CharacterPage({
                 <div className="bg-gray-800 p-4 rounded-lg">
                     <h2 className="text-xl font-semibold text-white mb-2">Ascension Points</h2>
                     <p className="text-gray-200">
+                        Remaining: <strong>{char.ascPoints.remaining - char.ascPoints.spent}</strong><br/>
                         Spent: <strong>{char.ascPoints.spent}</strong><br/>
                         Total: <strong>{char.ascPoints.remaining}</strong>
                     </p>
