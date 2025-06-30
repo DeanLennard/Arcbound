@@ -1,7 +1,7 @@
-// src/components/ChatMessages.tsx
 "use client";
 import React, {useState, useEffect, useRef, useCallback} from "react";
 import Image from "next/image";
+import Linkify from "linkify-react";
 
 interface Props {
     chat: {
@@ -23,30 +23,79 @@ export default function ChatMessages({ chat }: Props) {
     const [hasMore, setHasMore] = useState(true);
     const containerRef = useRef<HTMLDivElement | null>(null);
 
+    // track whether we've done the initial load yet
+    const firstLoadRef = useRef(true);
+    // for “load more” scroll preservation
+    const prevScrollHeightRef = useRef(0);
+
     const loadMessages = useCallback(async (before?: string) => {
+        if (!containerRef.current) return;
         setLoading(true);
-        const url = `/api/chats/${chat._id}/messages?limit=20${before ? `&before=${before}` : ""}`;
+
+        // if this is a "load more", capture the current scrollHeight
+        if (before) {
+            prevScrollHeightRef.current = containerRef.current.scrollHeight;
+        }
+
+        const url = `/api/chats/${chat._id}/messages?limit=20${
+            before ? `&before=${before}` : ""
+        }`;
         const res = await fetch(url);
         const data = await res.json();
+
         setMessages(prev => {
-            const allMessages = [...data.messages, ...prev];
-            const uniqueMessages = allMessages.filter(
-                (msg, index, self) => index === self.findIndex(m => m._id === msg._id)
+            // prepend older messages if `before`, otherwise replace entirely
+            const all = before
+                ? [...data.messages, ...prev]
+                : [...data.messages];
+            // dedupe & sort
+            const unique = all.filter(
+                (m, i, arr) => arr.findIndex(x => x._id === m._id) === i
             );
-            uniqueMessages.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
-            return uniqueMessages;
+            unique.sort(
+                (a, b) =>
+                    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+            );
+            return unique;
         });
+
         setHasMore(data.messages.length > 0);
         setLoading(false);
     }, [chat._id]);
 
+    // initial load
     useEffect(() => {
         loadMessages();
     }, [loadMessages]);
 
+    // after messages change, do scroll adjustments
+    useEffect(() => {
+        const c = containerRef.current;
+        if (!c) return;
+
+        // 1) On first load, scroll to bottom
+        if (firstLoadRef.current) {
+            c.scrollTop = c.scrollHeight;
+            firstLoadRef.current = false;
+            return;
+        }
+
+        // 2) On "load more" (we know because prevScrollHeight was set)
+        if (prevScrollHeightRef.current) {
+            // new scrollHeight minus old = the height of prepended content
+            const newHeight = c.scrollHeight;
+            c.scrollTop = newHeight - prevScrollHeightRef.current;
+            prevScrollHeightRef.current = 0;
+        }
+    }, [messages]);
+
+    // when user scrolls
     const handleScroll = () => {
-        if (!containerRef.current) return;
-        if (containerRef.current.scrollTop === 0 && hasMore && !loading) {
+        const c = containerRef.current;
+        if (!c || loading || !hasMore) return;
+
+        if (c.scrollTop === 0) {
+            // load older
             const oldest = messages[0];
             if (oldest) {
                 loadMessages(oldest.createdAt);
@@ -54,21 +103,20 @@ export default function ChatMessages({ chat }: Props) {
         }
     };
 
-    const isImageUrl = (content: string) => {
-        return (
-            /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content) ||
-            /^https:\/\/media\.tenor\.com\/.+\.(gif|mp4|webm)$/i.test(content)
-        );
-    };
-
+    const isImageUrl = (content: string) =>
+        /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content) ||
+        /^https:\/\/media\.tenor\.com\/.+\.(gif|mp4|webm)$/i.test(content);
     const isFileUrl = (content: string) =>
         /^\/uploads\/.+\.(pdf|docx?|xlsx?|zip|rar|txt|csv)$/i.test(content);
-
     const isLinkUrl = (content: string) =>
         /^https?:\/\/[^\s]+$/i.test(content);
 
     return (
-        <div className="p-4 max-h-[70vh] overflow-y-auto bg-gray-800 rounded" onScroll={handleScroll} ref={containerRef}>
+        <div
+            className="p-4 max-h-[70vh] overflow-y-auto bg-gray-800 rounded"
+            onScroll={handleScroll}
+            ref={containerRef}
+        >
             {messages.map(msg => (
                 <div key={msg._id} className="mb-2">
                     <div className="flex items-center gap-2">
@@ -82,9 +130,11 @@ export default function ChatMessages({ chat }: Props) {
                             />
                         )}
                         <span className="font-bold">{msg.senderId.characterName}</span>
-                        <span className="text-xs text-gray-400">{new Date(msg.createdAt).toLocaleString()}</span>
+                        <span className="text-xs text-gray-400">
+              {new Date(msg.createdAt).toLocaleString()}
+            </span>
                     </div>
-                    <p className="ml-8 break-words break-all">
+                    <p className="ml-8 break-smart">
                         {isImageUrl(msg.content) ? (
                             <Image
                                 src={msg.content}
@@ -111,7 +161,15 @@ export default function ChatMessages({ chat }: Props) {
                                 rel="noopener noreferrer"
                                 className="text-blue-400 underline"
                             >
-                                {msg.content}
+                                <Linkify
+                                    options={{
+                                        target: '_blank',
+                                        rel: 'noopener',
+                                        className: 'text-blue-400 underline'
+                                    }}
+                                >
+                                    {msg.content}
+                                </Linkify>
                             </a>
                         ) : (
                             msg.content
