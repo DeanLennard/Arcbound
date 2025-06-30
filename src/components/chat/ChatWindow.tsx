@@ -577,10 +577,13 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                         )}
                                     </div>
                                 </div>
-                                <div
-                                    className={`text-gray-400 mt-1 ${isMaximised ? 'text-sm' : 'text-xs'}`}
-                                >
+                                <div className={`text-gray-400 mt-1 ${isMaximised ? 'text-sm' : 'text-xs'}`}>
+                                    {/* original timestamp */}
                                     {formatTimestamp(msg.createdAt)}
+                                    {/* if editedAt is set, append “(edited)” */}
+                                    {msg.editedAt && (
+                                        <span className="ml-1 italic">(edited)</span>
+                                    )}
                                 </div>
                             </div>
                             {isOwnMessage && (
