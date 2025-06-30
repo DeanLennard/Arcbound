@@ -136,7 +136,7 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
                     </span>
                 </div>
                 <div
-                    className="prose max-w-none p-5 break-words break-all"
+                    className="prose max-w-none p-5 break-smart"
                     dangerouslySetInnerHTML={{ __html: prepareHtmlForFrontend(comment.content) }}
                 />
                 <div className="relative inline-block">
