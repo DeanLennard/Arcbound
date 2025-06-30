@@ -8,6 +8,7 @@ import Image from "next/image";
 import type { Chat } from '@/types/chat';
 import Select from 'react-select';
 import Linkify from 'linkify-react';
+import {Types} from "mongoose";
 
 interface User {
     _id: string;
@@ -21,6 +22,10 @@ interface Message {
     content: string;
     senderId: { _id: string; characterName: string; profileImage: string };
     createdAt: string;
+    readBy: Types.ObjectId[];
+    updatedAt: Date;
+    editedAt: Date;
+    reactions: { emoji: string; users: Types.ObjectId[] }[];
 }
 
 interface Props {
@@ -61,6 +66,10 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [gifResults, setGifResults] = useState<string[]>([]);
     const [isMuted, setIsMuted] = useState(false);
     const [isSending, setIsSending] = useState(false);
+    const [editingId, setEditingId] = useState<string|null>(null);
+    const [draft, setDraft] = useState('');
+    const [reactingTo, setReactingTo] = useState<string|null>(null);
+    const ALLOWED_REACTIONS = ['👍','🔥','❤️','😂','😡'];
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -315,6 +324,50 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     };
 
+    function startEditing(id: string) {
+        setEditingId(id);
+        const msg = messages.find(m => m._id === id);
+        setDraft(msg?.content || '');
+    }
+
+    async function saveEdit(id: string) {
+        const res = await fetch(`/api/chats/${chat._id}/messages/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: draft })
+        });
+        if (!res.ok) {
+            // error…
+            return;
+        }
+        const { message: updated } = await res.json();
+        setMessages((ms) =>
+            ms.map((m) =>
+                m._id === id
+                    ? {
+                        // merge in only the updated bits,
+                        // keep original senderId, createdAt, etc.
+                        ...m,
+                        content: updated.content,
+                        editedAt: updated.editedAt,
+                    }
+                    : m
+            )
+        );
+        setEditingId(null);
+    }
+
+    async function toggleReact(messageId:string, emoji:string) {
+        const res = await fetch(
+            `/api/chats/${chat._id}/messages/${messageId}/react`,
+            { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({emoji}) }
+        );
+        if (res.ok) {
+            const { reactions } = await res.json();
+            setMessages(m=>m.map(msg=> msg._id===messageId ? {...msg, reactions} : msg));
+        }
+    }
+
     return (
         <div
             className={`bg-gray-800 p-2 flex flex-col rounded shadow-lg overflow-x-hidden ${
@@ -434,16 +487,95 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                             {msg.content}
                                         </a>
                                     ) : (
-                                        <Linkify
-                                            options={{
-                                                target: '_blank',
-                                                rel: 'noopener',
-                                                className: 'text-blue-400 underline'
-                                            }}
-                                        >
-                                            {msg.content}
-                                        </Linkify>
+                                        <>
+                                        {editingId === msg._id
+                                            ? <>
+                                                <textarea
+                                                    value={draft}
+                                                    onChange={e => setDraft(e.target.value)}
+                                                    className="w-full p-1 rounded bg-gray-600 text-white"
+                                                />
+                                                <div className="mt-2 flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => saveEdit(msg._id)}
+                                                        className="px-2 py-1 bg-green-600 text-white rounded hover:bg-blue-700"
+                                                    >
+                                                        Save
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => setEditingId(null)}
+                                                        className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </>
+                                            : <Linkify options={{target: '_blank', rel: 'noopener', className: 'text-blue-400 underline'}}>{msg.content}</Linkify>
+                                        }
+                                        </>
                                     )}
+                                    {/* reactions + edit, right-aligned */}
+                                    <div className="flex justify-end items-center gap-2 mt-1">
+                                        {/* existing reaction buttons */}
+                                        {(msg.reactions || [])
+                                            .filter(r => r.users.length > 0)
+                                            .map(r => (
+                                                <button
+                                                    key={r.emoji}
+                                                    onClick={() => toggleReact(msg._id, r.emoji)}
+                                                    className={`px-1 rounded ${
+                                                        r.users.map(u => u.toString()).includes(currentUserId)
+                                                            ? 'bg-gray-600'
+                                                            : 'bg-gray-700'
+                                                    }`}
+                                                >
+                                                    {r.emoji} {r.users.length}
+                                                </button>
+                                            ))}
+                                    </div>
+                                    <div className="flex justify-end items-center gap-2 mt-1">
+                                        {/* add-reaction toggle or picker */}
+                                        {reactingTo === msg._id ? (
+                                            <div className="flex items-center gap-1">
+                                                {ALLOWED_REACTIONS.map(emoji => (
+                                                    <button
+                                                        key={emoji}
+                                                        onClick={() => {
+                                                            toggleReact(msg._id, emoji);
+                                                            setReactingTo(null);
+                                                        }}
+                                                        className="px-1 rounded bg-gray-700 hover:bg-gray-600"
+                                                    >
+                                                        {emoji}
+                                                    </button>
+                                                ))}
+                                                <button
+                                                    onClick={() => setReactingTo(null)}
+                                                    className="px-1 text-xs"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={() => setReactingTo(msg._id)}
+                                                className="px-1 text-xs text-gray-400"
+                                            >
+                                                😊
+                                            </button>
+                                        )}
+
+                                        {/* edit button */}
+                                        {isOwnMessage && (
+                                            <button
+                                                onClick={() => startEditing(msg._id)}
+                                                className="px-1 text-xs text-gray-400 hover:text-white"
+                                            >
+                                                ✏️
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                                 <div
                                     className={`text-gray-400 mt-1 ${isMaximised ? 'text-sm' : 'text-xs'}`}
