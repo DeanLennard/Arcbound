@@ -49,6 +49,8 @@ export interface ArcshipDocument extends Document {
 
     flagUrl?: string;
 
+    isCloaked: boolean;
+
     createdAt: Date;
     updatedAt: Date;
 }
@@ -98,6 +100,8 @@ const ArcshipSchema = new mongoose.Schema<ArcshipDocument>({
     moduleSlotsMod:         { type: Number, default: 0 },
 
     flagUrl: { type: String, default: '' },
+
+    isCloaked: { type: Boolean, default: false },
 
 }, { timestamps: true });
 

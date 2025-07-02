@@ -52,7 +52,9 @@ interface Arcship {
     shippingItemsMod:       number
     moduleSlotsMod:         number
 
-    flagUrl?: string;
+    flagUrl?: string
+
+    isCloaked?: boolean
 }
 
 type StatField =
@@ -268,6 +270,36 @@ export default function AdminArcshipDetail() {
                             className="mt-2 h-8 w-auto object-contain border border-gray-600"
                         />
                     )}
+
+                    <div className="mt-4 flex items-center gap-3">
+                        <span className="text-sm text-white">Cloaked</span>
+                        <label
+                            htmlFor="isCloaked"
+                            className="relative inline-flex items-center cursor-pointer"
+                        >
+                            <input
+                                type="checkbox"
+                                id="isCloaked"
+                                {...register('isCloaked')}
+                                className="sr-only peer"
+                            />
+                            <div
+                                className="
+                                    w-10 h-5 bg-gray-600 rounded-full
+                                    peer-focus:ring-2 peer-focus:ring-indigo-500
+                                    peer-checked:bg-indigo-600
+                                    transition-colors
+                                  "
+                            />
+                            <div
+                                className="
+                                    absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full
+                                    peer-checked:translate-x-[120%]
+                                    transition-transform
+                                  "
+                            />
+                        </label>
+                    </div>
                 </div>
 
                 {/* Name + Faction */}

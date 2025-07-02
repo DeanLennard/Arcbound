@@ -21,6 +21,7 @@ export default async function handler(
             // require both coordinates to exist
             xSector: { $exists: true, $ne: null },
             ySector: { $exists: true, $ne: null },
+            isCloaked: { $ne: true },
         },
         {
             // projection: include only name, xSector, ySector
