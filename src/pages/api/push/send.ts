@@ -14,8 +14,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await dbConnect();
 
     const payload = JSON.stringify({
-        title: 'New message received!',
-        body: 'Click to view.',
+        title: 'Arcbound: New Message',
+        body: `You received a message.`,
+        icon: '/icon-192.png',
+        url: `/forum`,
+        tag: 'chat-arcbound'
     });
 
     const subscriptions = await PushSubscription.find();

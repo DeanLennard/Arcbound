@@ -7,7 +7,8 @@ self.addEventListener('push', function(event) {
         icon: data.icon || '/icon-192.png',
         data: {
             url: data.url || '/'
-        }
+        },
+        tag:  data.tag
     };
 
     event.waitUntil(

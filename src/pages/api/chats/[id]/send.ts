@@ -57,7 +57,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 title: 'Arcbound: New Message',
                 body: `You received a message.`,
                 icon: '/icon-192.png',
-                url: `/forum` // Useful for the client
+                url: `/forum`,
+                tag: 'chat-arcbound'
             });
 
             await Promise.all(
