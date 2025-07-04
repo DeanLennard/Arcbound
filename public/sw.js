@@ -1,23 +1,4 @@
 // public/sw.js
-self.addEventListener('push', function(event) {
-    const data = event.data.json();
-
-    const options = {
-        body: data.body,
-        icon: data.icon || '/icon-192.png',
-        data: {
-            url: data.url || '/'
-        },
-        tag:  data.tag,
-        group: 'chat-messages',
-        renotify: true
-    };
-
-    event.waitUntil(
-        self.registration.showNotification(data.title, options)
-    );
-});
-
 self.addEventListener('push', async event => {
     let data = {};
     try { data = event.data.json() } catch(_) {}
