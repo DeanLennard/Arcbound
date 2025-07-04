@@ -1,4 +1,15 @@
 // public/sw.js
+
+// 1) During install, tell it to skip waiting on clients:
+self.addEventListener('install', event => {
+    event.waitUntil(self.skipWaiting());
+});
+
+// 2) During activation, claim any open pages:
+self.addEventListener('activate', event => {
+    event.waitUntil(self.clients.claim());
+});
+
 self.addEventListener('push', function(event) {
     const data = event.data.json();
 
