@@ -1,41 +1,35 @@
 // public/sw.js
-self.addEventListener('push', async event => {
-    let data = {};
-    try { data = event.data.json() } catch(_) {}
+self.addEventListener('push', event => {
+    event.waitUntil((async () => {
+        let data = {}
+        try { data = event.data.json() } catch (_) {}
 
-    const groupKey = 'chat-messages';
+        const summaryTag = 'chat-summary'
+        // grab *all* notifications currently in scope (both summary & previous children)
+        const existing = await self.registration.getNotifications()
 
-    // 1) Look at all current notifications in this group:
-    const existing = await self.registration.getNotifications({ tag: groupKey });
+        // count only the ones with YOUR summary tag
+        const prevSummary = existing.find(n => n.tag === summaryTag)
+        const prevCount   = prevSummary?.data?.count || 0
+        const newCount    = prevCount + 1
 
-    // 2) Figure out the new total count:
-    const newCount = existing.length + 1;
+        // 1) replace the old summary (or create it if missing)
+        await self.registration.showNotification('Chat • Recent messages', {
+            tag: summaryTag,           // fixed tag for your summary
+            body: `You have ${newCount} new message${newCount>1?'s':''}`,
+            renotify: true,
+            data: { url: data.url, count: newCount },
+            icon: data.icon || '/icon-192.png'
+        })
 
-    // 3) Show (or replace) the summary notification:
-    const summaryOptions = {
-        body: `You have ${newCount} new message${newCount > 1 ? 's' : ''}`,
-        tag:   groupKey,           // always the same tag for the summary
-        renotify: true,            // ensures the user sees updates
-        data: { url: data.url },
-        icon: data.icon || '/icon-192.png',
-    };
-    event.waitUntil(self.registration.showNotification(
-        'Chat • Recent messages',
-        summaryOptions
-    ));
-
-    // 4) Show the individual message “child” notification:
-    const childOptions = {
-        body: data.body,
-        icon: data.icon || '/icon-192.png',
-        tag:   data.tag,
-        group: groupKey,
-        data:  { url: data.url },
-    };
-    event.waitUntil(self.registration.showNotification(
-        data.title,
-        childOptions
-    ));
+        // 2) show the new “child” notification under its own unique tag
+        await self.registration.showNotification(data.title, {
+            tag: data.tag,
+            body: data.body,
+            data: { url: data.url },
+            icon: data.icon || '/icon-192.png'
+        })
+    })())
 });
 
 self.addEventListener('notificationclick', function(event) {
