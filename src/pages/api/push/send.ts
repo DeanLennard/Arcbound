@@ -16,6 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const payload = JSON.stringify({
         title: 'New message received!',
         body: 'Click to view.',
+        tag:   'chat-arcbound',
     });
 
     const subscriptions = await PushSubscription.find();

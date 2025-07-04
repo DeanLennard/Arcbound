@@ -5,6 +5,8 @@ self.addEventListener('push', function(event) {
     const options = {
         body: data.body,
         icon: data.icon || '/icon-192.png',
+        tag: data.tag,
+        renotify: true,
         data: {
             url: data.url || '/'
         }
