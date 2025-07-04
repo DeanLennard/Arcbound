@@ -1,30 +1,18 @@
 // public/sw.js
 
-// 1) During install, tell it to skip waiting on clients:
-self.addEventListener('install', event => {
-    event.waitUntil(self.skipWaiting());
-});
-
-// 2) During activation, claim any open pages:
-self.addEventListener('activate', event => {
-    event.waitUntil(self.clients.claim());
-});
-
-self.addEventListener('push', function(event) {
+// 2) Push event (no tag/grouping yet)
+self.addEventListener('push', event => {
     const data = event.data.json();
-
+    const title = data.title || '🔔 New notification';
     const options = {
-        body: data.body,
+        body: data.body || '',
         icon: data.icon || '/icon-192.png',
-        tag: data.tag,
+        data: { url: data.url || '/' },
+        tag:      data.tag,
         renotify: true,
-        data: {
-            url: data.url || '/'
-        }
     };
-
     event.waitUntil(
-        self.registration.showNotification(data.title, options)
+        self.registration.showNotification(title, options)
     );
 });
 
