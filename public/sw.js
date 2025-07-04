@@ -1,18 +1,17 @@
 // public/sw.js
-
-// 2) Push event (no tag/grouping yet)
-self.addEventListener('push', event => {
+self.addEventListener('push', function(event) {
     const data = event.data.json();
-    const title = data.title || '🔔 New notification';
+
     const options = {
-        body: data.body || '',
+        body: data.body,
         icon: data.icon || '/icon-192.png',
-        data: { url: data.url || '/' },
-        tag:      data.tag,
-        renotify: true,
+        data: {
+            url: data.url || '/'
+        }
     };
+
     event.waitUntil(
-        self.registration.showNotification(title, options)
+        self.registration.showNotification(data.title, options)
     );
 });
 
