@@ -16,7 +16,17 @@ const authOptions = {
             },
             async authorize(credentials) {
                 await dbConnect();
-                const user = await User.findOne({ email: credentials?.email });
+
+                const users = await User.find({});
+                await Promise.all(users.map(u => {
+                    u.email = u.email.toLowerCase();
+                    return u.save();
+                }));
+
+                const email = credentials?.email?.trim().toLowerCase();
+                if (!email) throw new Error('Email is required');
+
+                const user = await User.findOne({ email: email });
                 if (!user) throw new Error('User not found');
 
                 const isValid = await bcrypt.compare(credentials?.password || '', user.password);

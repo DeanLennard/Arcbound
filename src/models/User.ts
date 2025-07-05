@@ -14,8 +14,8 @@ export interface UserDocument extends Document {
 }
 
 const UserSchema = new mongoose.Schema({
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }, // TODO: hash this
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true },
     role: { type: String, enum: ['admin', 'moderator', 'member', 'none'], default: 'member' },
     playerName: { type: String },
     characterName: { type: String },
