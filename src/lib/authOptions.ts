@@ -17,12 +17,6 @@ const authOptions = {
             async authorize(credentials) {
                 await dbConnect();
 
-                const users = await User.find({});
-                await Promise.all(users.map(u => {
-                    u.email = u.email.toLowerCase();
-                    return u.save();
-                }));
-
                 const email = credentials?.email?.trim().toLowerCase();
                 if (!email) throw new Error('Email is required');
 
