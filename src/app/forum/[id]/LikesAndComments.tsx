@@ -114,8 +114,12 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
     };
 
     const renderComments = (comments: CommentType[]) => {
+
         return comments.map(comment => (
-            <div key={comment._id} className="bg-gray-800 p-5 rounded mb-2 ml-4">
+            <div
+                key={comment._id}
+                className="bg-gray-800 p-2 rounded mb-2"
+            >
                 <div className="flex items-center gap-2 mt-2">
                     {comment.author?.profileImage && (
                         <div style={{ position: 'relative', width: '5%', aspectRatio: '1 / 1', borderRadius: '50%', overflow: 'hidden' }}>
@@ -194,7 +198,9 @@ export default function LikesAndComments({ postId, initialLikes }: Props) {
                     </form>
                 )}
                 {/* Recursive render children */}
-                {comment.children && comment.children.length > 0 && renderComments(comment.children)}
+                {comment.children &&
+                    comment.children.length > 0 &&
+                    renderComments(comment.children)}
             </div>
         ));
     };
