@@ -51,7 +51,6 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-    const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
     const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [isTyping, setIsTyping] = useState(false);
@@ -70,6 +69,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [draft, setDraft] = useState('');
     const [reactingTo, setReactingTo] = useState<string|null>(null);
     const ALLOWED_REACTIONS = ['👍','🔥','❤️','😂','😡'];
+    const [isAtBottom, setIsAtBottom] = useState(true);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/messages`)
@@ -112,10 +112,10 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     }, [chat._id, currentUserId]);
 
     useEffect(() => {
-        if (shouldAutoScroll && messagesEndRef.current) {
+        if (isAtBottom && messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [messages, shouldAutoScroll]);
+    }, [messages, isAtBottom]);
 
     useEffect(() => {
         fetch(`/api/chats/${chat._id}/read`, { method: 'POST' })
@@ -185,7 +185,13 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
 
     const handleScroll = () => {
         if (!messagesContainerRef.current) return;
-        if (messagesContainerRef.current.scrollTop === 0) {
+
+        const c = messagesContainerRef.current!;
+        // If you’re within 50px of the bottom, consider it “at bottom”
+        const atBottom = c.scrollHeight - c.scrollTop - c.clientHeight < 50;
+        setIsAtBottom(atBottom);
+
+        if (c.scrollTop === 0) {
             loadOlderMessages();
         }
     };
