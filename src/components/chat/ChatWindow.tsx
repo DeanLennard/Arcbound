@@ -157,7 +157,6 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         if (!messagesContainerRef.current) return;
 
         const prevScrollHeight = messagesContainerRef.current.scrollHeight;
-        setShouldAutoScroll(false);
 
         try {
             const oldestMessage = messages[0];
@@ -198,7 +197,6 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
 
     const handleNewMessage = useCallback((message: Message) => {
         if (message.chatId === chat._id.toString()) {
-            setShouldAutoScroll(true);
             setMessages((prev) => [...prev, message]);
             window.dispatchEvent(new Event('refreshChats'));
         }
