@@ -53,7 +53,7 @@ export default function Header() {
     const toggleMenu = () => setMenuOpen(o => !o)
 
     return (
-        <header className="bg-gray-900 text-white px-4 py-3 flex justify-between items-center relative">
+        <header className="sticky top-0 z-50 bg-gray-900 text-white px-4 py-3 flex justify-between items-center">
             {/* Left: Logo + nav */}
             <div className="flex items-center gap-4">
                 <Link
