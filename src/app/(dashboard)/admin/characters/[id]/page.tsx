@@ -2,7 +2,7 @@
 'use client'
 
 import { useParams }              from 'next/navigation'
-import { useState, useEffect }    from 'react'
+import React, { useState, useEffect }    from 'react'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import useSWR, { mutate }         from 'swr'
 import type { AssetCategory } from '@/models/CharacterAsset'
@@ -56,6 +56,7 @@ interface Phase {
 interface CharacterForm {
     charName:        string
     status:          'Active'|'Dead'|'Retired'
+    AdditionalArcships: string[]
     faction:         string
     archetype:       string
     ascPoints:       { spent: number; remaining: number }
@@ -66,11 +67,20 @@ interface CharacterForm {
     factionObjective:string
 }
 
+interface Arcship {
+    _id: string
+    name: string
+}
+
 export default function AdminCharacterDetail() {
     const { id } = useParams() as { id: string }
 
     const { data: char, error: charErr } = useSWR<CharacterForm>(`/api/characters/${id}`, fetcher)
     const { data: phases, error: phasesErr } = useSWR<Phase[]>(`/api/characters/${id}/phases`, fetcher)
+    const { data: allArcs } = useSWR<Arcship[], Error>(
+        '/api/arcships',
+        (url: string) => fetch(url).then(r => r.json() as Promise<Arcship[]>)
+    )
 
     // lists
     const assetCategories: { key: AssetCategory; label: string }[] = [
@@ -124,12 +134,18 @@ export default function AdminCharacterDetail() {
     const [editingAsset, setEditingAsset]     = useState<CharacterAssetDoc | null>(null)
     const [showPhase, setShowPhase]           = useState(false)
     const [editingPhase, setEditingPhase]     = useState<Phase | null>(null)
+    const [local, setLocal] = useState<string[]>([])
 
     // form
     const { register, handleSubmit, reset, formState, watch, setValue } = useForm<CharacterForm>({
         defaultValues: char
     })
-    useEffect(() => { if (char) reset(char) }, [char, reset])
+
+    useEffect(() => {
+        if (!char) return;
+        reset(char);                            // RHF defaultValues
+        setLocal(char.AdditionalArcships || []); // seed your local array
+    }, [char, reset]);
 
     const background        = watch('background')        || ''
     const factionObjective  = watch('factionObjective')  || ''
@@ -143,8 +159,31 @@ export default function AdminCharacterDetail() {
         mutate(`/api/characters/${id}`)
     }
 
+    const selected = watch("AdditionalArcships") || [];
+
+    const add = (idToAdd: string) => {
+        const next = [...local, idToAdd];
+        setLocal(next);
+        setValue("AdditionalArcships", next, { shouldDirty: true });
+    };
+
+    const remove = (idToRemove: string) => {
+        const next = local.filter(id => id !== idToRemove);
+        setLocal(next);
+        setValue("AdditionalArcships", next, { shouldDirty: true });
+    };
+
+    const idToName = React.useMemo(() => {
+        const map: Record<string,string> = {}
+        allArcs?.forEach(a => map[a._id] = a.name)
+        return map
+    }, [allArcs])
+
     if (charErr || phasesErr) return <p className="p-6 text-red-400">Error loading</p>
     if (!char)                 return <p className="p-6">Loading…</p>
+    if (!allArcs) return <p>Loading arcships…</p>
+
+    const available = allArcs.filter(a => !local.includes(a._id))
 
     return (
         <div className="p-6 space-y-8">
@@ -164,6 +203,32 @@ export default function AdminCharacterDetail() {
                             <option>Active</option><option>Dead</option><option>Retired</option>
                         </select>
                     </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="block text-sm text-white">Additional Arcships</label>
+                    <div className="flex flex-wrap gap-2">
+                        {local.map(id => (
+                            <span key={id} className="bg-indigo-600 text-white px-2 py-1 rounded flex items-center space-x-1">
+                                {idToName[id]}
+                                <button type="button" onClick={() => remove(id)}>×</button>
+                            </span>
+                        ))}
+                    </div>
+
+                    <select
+                        value=""
+                        onChange={e => {
+                            if (!e.target.value) return;
+                            add(e.target.value);
+                        }}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    >
+                        <option value="">— Add another ship —</option>
+                        {available.map(a => (
+                            <option key={a._id} value={a._id}>{a.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">

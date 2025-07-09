@@ -5,7 +5,7 @@ import { getServerSession }   from 'next-auth'
 import authOptions            from '@/lib/authOptions'
 import {dbConnect} from '@/lib/mongodb';
 import type { Types } from 'mongoose'
-import '@/models/Character';
+import Character from '@/models/Character'
 import '@/models/User';
 import '@/models/Module'
 import Diplomacy, {DiplomacyType} from '@/models/Diplomacy'
@@ -133,7 +133,18 @@ export default async function ArcshipPage(
         c.user?._id.toString() === session.user.id
     )
 
-    if (!(isAdmin || isCommander)) {
+    const iOwnThisShip = Boolean(
+        await Character.findOne({
+            user: session.user.id,
+            status: 'Active',
+            $or: [
+                { arcship: id },
+                { AdditionalArcships: id }
+            ]
+        }).lean()
+    )
+
+    if (!(isAdmin || isCommander || iOwnThisShip)) {
         // pretend it’s missing for unauthorized folks
         return notFound()
     }

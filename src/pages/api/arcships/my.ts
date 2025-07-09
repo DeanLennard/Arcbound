@@ -4,7 +4,7 @@ import { getServerSession } from 'next-auth'
 import authOptions from '@/lib/authOptions'
 import { dbConnect } from '@/lib/mongodb'
 import Character from '@/models/Character'
-import Arcship   from '@/models/Arcship'
+import Arcship from '@/models/Arcship'
 
 export interface ShipSummary {
     _id: string
@@ -16,29 +16,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         res.setHeader('Allow', 'GET')
         return res.status(405).end()
     }
+
     const session = await getServerSession(req, res, authOptions)
     if (!session) return res.status(401).end()
 
     await dbConnect()
 
-    // 1) load all my *active* characters
+    // 1️⃣ load all *active* characters for this user,
+    //    picking up both `arcship` and `AdditionalArcships`
     const myChars = await Character
         .find({ user: session.user.id, status: 'Active' })
-        .select('arcship')
+        .select('arcship AdditionalArcships')
         .lean()
 
-    // 2) pull out all non-null arcship IDs
-    const shipIds = Array.from(new Set(
-        myChars
-            .map(c => c.arcship?.toString())
-            .filter(Boolean) as string[]
-    ))
+    // 2️⃣ collect all IDs (primary + extras)
+    const allIds = new Set<string>()
+    myChars.forEach(c => {
+        if (c.arcship) allIds.add(c.arcship.toString())
+        if (Array.isArray(c.AdditionalArcships)) {
+            c.AdditionalArcships.forEach(x => allIds.add(x.toString()))
+        }
+    })
 
-    // 3) fetch those ships
+    // 3️⃣ fetch them in one go
     const ships = await Arcship
-        .find({ _id: { $in: shipIds } })
+        .find({ _id: { $in: Array.from(allIds) } })
         .select('_id name')
-        .lean()
+        .lean<ShipSummary[]>()
 
     return res.status(200).json(ships)
 }

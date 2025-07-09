@@ -10,6 +10,8 @@ export interface CharacterDocument extends Document {
     faction: string;
     archetype: string;
     arcship?: Types.ObjectId;
+    AdditionalArcships: Types.ObjectId[];
+
     race: string;
     role: string;
     pictureUrl?: string;
@@ -52,6 +54,7 @@ const CharacterSchema = new mongoose.Schema<CharacterDocument>({
     archetype:   { type: String, required: true },
 
     arcship:     { type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' },
+    AdditionalArcships:     [{ type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' }],
 
     race:        { type: String, required: true },
     role:        { type: String, required: true },
