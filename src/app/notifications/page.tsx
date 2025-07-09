@@ -1,3 +1,4 @@
+// src/app/notifications/page.tsx
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -47,6 +48,20 @@ export default function NotificationsPage() {
         }
     };
 
+    const markAllRead = async () => {
+        try {
+            await fetch('/api/notifications/mark-all-read', { method: 'PATCH' });
+            // locally update every notification:
+            setNotifications(ns =>
+                ns.map(n => ({ ...n, isRead: true }))
+            );
+            toast.success('All notifications marked read');
+        } catch (err) {
+            console.error(err);
+            toast.error('Failed to mark all read');
+        }
+    };
+
     if (!session) {
         return (
             <div className="p-6">
@@ -57,7 +72,15 @@ export default function NotificationsPage() {
 
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Notifications</h1>
+            <div className="flex items-center justify-between mb-4">
+                <h1 className="text-2xl font-bold">Notifications</h1>
+                <button
+                    onClick={markAllRead}
+                    className="text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
+                >
+                    Mark all read
+                </button>
+            </div>
             {loading ? (
                 <p>Loading notifications...</p>
             ) : notifications.length === 0 ? (

@@ -85,7 +85,7 @@ export default function ChatsPageClient() {
                                         : chat.members.map(m => m.characterName).join(", ")}
                                 </p>
                                 <p className="text-xs text-gray-400">
-                                    {new Date(chat.createdAt).toLocaleString()}
+                                    {new Date(chat.updatedAt || chat.createdAt).toLocaleString()}
                                 </p>
                             </div>
                         </div>
