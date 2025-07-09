@@ -159,8 +159,6 @@ export default function AdminCharacterDetail() {
         mutate(`/api/characters/${id}`)
     }
 
-    const selected = watch("AdditionalArcships") || [];
-
     const add = (idToAdd: string) => {
         const next = [...local, idToAdd];
         setLocal(next);
