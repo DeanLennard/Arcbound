@@ -27,6 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const myChars = await Character
         .find({ user: session.user.id, status: 'Active' })
         .select('arcship AdditionalArcships')
+        .sort({ name: 1 })
         .lean()
 
     // 2️⃣ collect all IDs (primary + extras)

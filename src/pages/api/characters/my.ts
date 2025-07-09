@@ -25,6 +25,7 @@ export default async function handler(
     const chars = await Character
         .find({ user: session.user.id, status: 'Active' })
         .select('_id charName')
+        .sort({ charName: 1 })
         .lean<CharacterSummary[]>()
 
     return res.status(200).json(chars)
