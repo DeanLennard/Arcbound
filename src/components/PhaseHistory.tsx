@@ -82,9 +82,9 @@ export default function PhaseHistory({ phases }: { phases: Phase[] }) {
                                 onClick={() => toggle(ph._id)}
                                 className="w-full flex justify-between items-center px-4 py-2 text-left"
                             >
-                <span className="text-indigo-300 font-semibold">
-                  Phase {ph.number}
-                </span>
+                                <span className="text-indigo-300 font-semibold">
+                                  Phase {ph.number}
+                                </span>
                                 {isOpen ? (
                                     <ChevronUpIcon className="w-5 h-5 text-gray-300" />
                                 ) : (
@@ -99,14 +99,14 @@ export default function PhaseHistory({ phases }: { phases: Phase[] }) {
                                             Interaction
                                         </p>
                                         <div
-                                            className="prose prose-sm prose-white max-w-none break-words"
+                                            className="prose prose-sm prose-white max-w-none break-words tiptap"
                                             dangerouslySetInnerHTML={{ __html: ph.interaction }}
                                         />
                                     </div>
                                     <div>
                                         <p className="font-semibold text-gray-200 mb-1">Gambit</p>
                                         <div
-                                            className="prose prose-sm prose-white max-w-none break-words"
+                                            className="prose prose-sm prose-white max-w-none break-words tiptap"
                                             dangerouslySetInnerHTML={{ __html: ph.gambit }}
                                         />
                                     </div>
@@ -115,7 +115,7 @@ export default function PhaseHistory({ phases }: { phases: Phase[] }) {
                                             Resolution
                                         </p>
                                         <div
-                                            className="prose prose-sm prose-white max-w-none break-words"
+                                            className="prose prose-sm prose-white max-w-none break-words tiptap"
                                             dangerouslySetInnerHTML={{ __html: ph.resolution }}
                                         />
                                     </div>
