@@ -86,7 +86,7 @@ export default function ChatsPageClient() {
                                         : chat.members.map(m => m.characterName).join(", ")}
                                 </p>
                                 <p className="text-xs text-gray-400">
-                                    {formatTimestamp(new Date(chat.updatedAt || chat.createdAt).toLocaleString())}
+                                    {formatTimestamp((chat.updatedAt || chat.createdAt).toString())}
                                 </p>
                             </div>
                         </div>
