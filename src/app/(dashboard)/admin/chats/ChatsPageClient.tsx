@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import Image from "next/image";
 import Modal from "@/components/Modal";
 import ChatMessages from "@/components/ChatMessages";
+import {formatTimestamp} from "@/lib/formatTimestamp";
 
 interface Chat {
     _id: string;
@@ -85,7 +86,7 @@ export default function ChatsPageClient() {
                                         : chat.members.map(m => m.characterName).join(", ")}
                                 </p>
                                 <p className="text-xs text-gray-400">
-                                    {new Date(chat.updatedAt || chat.createdAt).toLocaleString()}
+                                    {formatTimestamp(new Date(chat.updatedAt || chat.createdAt).toLocaleString())}
                                 </p>
                             </div>
                         </div>
