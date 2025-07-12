@@ -5,7 +5,6 @@ import authOptions                        from '@/lib/authOptions'
 import { dbConnect }                      from '@/lib/mongodb'
 import Chat                               from '@/models/Chat'
 import type { Types }                     from 'mongoose'
-import socket from '@/socket/socket';
 
 interface PopulatedMember {
     _id: Types.ObjectId
