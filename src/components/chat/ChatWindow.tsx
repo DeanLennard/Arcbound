@@ -56,6 +56,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [isTyping, setIsTyping] = useState(false);
     const [typingUserId, setTypingUserId] = useState<string | null>(null);
     const [showGroupMembers, setShowGroupMembers] = useState(false);
+    const [members, setMembers] = useState(chat.members);
     const [editedGroupName, setEditedGroupName] = useState(chat.groupName || '');
     const [users, setUsers] = useState<User[]>([]);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -90,6 +91,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             .then(res => res.json())
             .then(data => setIsMuted(data.muted))
             .catch(console.error);
+    }, [chat._id]);
+
+    useEffect(() => {
+        if (!chat._id) return;
+        socket.emit('joinChat', chat._id);
     }, [chat._id]);
 
     useEffect(() => {
@@ -196,11 +202,14 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     };
 
     const handleNewMessage = useCallback((message: Message) => {
-        if (message.chatId === chat._id.toString()) {
+        if (
+            message.chatId === chat._id.toString() &&
+            members.some(m => m._id.toString() === currentUserId)
+        ) {
             setMessages((prev) => [...prev, message]);
             window.dispatchEvent(new Event('refreshChats'));
         }
-    }, [chat._id]);
+    }, [chat._id, members, currentUserId]);
 
     useEffect(() => {
         socket.on('newMessage', handleNewMessage);
@@ -208,6 +217,13 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             socket.off('newMessage', handleNewMessage);
         };
     }, [handleNewMessage]);
+
+    // auto close if removed
+    useEffect(() => {
+        if (!members.some(m => m._id.toString() === currentUserId)) {
+            onClose()
+        }
+    }, [members, currentUserId, onClose])
 
     const handleEmojiSelect = (emoji: Emoji) => {
         if (!emoji?.native) {
@@ -239,6 +255,32 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             alert('Failed to leave group.');
         }
     };
+
+    useEffect(() => {
+        function onMemberRemoved({
+                                     chatId: removedChatId,
+                                     userId: removedUserId
+                                 }: {
+            chatId: string
+            userId: string
+        }) {
+            if (removedChatId !== chat._id.toString()) return;
+
+            setMembers(current =>
+                // stringify the ObjectId before comparing
+                current.filter(m => m._id.toString() !== removedUserId)
+            );
+
+            if (removedUserId === currentUserId) {
+                onClose();
+            }
+        }
+
+        socket.on('memberRemoved', onMemberRemoved);
+        return () => {
+            socket.off('memberRemoved', onMemberRemoved);
+        };
+    }, [chat._id, currentUserId, onClose]);
 
     const toggleMute = async () => {
         try {
@@ -387,7 +429,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         ? chat.groupName
                         : chat.isGroup
                             ? 'Group Chat'
-                            : chat.members.find(m => {
+                            : members.find(m => {
                                 if (!m || !m._id) return false
                                 const idString = typeof m._id === 'string'
                                     ? m._id
@@ -605,7 +647,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 })}
                 {/* This div acts as the scroll target */}
                 {(() => {
-                    const typingUser = chat.members.find((m) => {
+                    const typingUser = members.find((m) => {
                         if (!m || !m._id) return false;
                         const idString = typeof m._id === 'string' ? m._id : m._id.toString();
                         return idString === typingUserId;
@@ -791,9 +833,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         {/* Members List */}
                         <h3 className="text-md font-semibold mb-2">Members:</h3>
                         <ul className="mb-3 max-h-40 overflow-y-auto">
-                            {chat.members
-                                .filter((member) => member && member._id)
-                                .map((member) => (
+                            {members.map(member => (
                                     <li key={member._id.toString()} className="flex items-center gap-2 mb-1">
                                         <Image
                                             src={member.profileImage || '/placeholder.jpg'}
@@ -804,6 +844,39 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                             className="w-6 h-6 object-cover rounded-full"
                                         />
                                         <span>{member.characterName}</span>
+                                        {/* remove button */}
+                                        <button
+                                            type="button"
+                                            title="Remove from group"
+                                            onClick={async () => {
+                                                //if (!confirm(`Remove ${member.characterName}?`)) return;
+                                                try {
+                                                    const res = await fetch(
+                                                        `/api/chats/${chat._id}/remove-member`,
+                                                        {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ userId: member._id })
+                                                        }
+                                                    );
+                                                    if (!res.ok) throw new Error();
+                                                    const { members: updated } = await res.json();
+                                                    setMembers(updated);
+                                                    window.dispatchEvent(new Event('refreshChats'));
+
+                                                    // tell the server who got kicked
+                                                    socket.emit('memberRemoved', {
+                                                        chatId: chat._id,
+                                                        userId: member._id
+                                                    })
+                                                } catch (err) {
+                                                    alert(err);
+                                                }
+                                            }}
+                                            className="ml-auto text-red-400 hover:text-red-600 text-sm"
+                                        >
+                                            Remove
+                                        </button>
                                     </li>
                                 ))}
                         </ul>
@@ -812,7 +885,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         <h3 className="text-md font-semibold mb-2">Add Member:</h3>
                         <Select
                             options={users
-                                .filter(u => u.characterName && !chat.members.some(m => m && m._id && m._id.toString() === u._id))
+                                .filter(u => u.characterName && !members.some(m => m && m._id && m._id.toString() === u._id))
                                 .sort((a, b) => {
                                     const nameA = a.characterName || '';
                                     const nameB = b.characterName || '';
@@ -875,6 +948,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                         chat.isGroup = updated.isGroup;
                                         chat.groupName = updated.groupName;
                                         chat.members  = updated.members;
+                                        setMembers(updated.members);
                                         setSelectedUser(null);
                                         window.dispatchEvent(new Event('refreshChats'));
                                     } else {

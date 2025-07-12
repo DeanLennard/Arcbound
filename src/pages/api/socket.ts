@@ -40,6 +40,11 @@ export default function handler(req: NextApiRequest, res: NextApiResponseServerI
                 socket.to(chatId).emit('typing', { chatId, userId });
             });
 
+            socket.on('memberRemoved', ({ chatId, userId }) => {
+                // send to everyone in that room
+                io.to(chatId).emit('memberRemoved', { chatId, userId })
+            })
+
             socket.on('disconnect', () => {
                 console.log('User disconnected:', socket.id);
             });
