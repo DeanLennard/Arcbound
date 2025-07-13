@@ -2,12 +2,20 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { getServerSession } from 'next-auth/next'
+import authOptions from "@/lib/authOptions";
+import { redirect }          from 'next/navigation'
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
                                             children,
                                         }: {
     children: React.ReactNode;
 }) {
+    const session = await getServerSession(authOptions)
+    if (!session || session.user.role !== 'admin') {
+        // if not an admin, immediately kick them back to /
+        redirect('/')
+    }
     return (
         <div className="flex min-h-screen">
             {/* Sidebar */}
