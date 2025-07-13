@@ -6,6 +6,7 @@ import Phase                   from '@/models/Phase'
 import GamePhase               from '@/models/GamePhase'
 
 export interface PendingChar {
+    _id:      string
     charName: string
     faction:  string
     role:     string
@@ -48,7 +49,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             interaction: /protocol used/i
                         })
                     }, status: 'Active' },
-                { charName: 1, faction: 1, role: 1, race: 1, _id: 0 }
+                { charName: 1, faction: 1, role: 1, race: 1, _id: 1 }
             )
             .lean<PendingChar[]>()
 

@@ -8,7 +8,7 @@ import {
 
 type Bucket        = { _id: string; count: number }
 type PhaseBucket   = { _id: number; count: number }
-type PendingChar   = { charName: string; faction: string; role: string; race: string }
+type PendingChar   = { _id: string; charName: string; faction: string; role: string; race: string }
 
 interface ReportsData {
     factionSpread:   Bucket[]
@@ -61,7 +61,14 @@ export default function ReportsPage() {
     return (
         <div style={{ padding: 20 }}>
             <h1>Admin Reports</h1>
-            <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '2rem',
+                    justifyItems: 'center'
+                }}
+            >
                 {mkPie('Factions',   data.factionSpread)}
                 {mkPie('Roles',      data.roleSpread)}
                 {mkPie('Archetypes', data.archetypeSpread)}
@@ -95,7 +102,14 @@ export default function ReportsPage() {
                     <tbody>
                     {data.pendingProtocols.map((c, i) => (
                         <tr key={i}>
-                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{c.charName}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>
+                                <a
+                                href={`/characters/${c._id}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                {c.charName}
+                            </a></td>
                             <td style={{ border: '1px solid #ddd', padding: 8 }}>{c.faction}</td>
                             <td style={{ border: '1px solid #ddd', padding: 8 }}>{c.role}</td>
                             <td style={{ border: '1px solid #ddd', padding: 8 }}>{c.race}</td>
