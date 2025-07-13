@@ -38,13 +38,13 @@ export default function ReportsPage() {
             <div style={{ width: 350, height: 350, margin: 20 }} key={title}>
                 <h3>{title}</h3>
                 <ResponsiveContainer>
-                    <PieChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                    <PieChart>
                         <Tooltip formatter={(v:number, name:string)=>[v,name]} />
                         <Pie
                             data={buckets}
                             dataKey="count"
                             nameKey="_id"
-                            outerRadius={80}
+                            outerRadius={100}
                             label={p => `${p.payload._id}: ${p.payload.count}`}
                             labelLine={false}
                         >
