@@ -71,8 +71,8 @@ export default function ReportsPage() {
             <div style={{ width: '100%', height: 400, marginTop: 40 }}>
                 <h3>Protocols Used per Phase</h3>
                 <ResponsiveContainer>
-                    <BarChart data={data.protocolByPhase as any}>
-                        <XAxis dataKey="_id" label={{ value: 'Phase #', position: 'insideBottom', dy: 10 }} />
+                    <BarChart<PhaseBucket> data={data.protocolByPhase}>
+                    <XAxis dataKey="_id" label={{ value: 'Phase #', position: 'insideBottom', dy: 10 }} />
                         <YAxis />
                         <Tooltip />
                         <Legend />
