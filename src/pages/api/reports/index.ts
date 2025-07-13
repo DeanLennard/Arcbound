@@ -16,17 +16,29 @@ export interface PendingChar {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect()
 
-    // --- 1) your existing spreads & counts ---
+    // 1) Character‐based spreads (only non-NPCs)
     const [
         factionBuckets,
         roleBuckets,
         archetypeBuckets,
         raceBuckets
     ] = await Promise.all([
-        Character.aggregate([{ $group: { _id: '$faction',   count: { $sum: 1 } } }]),
-        Character.aggregate([{ $group: { _id: '$role',      count: { $sum: 1 } } }]),
-        Character.aggregate([{ $group: { _id: '$archetype', count: { $sum: 1 } } }]),
-        Character.aggregate([{ $group: { _id: '$race',      count: { $sum: 1 } } }])
+        Character.aggregate([
+            { $match: { npc: false } },
+            { $group: { _id: '$faction',    count: { $sum: 1 } } }
+        ]),
+        Character.aggregate([
+            { $match: { npc: false } },
+            { $group: { _id: '$role',       count: { $sum: 1 } } }
+        ]),
+        Character.aggregate([
+            { $match: { npc: false } },
+            { $group: { _id: '$archetype',  count: { $sum: 1 } } }
+        ]),
+        Character.aggregate([
+            { $match: { npc: false } },
+            { $group: { _id: '$race',       count: { $sum: 1 } } }
+        ])
     ])
 
     const protocolByPhase = await Phase.aggregate([
@@ -48,7 +60,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                             number: phaseNum,
                             interaction: /protocol used/i
                         })
-                    }, status: 'Active' },
+                    },
+                    status: 'Active',
+                    npc:    false
+                },
                 { charName: 1, faction: 1, role: 1, race: 1, _id: 1 }
             )
             .lean<PendingChar[]>()

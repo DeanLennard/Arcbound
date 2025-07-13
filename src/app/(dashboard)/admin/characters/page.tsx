@@ -64,6 +64,7 @@ export default function AdminCharacters() {
                                         role:     char.role,
                                         race:     char.race,
                                         archetype: char.archetype,
+                                        npc:     char.npc,
                                         user:    char.user?._id ?? '',
                                         arcship: char.arcship?._id ?? '',
                                     })

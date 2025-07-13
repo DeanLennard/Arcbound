@@ -7,6 +7,7 @@ export interface CharacterSummary {
     role: string
     race: string
     archetype: string
+    npc: boolean
     user?: {
         _id: string
         playerName: string

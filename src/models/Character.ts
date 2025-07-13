@@ -9,6 +9,7 @@ export interface CharacterDocument extends Document {
     status: CharacterStatus;
     faction: string;
     archetype: string;
+    npc: boolean;
     arcship?: Types.ObjectId;
     AdditionalArcships: Types.ObjectId[];
 
@@ -52,6 +53,7 @@ const CharacterSchema = new mongoose.Schema<CharacterDocument>({
     status:      { type: String, enum: ['Active','Dead','Retired'], default: 'Active' },
     faction:     { type: String, required: true },
     archetype:   { type: String, required: true },
+    npc: { type: Boolean, default: false },
 
     arcship:     { type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' },
     AdditionalArcships:     [{ type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' }],

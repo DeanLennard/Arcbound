@@ -1,10 +1,11 @@
 // src/app/(dashboard)/admin/characters/CharacterForm.tsx
 'use client'
 
-import { useForm, SubmitHandler } from 'react-hook-form'
+import { Controller, useForm, SubmitHandler } from 'react-hook-form'
 import useSWR from 'swr'
 import { useEffect } from 'react'
 import Editor from '@/components/Editor'
+import { Switch } from '@headlessui/react'
 
 interface UserOption {
     _id: string
@@ -68,6 +69,7 @@ interface CharacterFormValues {
     race:    string
     raceCustom?: string
     archetype: string
+    npc: boolean
 }
 
 export interface CharacterFormData {
@@ -83,6 +85,7 @@ export interface CharacterFormData {
     race:          string;
     raceCustom?:   string;
     archetype:     string;
+    npc:           boolean
     background?:         string
     factionObjective?:   string
 }
@@ -94,8 +97,20 @@ interface CharacterFormProps {
 }
 
 export default function CharacterForm({ initial, onSuccess, onCancel }: CharacterFormProps) {
-    const { register, handleSubmit, watch, reset, setValue, formState: { isSubmitting } } =
-        useForm<CharacterFormData>({ defaultValues: initial })
+    const {
+        control,
+        register,
+        handleSubmit,
+        watch,
+        reset,
+        setValue,
+        formState: { isSubmitting }
+    } = useForm<CharacterFormData>({
+        defaultValues: {
+            ...initial,
+            npc: initial.npc ?? false,
+        }
+    })
 
     const isEdit = Boolean(initial._id)
 
@@ -117,7 +132,10 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
     // reset form on new initial
     useEffect(() => {
         if (!initial) return
-        reset(initial as CharacterFormData)
+        reset({
+            ...initial,
+            npc: initial.npc ?? false,
+        })
     }, [initial, reset])
 
     // watch fields for dynamic logic
@@ -217,6 +235,32 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
                      focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
             </div>
+
+            {/* NPC toggle */}
+            <Controller
+                control={control}
+                name="npc"
+                render={({ field: { value, onChange } }) => (
+                    <Switch.Group as="div" className="flex items-center space-x-4">
+                        <Switch.Label className="text-sm font-medium text-white">NPC</Switch.Label>
+                        <Switch
+                            checked={value}
+                            onChange={onChange}
+                            className={
+                                (value ? 'bg-indigo-600' : 'bg-gray-500') +
+                                ' relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500'
+                            }
+                        >
+              <span
+                  className={
+                      (value ? 'translate-x-6' : 'translate-x-1') +
+                      ' inline-block h-4 w-4 transform rounded-full bg-white transition-transform'
+                  }
+              />
+                        </Switch>
+                    </Switch.Group>
+                )}
+            />
 
             {/* Status, Faction */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
