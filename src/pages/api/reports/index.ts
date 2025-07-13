@@ -24,19 +24,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         raceBuckets
     ] = await Promise.all([
         Character.aggregate([
-            { $match: { npc: false } },
+            { $match: { npc: { $ne: true } } },
             { $group: { _id: '$faction',    count: { $sum: 1 } } }
         ]),
         Character.aggregate([
-            { $match: { npc: false } },
+            { $match: { npc: { $ne: true } } },
             { $group: { _id: '$role',       count: { $sum: 1 } } }
         ]),
         Character.aggregate([
-            { $match: { npc: false } },
+            { $match: { npc: { $ne: true } } },
             { $group: { _id: '$archetype',  count: { $sum: 1 } } }
         ]),
         Character.aggregate([
-            { $match: { npc: false } },
+            { $match: { npc: { $ne: true } } },
             { $group: { _id: '$race',       count: { $sum: 1 } } }
         ])
     ])
@@ -62,7 +62,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                         })
                     },
                     status: 'Active',
-                    npc:    false
+                    npc:    { $ne: true }
                 },
                 { charName: 1, faction: 1, role: 1, race: 1, _id: 1 }
             )
