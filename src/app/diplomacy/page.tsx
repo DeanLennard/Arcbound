@@ -1,7 +1,7 @@
 // src/app/diplomacy/page.tsx
 'use client'
 
-import { useEffect, useState, useMemo } from 'react'
+import { ChangeEvent, useEffect, useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 type FactionName =
@@ -39,7 +39,7 @@ const STANCE_COLORS: Record<Stance,string> = {
     Neutral:  '#f0b429',
     Strained: '#f77f00',
     Hostile:  '#d00000',
-    WAR:      '#6b7280'
+    WAR:      '#000000'
 }
 
 const fetcher = (url: string) => fetch(url).then(r => r.json())
@@ -108,7 +108,9 @@ export default function DiplomacyDashboard() {
                         <label className="text-white font-medium">Faction:</label>
                         <select
                             value={selectedFaction}
-                            onChange={e => setSelectedFaction(e.target.value as any)}
+                            onChange={(e: ChangeEvent<HTMLSelectElement>) =>
+                                setSelectedFaction(e.target.value as FactionName | 'All')
+                            }
                             className="px-2 py-1 bg-gray-700 text-white rounded"
                         >
                             {factions.map(f => (

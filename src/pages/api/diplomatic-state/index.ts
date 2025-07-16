@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect }                            from '@/lib/mongodb'
 import DiplomaticState, { FactionName, Stance }  from '@/models/DiplomaticState'
 import GamePhase                                 from '@/models/GamePhase'
-import type { BulkWriteOperation }               from 'mongodb'
+import type { AnyBulkWriteOperation }               from 'mongoose'
 
 interface RelationRecord {
     phase:    number
@@ -55,7 +55,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             if (typeof phase !== 'number' || !Array.isArray(updates)) {
                 return res.status(400).json({ error: 'Invalid payload' })
             }
-            const ops: BulkWriteOperation<any>[] = updates.map(u => ({
+            const ops: AnyBulkWriteOperation[] = updates.map(u => ({
                 updateOne: {
                     filter: { phase, source: u.source, target: u.target },
                     update: { $set: { stance: u.stance, progress: u.progress } },

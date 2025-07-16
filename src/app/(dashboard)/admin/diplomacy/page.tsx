@@ -1,6 +1,6 @@
 // src/app/(dashboard)/admin/diplomacy/page.tsx
 'use client'
-import { useEffect, useState, useMemo } from 'react'
+import { ChangeEvent, useEffect, useState, useMemo } from 'react'
 import useSWR from 'swr'
 
 type FactionName =
@@ -36,7 +36,7 @@ const STANCE_OPTIONS: Stance[] = ['Allied','Friendly','Neutral','Strained','Host
 const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 export default function AdminDiplomacyPage() {
-    const [phase, setPhase] = useState<number | null>(null)
+    const [phase, setPhase] = useState<number>(1)
     const { data, error, mutate } = useSWR<API>(
         phase === null
             ? '/api/diplomatic-state'
@@ -127,7 +127,10 @@ export default function AdminDiplomacyPage() {
                 <label className="font-medium">Faction:</label>
                 <select
                     value={filterFaction}
-                    onChange={e => setFilterFaction(e.target.value as any)}
+                    onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                        // e.target.value is a string; cast it to your union.
+                        setFilterFaction(e.target.value as FactionName | 'All')
+                    }}
                     className="px-2 py-1 bg-gray-700 text-white rounded"
                 >
                     {allFactions.map(f => (
