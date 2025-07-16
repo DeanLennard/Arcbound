@@ -124,41 +124,45 @@ export default function DiplomacyDashboard() {
 
                 {/* Relations list */}
                 <ul className="divide-y divide-gray-600">
-                    {filtered.map((rec, i) => (
-                        <li
-                            key={`${rec.source}-${rec.target}`}
-                            className={`py-3 flex flex-wrap items-center 
-                            ${i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'}`}
-                        >
-                            <div className="w-1/5 text-white font-medium flex items-center">
-                                {rec.source}
-                                {selectedFaction !== 'All' && selectedFaction === rec.source && (
-                                    <span className="ml-2 text-sm">(→)</span>
-                                )}
-                            </div>
-                            <div className="w-1/5 text-gray-200 flex items-center">
-                                {rec.target}
-                                {selectedFaction !== 'All' && selectedFaction === rec.target && (
-                                    <span className="ml-2 text-sm">(←)</span>
-                                )}
-                            </div>
-                            <div className="w-1/5 text-gray-200 italic">{rec.stance}</div>
-                            <div className="w-2/5 flex items-center">
-                                <div className="relative flex-1 h-2 bg-gray-600 rounded overflow-hidden">
-                                    <div
-                                        className="absolute inset-0"
-                                        style={{
-                                            width: `${rec.progress}%`,
-                                            backgroundColor: STANCE_COLORS[rec.stance]
-                                        }}
-                                    />
+                    {filtered.map((rec, i) => {
+                        // are we showing this rec “from” the selectedFaction?
+                        const isSource = selectedFaction === rec.source
+                        // pick left/right so that the selected faction is always on the left
+                        const left  = isSource ? rec.source : rec.target
+                        const right = isSource ? rec.target : rec.source
+
+                        return (
+                            <li
+                                key={`${rec.source}-${rec.target}`}
+                                className={`py-3 flex flex-wrap items-center ${
+                                    i % 2 === 0 ? 'bg-gray-800' : 'bg-gray-700'
+                                }`}
+                            >
+                                <div className="w-1/5 text-white font-medium flex items-center">
+                                    {left}
+                                    {selectedFaction !== 'All' && (
+                                        <span className="ml-2 text-sm">(→)</span>
+                                    )}
                                 </div>
-                                <span className="ml-2 text-gray-200 text-sm">
-                                  {rec.progress}%
-                                </span>
-                            </div>
-                        </li>
-                    ))}
+                                <div className="w-1/5 text-gray-200">{right}</div>
+                                <div className="w-1/5 text-gray-200 italic">{rec.stance}</div>
+                                <div className="w-2/5 flex items-center">
+                                    <div className="relative flex-1 h-2 bg-gray-600 rounded overflow-hidden">
+                                        <div
+                                            className="absolute inset-0"
+                                            style={{
+                                                width: `${rec.progress}%`,
+                                                backgroundColor: STANCE_COLORS[rec.stance],
+                                            }}
+                                        />
+                                    </div>
+                                    <span className="ml-2 text-gray-200 text-sm">
+                                      {rec.progress}%
+                                    </span>
+                                </div>
+                            </li>
+                        )
+                    })}
                 </ul>
             </div>
         </main>

@@ -65,11 +65,16 @@ export default function AdminDiplomacyPage() {
     }, [data])
 
     // NEW: filter the edits list by the selected faction
-    const displayed = useMemo(() => {
-        if (filterFaction === 'All') return edits
-        return edits.filter(
-            r => r.source === filterFaction || r.target === filterFaction
-        )
+    interface WithIdx { rec: Relation; idx: number }
+
+    const displayed = useMemo<WithIdx[]>(() => {
+        return edits
+            .map((rec, idx) => ({ rec, idx }))
+            .filter(({ rec }) =>
+                filterFaction === 'All'
+                    ? true
+                    : rec.source === filterFaction || rec.target === filterFaction
+            )
     }, [edits, filterFaction])
 
     if (error) return <p className="p-6 text-red-600">Failed to load.</p>
@@ -142,7 +147,7 @@ export default function AdminDiplomacyPage() {
             </div>
 
             <ul className="divide-y divide-gray-600">
-                {displayed.map((rec, i) => (
+                {displayed.map(({ rec, idx }) => (
                     <li
                         key={`${rec.source}-${rec.target}`}
                         className="py-2 flex flex-wrap items-center odd:bg-gray-800 even:bg-gray-700"
@@ -152,7 +157,7 @@ export default function AdminDiplomacyPage() {
                         <div className="w-1/4">
                             <select
                                 value={rec.stance}
-                                onChange={e => onChangeStance(i, e.target.value as Stance)}
+                                onChange={e => onChangeStance(idx, e.target.value as Stance)}
                                 className="px-2 py-1 bg-gray-600 text-white rounded"
                             >
                                 {STANCE_OPTIONS.map(s =>
@@ -165,7 +170,7 @@ export default function AdminDiplomacyPage() {
                                 type="range"
                                 min={0} max={100}
                                 value={rec.progress}
-                                onChange={e => onChangeProg(i, +e.target.value)}
+                                onChange={e => onChangeProg(idx, +e.target.value)}
                                 className="flex-1"
                             />
                             <span className="ml-2 text-white">{rec.progress}%</span>
