@@ -249,7 +249,7 @@ export default function PostsClient() {
                     </div>
                 ))}
             </div>
-            
+
             {loading && <p className="text-center mt-4">Loading more…</p>}
             {currentPage >= totalPages && (
                 <p className="text-center mt-4 text-gray-500">No more posts.</p>
