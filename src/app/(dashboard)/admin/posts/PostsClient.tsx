@@ -1,7 +1,7 @@
 // src/app/(dashboard)/admin/posts/PostsClient.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import toast from 'react-hot-toast';
 import Editor from '@/components/Editor';
 import Image from "next/image";
@@ -32,6 +32,11 @@ export default function PostsClient() {
     const [editingPostId, setEditingPostId] = useState<string | null>(null);
     const [search, setSearch] = useState('');
 
+    // pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages]       = useState(1);
+    const limit = 10;
+
     useEffect(() => {
         fetchPosts();
         fetchCategories();
@@ -48,6 +53,39 @@ export default function PostsClient() {
         const data: { categories: Category[] } = await res.json();
         setCategories(data.categories || []);
     };
+
+    // fetch a single page
+    const fetchPage = useCallback(async (page: number) => {
+        const res = await fetch(`/api/admin/posts?page=${page}&limit=${limit}`);
+        const json = await res.json() as { posts: Post[], totalPages: number };
+        setTotalPages(json.totalPages);
+        setPosts(prev => page === 1 ? json.posts : [...prev, ...json.posts]);
+    }, []);
+
+    // initial load
+    useEffect(() => {
+        fetchPage(1);
+    }, [fetchPage]);
+
+    // infinite scroll handler
+    useEffect(() => {
+        const onScroll = () => {
+            if (loading) return;
+            if (currentPage >= totalPages) return;
+
+            const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 200;
+            if (nearBottom) {
+                setLoading(true);
+                const next = currentPage + 1;
+                fetchPage(next).then(() => {
+                    setCurrentPage(next);
+                    setLoading(false);
+                });
+            }
+        };
+        window.addEventListener('scroll', onScroll);
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [currentPage, totalPages, loading, fetchPage]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -211,6 +249,11 @@ export default function PostsClient() {
                     </div>
                 ))}
             </div>
+            
+            {loading && <p className="text-center mt-4">Loading more…</p>}
+            {currentPage >= totalPages && (
+                <p className="text-center mt-4 text-gray-500">No more posts.</p>
+            )}
         </div>
     );
 }
