@@ -49,6 +49,9 @@ export default async function DashboardLayout({
                     <Link href="/admin/sectors" className="hover:underline">
                         Manage Sectors
                     </Link>
+                    <Link href="/admin/diplomacy" className="hover:underline">
+                        Manage Diplomacy
+                    </Link>
                     <Link href="/admin/reports" className="hover:underline">
                         Reports
                     </Link>

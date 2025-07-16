@@ -76,6 +76,9 @@ export default function Header() {
                     >
                         Relay
                     </Link>
+                    {
+                        //<Link href="/diplomacy" className="hover:underline">Diplomacy</Link>
+                    }
                     <Link href="/tools" className="hover:underline">Tools</Link>
                     <Link href="/sectormap" className="hover:underline">Map</Link>
                 </nav>
