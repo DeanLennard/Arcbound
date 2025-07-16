@@ -230,6 +230,7 @@ export default function Header() {
                 <div className="absolute top-full left-0 w-full bg-gray-900 flex flex-col gap-2 px-4 py-3 z-50">
                     <Link href="/" onClick={toggleMenu} className="hover:underline">Home</Link>
                     <Link href="/forum" onClick={toggleMenu} className="hover:underline">Relay</Link>
+                    <Link href="/diplomacy" onClick={toggleMenu} className="hover:underline">Diplomacy</Link>
                     <Link href="/tools" onClick={toggleMenu} className="hover:underline">Tools</Link>
                     <Link href="/sectormap" onClick={toggleMenu} className="hover:underline">Map</Link>
 
