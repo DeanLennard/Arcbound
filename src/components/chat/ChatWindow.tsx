@@ -218,19 +218,38 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         };
     }, [handleNewMessage]);
 
+    const sawSelf = useRef(false);
+
     // auto close if removed
     useEffect(() => {
-        // only close when we *know* you’re no longer a member
-        const youStillIn = members.some(m => {
-            if (!m._id) return false
-            // normalize to string safely:
-            const idStr = typeof m._id === 'string' ? m._id : m._id.toString()
-            return idStr === currentUserId
-        })
-        if (!youStillIn) {
-            onClose()
+        // if the array includes you, mark sawSelf
+        if (members.some(m => {
+            if (!m?._id) return false;
+            const idStr = typeof m._id === 'string' ? m._id : m._id.toString();
+            return idStr === currentUserId;
+        })) {
+            sawSelf.current = true;
+            return; // still in, no close
         }
-    }, [members, currentUserId, onClose])
+
+        // if we've _ever_ seen ourselves, but now we're gone, close
+        if (sawSelf.current) {
+            onClose();
+        }
+    }, [members, currentUserId, onClose]);
+
+    // whenever the chat prop changes (eg. on creation), reset members
+    useEffect(() => {
+        setMembers(chat.members);
+        // if the new chat already includes you, mark sawSelf
+        if (chat.members.some(m => {
+            if (!m?._id) return false;
+            const idStr = typeof m._id === 'string' ? m._id : m._id.toString();
+            return idStr === currentUserId;
+        })) {
+            sawSelf.current = true;
+        }
+    }, [chat.members, currentUserId]);
 
     const handleEmojiSelect = (emoji: Emoji) => {
         if (!emoji?.native) {
