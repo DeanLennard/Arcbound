@@ -220,7 +220,14 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
 
     // auto close if removed
     useEffect(() => {
-        if (!members.some(m => m._id.toString() === currentUserId)) {
+        // only close when we *know* you’re no longer a member
+        const youStillIn = members.some(m => {
+            if (!m._id) return false
+            // normalize to string safely:
+            const idStr = typeof m._id === 'string' ? m._id : m._id.toString()
+            return idStr === currentUserId
+        })
+        if (!youStillIn) {
             onClose()
         }
     }, [members, currentUserId, onClose])
