@@ -1,9 +1,16 @@
 // src/models/Category.ts
-import mongoose from 'mongoose';
+import mongoose, { Document } from 'mongoose';
 
-const CategorySchema = new mongoose.Schema({
+export interface CategoryDocument extends Document {
+    name: string;
+    image?: string;
+    faction?: string;
+}
+
+const CategorySchema = new mongoose.Schema<CategoryDocument>({
     name: { type: String, required: true, unique: true },
-    image: { type: String } // stores URL to image
+    image: { type: String },
+    faction: { type: String, required: false },
 });
 
-export default mongoose.models.Category || mongoose.model('Category', CategorySchema);
+export default mongoose.models.Category || mongoose.model<CategoryDocument>('Category', CategorySchema);

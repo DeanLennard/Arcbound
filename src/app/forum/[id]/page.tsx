@@ -20,6 +20,7 @@ interface Post {
     category?: {
         _id: string;
         name: string;
+        faction?: string;
     };
     editedAt?: string;
     createdAt?: string;
@@ -34,20 +35,26 @@ interface Post {
     };
 }
 
-async function fetchPost(id: string): Promise<Post | null> {
+async function fetchPost(id: string): Promise<{ post: Post | null, forbidden?: boolean }> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/posts/${id}`, {
         method: 'GET',
         // Add credentials if needed
     });
-    if (!res.ok) {
-        return null;
+
+    if (res.status === 403) {
+        return { post: null, forbidden: true };
+    } else if (!res.ok) {
+        return { post: null };
     }
+
     const data = await res.json();
     return {
-        ...data.post,
-        likes: data.post.likesCount ?? 0,
-        authorId: data.post.authorId,
-        author: data.post.author
+        post: {
+            ...data.post,
+            likes: data.post.likesCount ?? 0,
+            authorId: data.post.authorId,
+            author: data.post.author,
+        }
     };
 }
 
@@ -58,15 +65,21 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     const [editedTitle, setEditedTitle] = useState('');
     const [editedContent, setEditedContent] = useState('');
     const { data: session } = useSession();
+    const [forbidden, setForbidden] = useState(false);
 
     useEffect(() => {
         const loadPost = async () => {
             const { id } = await params;
-            const fetchedPost = await fetchPost(id);
-            if (!fetchedPost) {
+            const result = await fetchPost(id);
+
+            if (result.forbidden) {
+                setForbidden(true);
+            } else if (!result.post) {
                 notFound();
+            } else {
+                setPost(result.post);
             }
-            setPost(fetchedPost);
+
             setLoading(false);
         };
         loadPost();
@@ -74,6 +87,10 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
     if (loading) {
         return <div className="text-center text-white mt-10">Loading...</div>;
+    }
+
+    if (forbidden) {
+        return <p className="text-red-500 text-center mt-8">🚫 You do not have permission to view this post.</p>;
     }
 
     if (!post) {

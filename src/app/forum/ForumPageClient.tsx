@@ -27,6 +27,7 @@ interface Category {
     _id: string;
     name: string;
     image: string;
+    faction: string;
 }
 
 interface Comment {
@@ -52,6 +53,7 @@ export default function ForumPage() {
     const [categoriesLoading, setCategoriesLoading] = useState(true);
     const [postsLoading, setPostsLoading] = useState(false);
     const [latestPosts, setLatestPosts] = useState<Post[]>([]);
+    const [allowedFactions, setAllowedFactions] = useState<string[]>([]);
 
     const userRole = (session?.user as { role?: string })?.role || '';
 
@@ -159,6 +161,20 @@ export default function ForumPage() {
     }, []);
 
     useEffect(() => {
+        const fetchFactions = async () => {
+            try {
+                const res = await fetch('/api/characters/factions');
+                const data = await res.json();
+                setAllowedFactions(data.factions || []);
+            } catch (err) {
+                console.error('Error fetching factions', err);
+            }
+        };
+
+        fetchFactions();
+    }, []);
+
+    useEffect(() => {
         const fetchLatestPosts = async () => {
             try {
                 const res = await fetch(`/api/admin/posts?page=1&limit=3&sort=latest`);
@@ -214,6 +230,10 @@ export default function ForumPage() {
             </div>
         );
     }
+
+    const visibleCategories = categories.filter(cat =>
+        !cat.faction || allowedFactions.includes(cat.faction)
+    );
 
     // ✅ User authenticated and approved — render the forum!
     return (
@@ -278,7 +298,7 @@ export default function ForumPage() {
             {/* Categories */}
             {!selectedCategoryId && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    {categories.map((cat) => (
+                    {visibleCategories.map(cat => (
                         <div
                             key={cat._id}
                             onClick={(e) => {

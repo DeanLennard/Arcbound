@@ -53,9 +53,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         try {
             const { fields, files } = await parseForm(req, form);
             const name = Array.isArray(fields.name) ? fields.name[0] : fields.name ?? '';
+            const faction = Array.isArray(fields.faction) ? fields.faction[0] : fields.faction ?? null;
             const file = Array.isArray(files.image) ? files.image[0] : files.image;
 
-            const updateData: { name: string; image?: string } = { name };
+            const updateData: { name: string; image?: string; faction?: string | null } = { name, faction };
 
             if (file && file.size > 0) {
                 updateData.image = `/uploads/${path.basename(file.filepath)}`;

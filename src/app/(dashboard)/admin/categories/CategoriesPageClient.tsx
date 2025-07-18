@@ -8,7 +8,17 @@ interface Category {
     _id: string;
     name: string;
     image: string;
+    faction?: string;
 }
+
+const factions = [
+    'The Aeon Collective',
+    'The Helion Federation',
+    'The Korveth Dominion',
+    'The Sundered Concord',
+    'The Tyr Solaris Imperium',
+    'The Virean Ascendancy',
+];
 
 export default function CategoriesPageClient() {
     const [categories, setCategories] = useState<Category[]>([]);
@@ -16,6 +26,7 @@ export default function CategoriesPageClient() {
     const [image, setImage] = useState<File | ''>('');
     const [loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [faction, setFaction] = useState('');
 
     const fetchCategories = async () => {
         const res = await fetch('/api/admin/categories');
@@ -40,6 +51,7 @@ export default function CategoriesPageClient() {
         try {
             const formData = new FormData();
             formData.append('name', name);
+            formData.append('faction', faction);
             if (image) {
                 formData.append('image', image as Blob);
             }
@@ -74,9 +86,10 @@ export default function CategoriesPageClient() {
         }
     };
 
-    const handleEdit = (id: string, oldName: string) => {
+    const handleEdit = (id: string, oldName: string, oldFaction?: string) => {
         setEditingId(id);
         setName(oldName);
+        setFaction(oldFaction || '');
         setImage('');
     };
 
@@ -108,13 +121,33 @@ export default function CategoriesPageClient() {
                     className="p-2 border rounded"
                     required
                 />
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImage(e.target.files?.[0] || '')}
-                    className="p-2 border rounded"
-                    required
-                />
+                {!editingId && (
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImage(e.target.files?.[0] || '')}
+                        className="p-2 border rounded"
+                        required
+                    />
+                )}
+                {editingId && (
+                    <p className="text-sm text-gray-500">
+                        The current image will be preserved. To update it, delete and recreate the category.
+                    </p>
+                )}
+                <select
+                    value={faction}
+                    onChange={(e) => setFaction(e.target.value)}
+                    className="mt-1 block w-full px-3 py-2 bg-gray-700 text-white border border-gray-600 rounded
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                    <option value="">Public (no faction)</option>
+                    {factions.map((f) => (
+                        <option key={f} value={f}>
+                            {f}
+                        </option>
+                    ))}
+                </select>
                 <button
                     type="submit"
                     disabled={loading}
@@ -144,11 +177,14 @@ export default function CategoriesPageClient() {
                                 className="w-10 h-10 object-cover rounded"
                             />
                             <span>{cat.name}</span>
+                            <span className="text-sm text-gray-400">
+                                {cat.faction || 'Public'}
+                            </span>
                         </div>
                         <div className="flex gap-2">
                             <button
                                 className="bg-yellow-500 text-white px-2 py-1 rounded"
-                                onClick={() => handleEdit(cat._id, cat.name)}
+                                onClick={() => handleEdit(cat._id, cat.name, cat.faction)}
                             >
                                 Edit
                             </button>

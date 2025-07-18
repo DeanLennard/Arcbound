@@ -56,6 +56,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const { fields, files } = await parseForm(req, form);
 
             const name = Array.isArray(fields.name) ? fields.name[0] : fields.name;
+            const faction = Array.isArray(fields.faction) ? fields.faction[0] : fields.faction ?? null;
             const file = Array.isArray(files.image) ? files.image[0] : files.image;
             if (!name || !file) {
                 return res.status(400).json({ error: 'Name and image are required' });
@@ -69,7 +70,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 return res.status(400).json({ error: 'Category already exists' });
             }
 
-            const category = new Category({ name, image: imageUrl });
+            const category = new Category({ name, image: imageUrl, faction });
             await category.save();
 
             return res.status(201).json({ message: 'Category created', category });
