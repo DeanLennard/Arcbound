@@ -6,7 +6,6 @@ import '@/models/Category'
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';
 import Character from '@/models/Character';
-import Category from '@/models/Category';
 
 // Define interfaces for populated fields
 interface PopulatedCategory {
