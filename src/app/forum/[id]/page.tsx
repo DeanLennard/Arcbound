@@ -146,6 +146,11 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
                             </Link>
                         </div>
                     )}
+                    {post.category?.faction && (
+                        <div className="mb-4 bg-yellow-800 text-yellow-100 border-l-4 border-yellow-500 p-3 rounded">
+                            🔒 This post is visible only to members of <strong>{post.category.faction}</strong>.
+                        </div>
+                    )}
                     <div className="flex items-center gap-2 mb-2">
                         <Link href={`/profile/${post.author?._id || post.authorId}`}>
                             <div className="flex items-center gap-2">
