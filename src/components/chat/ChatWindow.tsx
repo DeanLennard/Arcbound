@@ -69,7 +69,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
     const [editingId, setEditingId] = useState<string|null>(null);
     const [draft, setDraft] = useState('');
     const [reactingTo, setReactingTo] = useState<string|null>(null);
-    const ALLOWED_REACTIONS = ['👍','🔥','❤️','😂','😡'];
+    const ALLOWED_REACTIONS = ['👍','🔥','❤️','😂','😡','😢'];
     const [isAtBottom, setIsAtBottom] = useState(true);
 
     useEffect(() => {
