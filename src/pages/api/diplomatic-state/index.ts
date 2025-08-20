@@ -22,7 +22,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const open = await GamePhase
                 .findOne({ isOpen: true })
                 .lean<{ phase: number }>()
-            const maxPhase = open?.phase ?? 1
+
+            let maxPhase: number | undefined = open?.phase;
+
+            if (!maxPhase) {
+                // find the largest phase number present in DiplomaticState
+                const last = await DiplomaticState
+                    .findOne()
+                    .sort({ phase: -1 })
+                    .lean<{ phase: number }>();
+                maxPhase = last?.phase ?? 1;
+            }
 
             // 2) figure out which phase to show records for
             let phaseNum: number

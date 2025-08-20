@@ -119,13 +119,15 @@ export default function AdminDiplomacyPage() {
                     className="btn-sm bg-green-600 hover:bg-green-700 px-3 py-1 rounded hidden md:inline"
                     onClick={async () => {
                         await fetch('/api/diplomatic-state/populate', {
-                            method:'POST',
-                            headers:{'Content-Type':'application/json'},
-                            body: JSON.stringify({ phase })
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ fromPhase: phase }) // server will set toPhase = phase + 1
                         })
                         mutate()
                     }}
-                >Populate Phase</button>
+                >
+                    Populate Next Phase
+                </button>
             </div>
 
             <div className="flex items-center space-x-2">
