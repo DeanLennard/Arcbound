@@ -19,11 +19,20 @@ import type { Phase as PhaseClientType } from '@/components/PhaseHistory'
 import ScrapcodeList, {Scrapcode} from '@/components/ScrapcodeList'
 
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
-    arcship?: ArcshipDocument
+    arcship?: ArcshipDocument | Types.ObjectId | null
     user?: {
         _id: Types.ObjectId
         playerName: string
     } | null
+}
+
+type ArcshipLean = {
+    _id: Types.ObjectId | string
+    name?: string
+}
+
+function isPopulatedArcship(x: unknown): x is ArcshipLean {
+    return typeof x === 'object' && x !== null && 'name' in x
 }
 
 export default async function CharacterPage({
@@ -115,6 +124,17 @@ export default async function CharacterPage({
         buildEssence: r.buildEssence,
     }))
 
+    const arcshipName = (() => {
+        const a = char.arcship
+        if (!a) return 'None'
+
+        // if it looks like a populated arcship document, prefer its name
+        if (isPopulatedArcship(a) && typeof a.name === 'string') return a.name
+
+        // otherwise treat it as an id (ObjectId or string)
+        return String(a)
+    })()
+
     return (
         <div className="max-w-full sm:max-w-3xl md:max-w-5xl lg:max-w-7xl mx-auto p-4 space-y-6">
             {/* Header */}
@@ -122,6 +142,19 @@ export default async function CharacterPage({
                 <h1 className="text-4xl font-bold text-white">{char.charName} ({char.role})</h1>
                 <p className="text-gray-400 mt-2">
                     Player: <span className="text-white">{char.user?.playerName ?? 'Unknown'}</span> •{' '}
+                    Arcship:{' '}
+                    <span className="italic">
+                    {isPopulatedArcship(char.arcship) && typeof char.arcship._id !== 'undefined' ? (
+                        <a
+                            href={`/arcships/${String(char.arcship._id)}`}
+                            className="italic underline"
+                        >
+                            {char.arcship.name ?? String(char.arcship._id)}
+                        </a>
+                    ) : (
+                        <span className="italic">{arcshipName}</span>
+                    )}
+                    </span> •{' '}
                     Status: <span className="italic">{char.status}</span> •{' '}
                     Faction: <span className="text-indigo-300">{char.faction}</span> •{' '}
                     Race: <span className="text-green-300">{char.race}</span>
