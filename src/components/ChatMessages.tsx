@@ -1,7 +1,6 @@
 "use client";
 import React, {useState, useEffect, useRef, useCallback} from "react";
 import Image from "next/image";
-import Linkify from "linkify-react";
 
 interface Props {
     chat: {
@@ -158,18 +157,11 @@ export default function ChatMessages({ chat }: Props) {
                             <a
                                 href={msg.content}
                                 target="_blank"
-                                rel="noopener noreferrer"
+                                rel="noopener noreferrer 1"
                                 className="text-blue-400 underline"
                             >
-                                <Linkify
-                                    options={{
-                                        target: '_blank',
-                                        rel: 'noopener',
-                                        className: 'text-blue-400 underline'
-                                    }}
-                                >
-                                    {msg.content}
-                                </Linkify>
+                                test
+                                {msg.content}
                             </a>
                         ) : (
                             msg.content

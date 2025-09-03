@@ -7,7 +7,8 @@ import data from '@emoji-mart/data';
 import Image from "next/image";
 import type { Chat } from '@/types/chat';
 import Select from 'react-select';
-import Linkify from 'linkify-react';
+import { linkifyText } from '@/lib/linkify';
+//import Linkify from 'linkify-react';
 import {Types} from "mongoose";
 
 interface User {
@@ -583,7 +584,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                                     </button>
                                                 </div>
                                             </>
-                                            : <Linkify options={{target: '_blank', rel: 'noopener', className: 'text-blue-400 underline'}}>{msg.content}</Linkify>
+                                            : linkifyText(msg.content, { className: 'text-blue-400 underline' })
+                                            //: <Linkify options={{target: '_blank', rel: 'noopener', className: 'text-blue-400 underline'}}>{msg.content}</Linkify>
                                         }
                                         </>
                                     )}
