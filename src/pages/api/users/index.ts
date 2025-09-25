@@ -1,9 +1,15 @@
-// src/pages/api/users/index.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';
 import { requireAuth } from '@/lib/auth';
 import mongoose from 'mongoose';
+
+type UsersListItem = {
+    _id: mongoose.Types.ObjectId;
+    characterName: string;
+    profileImage: string;
+    role: 'admin' | 'moderator' | 'member' | 'none' | string; // tolerate legacy values
+};
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     await dbConnect();
@@ -12,7 +18,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (req.method === 'GET') {
         try {
-            const users = await User.find({}, 'playerName characterName profileImage _id').lean<{ _id: mongoose.Types.ObjectId; characterName: string; profileImage: string }[]>();
+            // Server-side filter: exclude role 'none' and empty/missing roles (defensive)
+            const users = await User.find(
+                { role: { $nin: ['none', null, ''] } },
+                { _id: 1, characterName: 1, profileImage: 1, role: 1 }
+            ).lean<UsersListItem[]>();
+
             // Optionally exclude the logged-in user:
             const filteredUsers = users.filter(u => u._id.toString() !== session.user.id);
             res.status(200).json({ users: filteredUsers });
