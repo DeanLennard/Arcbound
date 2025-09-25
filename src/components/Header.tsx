@@ -7,6 +7,7 @@ import useSWR from 'swr'
 import { useRouter } from 'next/navigation'
 import { BellIcon, Menu, X } from 'lucide-react'
 import { Combobox } from '@headlessui/react'
+import Image from 'next/image'
 
 // pull in your summary types
 import type { CharacterSummary } from '@/pages/api/characters/my'
@@ -62,8 +63,17 @@ export default function Header() {
                         window.dispatchEvent(new Event('refreshForum'));
                     }}
                     className="text-xl font-bold hover:underline"
+                    aria-label="Arcbound – go to Relay"
                 >
-                    Arcbound
+                    <Image
+                        src="/Arcound.png"
+                        alt="Arcbound"
+                        width={170}
+                        height={28}
+                        priority
+                        sizes="170px"
+                        className="w-[170px] h-[28px] object-contain"
+                    />
                 </Link>
                 <nav className="hidden md:flex items-center gap-4">
                     <Link href="/" className="hover:underline">Home</Link>
