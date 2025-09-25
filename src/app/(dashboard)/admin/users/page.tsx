@@ -1,3 +1,4 @@
+// src/app/(dashboard)/admim/users/page.tsx
 import { getUsers } from './actions';
 import UserRow from './UserRow';
 
