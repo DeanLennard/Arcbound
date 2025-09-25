@@ -66,7 +66,7 @@ export default function Header() {
                     aria-label="Arcbound – go to Relay"
                 >
                     <Image
-                        src="/Arcound.png"
+                        src="/Arcbound.png"
                         alt="Arcbound"
                         width={170}
                         height={28}
