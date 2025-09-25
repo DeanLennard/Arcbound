@@ -4,6 +4,7 @@ import type { NextAuthOptions, Session, User as NextAuthUser } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';
+import type { UserDocument } from '@/models/User';
 import bcrypt from 'bcrypt';
 
 // Extend JWT locally for use inside callbacks
@@ -11,6 +12,8 @@ type AppJWT = JWT & {
     role?: 'admin' | 'moderator' | 'member' | 'none' | string;
     roleRefreshedAt?: number;
 };
+
+type RoleOnly = Pick<UserDocument, 'role'>;
 
 const authOptions: NextAuthOptions = {
     providers: [
@@ -46,7 +49,6 @@ const authOptions: NextAuthOptions = {
         async jwt(
             { token, user }: { token: JWT; user?: NextAuthUser | null }
         ): Promise<JWT> {
-            // Cast once; use the extended type locally
             const t = token as AppJWT;
 
             if (user) {
@@ -58,16 +60,19 @@ const authOptions: NextAuthOptions = {
             if (t.sub) {
                 const now = Date.now();
                 const last = t.roleRefreshedAt ?? 0;
-                const WINDOW = 60_000; // throttle refresh (ms)
+                const WINDOW = 60_000;
 
                 if (now - last > WINDOW) {
                     await dbConnect();
-                    const dbUser = await User.findById(t.sub).select('role').lean();
+
+                    const dbUser = await User.findById(t.sub)
+                        .select('role')
+                        .lean<RoleOnly | null>();
+
                     t.role = dbUser?.role ?? 'none';
                     t.roleRefreshedAt = now;
                 }
             }
-
             return t;
         },
 
