@@ -29,6 +29,10 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+.tiptap {
+    white-space: pre-line; /* honours \n but collapses extra spaces */
+}
+
 .tiptap h1 {
   @apply text-3xl font-bold mt-6 mb-4;
 }
