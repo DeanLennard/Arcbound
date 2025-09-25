@@ -14,6 +14,7 @@ interface User {
     _id: string;
     characterName: string;
     profileImage?: string;
+    role: 'admin' | 'moderator' | 'member' | 'none';
 }
 
 interface Message {
@@ -911,7 +912,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         <h3 className="text-md font-semibold mb-2">Add Member:</h3>
                         <Select
                             options={users
-                                .filter(u => u.characterName && !members.some(m => m && m._id && m._id.toString() === u._id))
+                                .filter(u => u.role !== 'none' && u.characterName && !members.some(m => m && m._id && m._id.toString() === u._id))
                                 .sort((a, b) => {
                                     const nameA = a.characterName || '';
                                     const nameB = b.characterName || '';
