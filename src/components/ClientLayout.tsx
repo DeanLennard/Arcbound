@@ -58,7 +58,10 @@ export default function ClientLayout({
     }, []);
 
     return (
-        <SessionProvider>
+        <SessionProvider
+            refetchInterval={60}
+            refetchOnWindowFocus={true}
+        >
             {children}
             <Lightbox
                 open={lightboxOpen}
