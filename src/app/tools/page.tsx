@@ -114,7 +114,7 @@ export default function ToolsPage() {
                 {/* Column 1 */}
                 <div className="space-y-4">
                     <ToolButton label="Admin Form" link="https://forms.gle/NmhGTzwKueQuQfaR6" />
-                    <ToolButton label="Phase Submission Form" link="https://forms.gle/AaqSZKDtFC9atraq5" />
+                    <ToolButton label="Phase Submission Form" link="https://forms.gle/SeiLtk32MLdDzCB27" />
                     <ToolButton label="Feedback & Complaints" link="https://forms.gle/gwcKLbFKe92dmPwf9" />
                 </div>
                 {/* Column 2 */}
