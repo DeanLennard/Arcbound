@@ -41,6 +41,12 @@ interface Arcship {
     dataBalance:    number
     essenceBalance: number
     creditsBalance: number
+    entropyBalance: number
+    causalKeysBalance: number
+    resonantFractalsBalance: number
+    continuumThreadsBalance: number
+    anchorShardsBalance: number
+    recursionTokensBalance: number
 
     history: string
     offensiveMod?: number
@@ -79,11 +85,19 @@ const derivedStats: { field: StatField; label: string }[] = [
 ]
 
 const RESOURCE_FIELDS = [
-    ['alloysBalance',  'Alloys Balance'],
-    ['energyBalance',  'Energy Balance'],
-    ['dataBalance',    'Data Balance'],
-    ['essenceBalance', 'Essence Balance'],
-    ['creditsBalance', 'Credits Balance'],
+    ['alloysBalance',           'Alloys Balance'],
+    ['energyBalance',           'Energy Balance'],
+    ['dataBalance',             'Data Balance'],
+    ['essenceBalance',          'Essence Balance'],
+    ['creditsBalance',          'Credits Balance'],
+
+    // New resources
+    ['entropyBalance',          'Entropy Balance'],
+    ['causalKeysBalance',       'Causal Keys Balance'],
+    ['resonantFractalsBalance', 'Resonant Fractals Balance'],
+    ['continuumThreadsBalance', 'Continuum Threads Balance'],
+    ['anchorShardsBalance',     'Anchor Shards Balance'],
+    ['recursionTokensBalance',  'Recursion Tokens Balance'],
 ] as const
 
 interface ModuleDoc {

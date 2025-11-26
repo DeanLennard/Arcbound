@@ -29,6 +29,12 @@ export interface ArcshipDocument extends Document {
     dataBalance:     number;
     essenceBalance:  number;
     creditsBalance:  number;
+    entropyBalance:  number;
+    causalKeysBalance:  number;
+    resonantFractalsBalance:  number;
+    continuumThreadsBalance:  number;
+    anchorShardsBalance:  number;
+    recursionTokensBalance:  number;
 
     history: string;
 
@@ -87,6 +93,12 @@ const ArcshipSchema = new mongoose.Schema<ArcshipDocument>({
     dataBalance:    { type: Number, required: true, default: 0 },
     essenceBalance: { type: Number, required: true, default: 0 },
     creditsBalance: { type: Number, required: true, default: 0 },
+    entropyBalance:          { type: Number, required: true, default: 0 },
+    causalKeysBalance:       { type: Number, required: true, default: 0 },
+    resonantFractalsBalance: { type: Number, required: true, default: 0 },
+    continuumThreadsBalance: { type: Number, required: true, default: 0 },
+    anchorShardsBalance:     { type: Number, required: true, default: 0 },
+    recursionTokensBalance:  { type: Number, required: true, default: 0 },
 
     history: { type: String, default: '' },
 

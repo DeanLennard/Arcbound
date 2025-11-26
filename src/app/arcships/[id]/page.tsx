@@ -262,6 +262,12 @@ export default async function ArcshipPage(
                 energyBalance={ship.energyBalance}
                 dataBalance={ship.dataBalance}
                 essenceBalance={ship.essenceBalance}
+                entropyBalance={ship.entropyBalance}
+                causalKeysBalance={ship.causalKeysBalance}
+                resonantFractalsBalance={ship.resonantFractalsBalance}
+                continuumThreadsBalance={ship.continuumThreadsBalance}
+                anchorShardsBalance={ship.anchorShardsBalance}
+                recursionTokensBalance={ship.recursionTokensBalance}
                 partners={tradePartners}
                 navTotal={navTotal}
                 intMovement={totalIntMovement}
@@ -389,6 +395,56 @@ export default async function ArcshipPage(
                             <td className="px-4 py-2">{formatNum(ship.creditsBalance)}</td>
                             <td className="px-4 py-2">{formatNum(creditsIncome)}</td>
                         </tr>
+
+                        {/* NEW CONDITIONAL RESOURCES */}
+                        {ship.entropyBalance > 0 && (
+                            <tr className="border-t">
+                                <td className="px-4 py-2">Entropy</td>
+                                <td className="px-4 py-2">{formatNum(ship.entropyBalance)}</td>
+                                <td className="px-4 py-2">0</td>
+                            </tr>
+                        )}
+
+                        {ship.causalKeysBalance > 0 && (
+                            <tr className="border-t">
+                                <td className="px-4 py-2">Causal Keys</td>
+                                <td className="px-4 py-2">{formatNum(ship.causalKeysBalance)}</td>
+                                <td className="px-4 py-2">0</td>
+                            </tr>
+                        )}
+
+                        {ship.resonantFractalsBalance > 0 && (
+                            <tr className="border-t">
+                                <td className="px-4 py-2">Resonant Fractals</td>
+                                <td className="px-4 py-2">{formatNum(ship.resonantFractalsBalance)}</td>
+                                <td className="px-4 py-2">0</td>
+                            </tr>
+                        )}
+
+                        {ship.continuumThreadsBalance > 0 && (
+                            <tr className="border-t">
+                                <td className="px-4 py-2">Continuum Threads</td>
+                                <td className="px-4 py-2">{formatNum(ship.continuumThreadsBalance)}</td>
+                                <td className="px-4 py-2">0</td>
+                            </tr>
+                        )}
+
+                        {ship.anchorShardsBalance > 0 && (
+                            <tr className="border-t">
+                                <td className="px-4 py-2">Anchor Shards</td>
+                                <td className="px-4 py-2">{formatNum(ship.anchorShardsBalance)}</td>
+                                <td className="px-4 py-2">0</td>
+                            </tr>
+                        )}
+
+                        {ship.recursionTokensBalance > 0 && (
+                            <tr className="border-t">
+                                <td className="px-4 py-2">Recursion Tokens</td>
+                                <td className="px-4 py-2">{formatNum(ship.recursionTokensBalance)}</td>
+                                <td className="px-4 py-2">0</td>
+                            </tr>
+                        )}
+
                         </tbody>
                     </table>
                 </div>

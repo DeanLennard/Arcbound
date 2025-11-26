@@ -5,14 +5,21 @@ import authOptions from '@/lib/authOptions'
 import { dbConnect } from '@/lib/mongodb'
 import Arcship from '@/models/Arcship'
 import Diplomacy from '@/models/Diplomacy'
-import EventLog   from '@/models/EventLog';
-import GamePhase  from '@/models/GamePhase';
+import EventLog   from '@/models/EventLog'
+import GamePhase  from '@/models/GamePhase'
 
+// ---- Expand allowed resource keys ----
 type ResourceKey =
     | 'alloysBalance'
     | 'energyBalance'
     | 'dataBalance'
     | 'essenceBalance'
+    | 'entropyBalance'
+    | 'causalKeysBalance'
+    | 'resonantFractalsBalance'
+    | 'continuumThreadsBalance'
+    | 'anchorShardsBalance'
+    | 'recursionTokensBalance'
 
 interface TransferBody {
     fromShip: string
@@ -33,40 +40,48 @@ export default async function handler(
     const session = await getServerSession(req, res, authOptions)
     if (!session) return res.status(401).end()
 
-    const gp = await GamePhase.findOne();
-    if (!gp.isOpen) return res.status(401).end()
-
-    // cast & destructure
-    const { fromShip, toShip, resource, amount } =
-        req.body as TransferBody
+    const gp = await GamePhase.findOne()
+    if (!gp?.isOpen) return res.status(401).end()
 
     await dbConnect()
 
-    // coerce amount
+    // destructure body
+    const { fromShip, toShip, resource, amount } =
+        req.body as TransferBody
+
+    // validate amount
     const amt = Number(amount)
     if (isNaN(amt) || amt <= 0) {
         return res.status(400).json({ error: 'Invalid amount' })
     }
 
-    // validate resource key
+    // ---- expanded valid list ----
     const validResources: ResourceKey[] = [
         'alloysBalance',
         'energyBalance',
         'dataBalance',
-        'essenceBalance'
+        'essenceBalance',
+        'entropyBalance',
+        'causalKeysBalance',
+        'resonantFractalsBalance',
+        'continuumThreadsBalance',
+        'anchorShardsBalance',
+        'recursionTokensBalance'
     ]
+
     if (!validResources.includes(resource)) {
         return res.status(400).json({ error: 'Invalid resource type' })
     }
 
-    // load & authorize
+    // load arcs
     const me = await Arcship.findById(fromShip)
     if (!me) {
         return res.status(403).json({ error: 'Not allowed' })
     }
+
     const other = await Arcship.findById(toShip)
     if (!other) {
-        return res.status(400).json({ error: 'Invalid target' })
+        return res.status(400).json({ error: 'Invalid target ship' })
     }
 
     // check Trade Agreement
@@ -74,6 +89,7 @@ export default async function handler(
         type: 'Trade Agreement',
         ships: { $all: [fromShip, toShip] }
     })
+
     if (!pact) {
         return res.status(400).json({ error: 'No trade agreement with that ship' })
     }
@@ -81,34 +97,42 @@ export default async function handler(
     // check balance
     const current = me.get(resource) as number
     if (current < amt) {
-        return res
-            .status(400)
-            .json({ error: `Insufficient ${resource.replace('Balance','')}` })
+        return res.status(400).json({
+            error: `Insufficient ${resource.replace('Balance', '')}`
+        })
     }
 
-    // transfer
+    // perform transfer
     me.set(resource, current - amt)
+
     const otherCurrent = other.get(resource) as number
     other.set(resource, otherCurrent + amt)
 
     await me.save()
     await other.save()
 
-    // record to event log
-    const pretty = {
-        alloysBalance:   'Alloys',
-        energyBalance:   'Energy',
-        dataBalance:     'Data',
-        essenceBalance:  'Essence'
-    }[resource];
+    // ---- Pretty names for logging ----
+    const prettyNames: Record<ResourceKey, string> = {
+        alloysBalance:           'Alloys',
+        energyBalance:           'Energy',
+        dataBalance:             'Data',
+        essenceBalance:          'Essence',
+        entropyBalance:          'Entropy',
+        causalKeysBalance:       'Causal Keys',
+        resonantFractalsBalance: 'Resonant Fractals',
+        continuumThreadsBalance: 'Continuum Threads',
+        anchorShardsBalance:     'Anchor Shards',
+        recursionTokensBalance:  'Recursion Tokens',
+    }
+
     await EventLog.create({
         eventName: 'Resource Transfer',
-        effect:    `${amt} ${pretty} transferred from ${me.name} to ${other.name}`,
+        effect:    `${amt} ${prettyNames[resource]} transferred from ${me.name} to ${other.name}`,
         phase:     gp?.phase ?? 'Unknown',
         level:     'SPARK',
         ongoing:   false,
         arcship:   me._id
-    });
+    })
 
     return res.status(200).json({ success: true })
 }

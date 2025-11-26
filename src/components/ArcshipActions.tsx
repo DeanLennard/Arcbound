@@ -22,6 +22,12 @@ interface Props {
     energyBalance: number
     dataBalance: number
     essenceBalance: number
+    entropyBalance:  number
+    causalKeysBalance:  number
+    resonantFractalsBalance:  number
+    continuumThreadsBalance:  number
+    anchorShardsBalance:  number
+    recursionTokensBalance:  number
     partners: ShipSummary[]
     navTotal: number
     intMovement: number
@@ -38,6 +44,12 @@ export default function ArcshipActions({
                                            energyBalance,
                                            dataBalance,
                                            essenceBalance,
+                                           entropyBalance,
+                                           causalKeysBalance,
+                                           resonantFractalsBalance,
+                                           continuumThreadsBalance,
+                                           anchorShardsBalance,
+                                           recursionTokensBalance,
                                            partners,
                                            navTotal,
                                            intMovement,
@@ -209,8 +221,18 @@ export default function ArcshipActions({
     // ── TRANSFER RESOURCES ───────────────────────────────────────────
     type ResourceFormValues = {
         targetShip: string
-        resource:   'alloysBalance'|'energyBalance'|'dataBalance'|'essenceBalance'
-        amount:     number
+        resource:
+            | 'alloysBalance'
+            | 'energyBalance'
+            | 'dataBalance'
+            | 'essenceBalance'
+            | 'entropyBalance'
+            | 'causalKeysBalance'
+            | 'resonantFractalsBalance'
+            | 'continuumThreadsBalance'
+            | 'anchorShardsBalance'
+            | 'recursionTokensBalance'
+        amount: number
     }
 
     const {
@@ -228,7 +250,19 @@ export default function ArcshipActions({
 
     async function submitResource(vals:ResourceFormValues) {
         const { targetShip, resource, amount } = vals
-        const available = { alloysBalance, energyBalance, dataBalance, essenceBalance }[resource]
+        const available = {
+            alloysBalance,
+            energyBalance,
+            dataBalance,
+            essenceBalance,
+            entropyBalance,
+            causalKeysBalance,
+            resonantFractalsBalance,
+            continuumThreadsBalance,
+            anchorShardsBalance,
+            recursionTokensBalance,
+        }[resource];
+
         if (amount > available) {
             setResErrorMsg(`Not enough ${resource.replace('Balance','')}`)
             return
@@ -440,6 +474,26 @@ export default function ArcshipActions({
                                     <option value="energyBalance">Energy</option>
                                     <option value="dataBalance">Data</option>
                                     <option value="essenceBalance">Essence</option>
+
+                                    {/* Conditionally-visible new resources */}
+                                    {entropyBalance > 0 && (
+                                        <option value="entropyBalance">Entropy</option>
+                                    )}
+                                    {causalKeysBalance > 0 && (
+                                        <option value="causalKeysBalance">Causal Keys</option>
+                                    )}
+                                    {resonantFractalsBalance > 0 && (
+                                        <option value="resonantFractalsBalance">Resonant Fractals</option>
+                                    )}
+                                    {continuumThreadsBalance > 0 && (
+                                        <option value="continuumThreadsBalance">Continuum Threads</option>
+                                    )}
+                                    {anchorShardsBalance > 0 && (
+                                        <option value="anchorShardsBalance">Anchor Shards</option>
+                                    )}
+                                    {recursionTokensBalance > 0 && (
+                                        <option value="recursionTokensBalance">Recursion Tokens</option>
+                                    )}
                                 </select>
                             </div>
                             <div>
