@@ -68,6 +68,28 @@ export default function AdminPhasePage() {
             </div>
 
             <button
+                type="button"
+                onClick={async () => {
+                    const ok = confirm("Add phase income to *all arcships*?");
+                    if (!ok) return;
+
+                    const res = await fetch('/api/arcships/add-phase-resources-all', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+
+                    if (res.ok) {
+                        alert('Phase resources added to all arcships.');
+                    } else {
+                        alert('Failed to apply phase resources.');
+                    }
+                }}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+            >
+                Add Phase Resources to ALL Arcships
+            </button>
+
+            <button
                 type="submit"
                 disabled={formState.isSubmitting}
                 className="w-full px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 disabled:opacity-50"
