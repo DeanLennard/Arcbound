@@ -361,6 +361,21 @@ export default async function ArcshipPage(
             <section>
                 <h2 className="text-2xl font-semibold mb-2">Resources</h2>
                 <div className="overflow-x-auto">
+                    {isAdmin && (
+                        <button
+                            onClick={async () => {
+                                await fetch(`/api/arcships/add-phase-resources`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ shipId: id })
+                                });
+                                location.reload(); // refresh balances
+                            }}
+                            className="mb-3 px-3 py-1 bg-indigo-600 text-white rounded"
+                        >
+                            Add Phase Resources
+                        </button>
+                    )}
                     <table className="min-w-full bg-white text-gray-900 rounded-lg">
                         <thead className="bg-gray-200">
                         <tr>
