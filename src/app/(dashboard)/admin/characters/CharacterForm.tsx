@@ -274,6 +274,7 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
                         <option value="Active">Active</option>
                         <option value="Dead">Dead</option>
                         <option value="Retired">Retired</option>
+                        <option value="NPC">NPC</option>
                     </select>
                 </div>
 
