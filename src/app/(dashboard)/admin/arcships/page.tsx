@@ -33,6 +33,24 @@ export default function AdminArcships() {
         a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
     );
 
+    const filteredShips = sortedShips.filter(ship => {
+        if (cloakFilter === 'Cloaked' && !ship.isCloaked) return false;
+        if (cloakFilter === 'NotCloaked' && ship.isCloaked) return false;
+
+        if (search.trim() !== '') {
+            const q = search.toLowerCase();
+            const fields = [
+                ship.name,
+                ship.faction,
+                ship.benefit,
+                ship.challenge
+            ];
+            if (!fields.some(f => f?.toLowerCase().includes(q))) return false;
+        }
+
+        return true;
+    });
+
     return (
         <div className="p-6 space-y-4">
             <h1 className="text-2xl font-bold">Manage Arcships</h1>
@@ -73,32 +91,12 @@ export default function AdminArcships() {
                 />
             </div>
 
+            <div className="text-gray-300 text-sm">
+                Showing {filteredShips.length} of {sortedShips.length} arcships
+            </div>
+
             <ul className="divide-y divide-gray-600">
-                {sortedShips
-                    .filter(ship => {
-                        // CLOAK FILTER
-                        if (cloakFilter === 'Cloaked' && !ship.isCloaked) return false;
-                        if (cloakFilter === 'NotCloaked' && ship.isCloaked) return false;
-
-                        // SEARCH FILTER
-                        if (search.trim() !== '') {
-                            const q = search.toLowerCase();
-
-                            const fields = [
-                                ship.name,
-                                ship.faction,
-                                ship.benefit,
-                                ship.challenge,
-                            ];
-
-                            if (!fields.some(f => f?.toLowerCase().includes(q))) {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    })
-                    .map(ship => (
+                {filteredShips.map(ship => (
                         <li
                         key={ship._id}
                         className="py-2 flex items-center justify-between odd:bg-gray-800 even:bg-gray-700"

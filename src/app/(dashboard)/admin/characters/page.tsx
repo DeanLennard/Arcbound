@@ -85,6 +85,10 @@ export default function AdminCharacters() {
                 />
             </div>
 
+            <div className="text-gray-300 text-sm">
+                Showing {filteredChars.length} of {sortedChars.length} characters
+            </div>
+
             <ul className="divide-y divide-gray-600">
                 {filteredChars.map((char) => (
                     <li key={char._id} className="py-2 flex justify-between odd:bg-gray-800 even:bg-gray-700">
