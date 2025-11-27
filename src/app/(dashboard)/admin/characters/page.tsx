@@ -67,7 +67,7 @@ export default function AdminCharacters() {
                 <label className="text-gray-300">Filter by Status:</label>
                 <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Retired' | 'Dead')}
                     className="bg-gray-700 text-white p-1 rounded"
                 >
                     <option value="All">All</option>

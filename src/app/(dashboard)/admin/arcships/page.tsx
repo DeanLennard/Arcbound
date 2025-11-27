@@ -54,7 +54,7 @@ export default function AdminArcships() {
                     <label className="text-gray-300 mr-2">Cloak Status:</label>
                     <select
                         value={cloakFilter}
-                        onChange={(e) => setCloakFilter(e.target.value as any)}
+                        onChange={(e) => setCloakFilter(e.target.value as 'All' | 'Cloaked' | 'NotCloaked')}
                         className="bg-gray-700 text-white p-1 rounded"
                     >
                         <option value="All">All</option>
