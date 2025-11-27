@@ -55,7 +55,7 @@ interface Phase {
 
 interface CharacterForm {
     charName:        string
-    status:          'Active'|'Dead'|'Retired'
+    status:          'Active'|'Dead'|'Retired'|'NPC'
     AdditionalArcships: string[]
     faction:         string
     archetype:       string
@@ -198,7 +198,7 @@ export default function AdminCharacterDetail() {
                     <div>
                         <label className="block text-sm text-white">Status</label>
                         <select {...register('status')} className="mt-1 w-full p-2 bg-gray-700 text-white rounded">
-                            <option>Active</option><option>Dead</option><option>Retired</option>
+                            <option>Active</option><option>Dead</option><option>Retired</option><option>NPC</option>
                         </select>
                     </div>
                 </div>

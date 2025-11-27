@@ -1,7 +1,7 @@
 // src/models/Character.ts
 import mongoose, { Document, Types } from 'mongoose';
 
-export type CharacterStatus = 'Active' | 'Dead' | 'Retired';
+export type CharacterStatus = 'Active' | 'Dead' | 'Retired' | 'NPC';
 
 export interface CharacterDocument extends Document {
     user: mongoose.Types.ObjectId;
@@ -50,7 +50,7 @@ const CharacterSchema = new mongoose.Schema<CharacterDocument>({
         required: true,
     },
     charName:    { type: String, required: true },
-    status:      { type: String, enum: ['Active','Dead','Retired'], default: 'Active' },
+    status:      { type: String, enum: ['Active','Dead','Retired','NPC'], default: 'Active' },
     faction:     { type: String, required: true },
     archetype:   { type: String, required: true },
     npc: { type: Boolean, default: false },

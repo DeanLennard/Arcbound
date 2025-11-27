@@ -12,7 +12,7 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 export default function AdminCharacters() {
     const { data, error, mutate } = useSWR<CharacterSummary[]>('/api/characters', fetcher)
     const [editing, setEditing] = useState<Partial<CharacterFormData> | null>(null)
-    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Retired' | 'Dead'>('Active');
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Retired' | 'Dead' | 'NPC' >('Active');
     const [search, setSearch] = useState('');
 
     if (error) return <p className="p-6">Failed to load</p>
@@ -67,13 +67,14 @@ export default function AdminCharacters() {
                 <label className="text-gray-300">Filter by Status:</label>
                 <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Retired' | 'Dead')}
+                    onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Retired' | 'Dead' | 'NPC')}
                     className="bg-gray-700 text-white p-1 rounded"
                 >
                     <option value="All">All</option>
                     <option value="Active">Active</option>
                     <option value="Retired">Retired</option>
                     <option value="Dead">Dead</option>
+                    <option value="NPC">NPC</option>
                 </select>
 
                 <input

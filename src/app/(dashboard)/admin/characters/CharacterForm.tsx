@@ -61,7 +61,7 @@ interface CharacterFormValues {
     arcship: string
     user:    string
     charName: string
-    status:  'Active' | 'Dead' | 'Retired'
+    status:  'Active' | 'Dead' | 'Retired' | 'NPC'
     faction: string
     factionCustom?: string
     role:    string
@@ -77,7 +77,7 @@ export interface CharacterFormData {
     arcship:       string;
     user:          string;
     charName:      string;
-    status:        'Active'|'Dead'|'Retired';
+    status:        'Active'|'Dead'|'Retired'|'NPC';
     faction:       string;
     factionCustom?: string;
     role:          string;
