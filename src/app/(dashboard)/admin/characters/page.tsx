@@ -12,6 +12,8 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 export default function AdminCharacters() {
     const { data, error, mutate } = useSWR<CharacterSummary[]>('/api/characters', fetcher)
     const [editing, setEditing] = useState<Partial<CharacterFormData> | null>(null)
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Retired' | 'Dead'>('Active');
+    const [search, setSearch] = useState('');
 
     if (error) return <p className="p-6">Failed to load</p>
     if (!data) return <p className="p-6">Loading…</p>
@@ -19,6 +21,34 @@ export default function AdminCharacters() {
     const sortedChars = [...data].sort((a, b) =>
         a.charName.localeCompare(b.charName, undefined, { sensitivity: 'base' })
     );
+
+    const filteredChars = sortedChars.filter((char) => {
+        // Status filter
+        if (statusFilter !== 'All' && char.status !== statusFilter) return false;
+
+        // Free-text search
+        if (search.trim() !== '') {
+            const q = search.toLowerCase();
+
+            const fields = [
+                char.charName,
+                char.faction,
+                char.archetype,
+                char.race,
+                char.role,
+                char.user?.playerName ?? ''
+            ];
+
+            const matches = fields.some((field) =>
+                field?.toLowerCase().includes(q)
+            );
+
+            if (!matches) return false;
+        }
+
+        return true;
+    });
+
 
     return (
         <div className="p-6 space-y-4">
@@ -33,8 +63,30 @@ export default function AdminCharacters() {
                 />
             )}
 
+            <div className="flex items-center space-x-4">
+                <label className="text-gray-300">Filter by Status:</label>
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value as any)}
+                    className="bg-gray-700 text-white p-1 rounded"
+                >
+                    <option value="All">All</option>
+                    <option value="Active">Active</option>
+                    <option value="Retired">Retired</option>
+                    <option value="Dead">Dead</option>
+                </select>
+
+                <input
+                    type="text"
+                    placeholder="Search characters…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="bg-gray-700 text-white p-1 rounded w-64"
+                />
+            </div>
+
             <ul className="divide-y divide-gray-600">
-                {sortedChars.map((char) => (
+                {filteredChars.map((char) => (
                     <li key={char._id} className="py-2 flex justify-between odd:bg-gray-800 even:bg-gray-700">
                         <span>
                           {char.charName} (

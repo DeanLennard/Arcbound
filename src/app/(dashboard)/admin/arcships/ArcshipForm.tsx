@@ -53,6 +53,7 @@ export interface ArcshipFormData {
     targetRangeMod?: number;
     shippingItemsMod?: number;
     moduleSlotsMod?: number;
+    isCloaked: boolean;
 }
 
 interface ArcshipFormProps {
