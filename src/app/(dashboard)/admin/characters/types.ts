@@ -2,7 +2,7 @@
 export interface CharacterSummary {
     _id: string
     charName: string
-    status: 'Active' | 'Dead' | 'Retired' | 'NPC'
+    status: 'Active' | 'Dead' | 'Retired'
     faction: string
     role: string
     race: string

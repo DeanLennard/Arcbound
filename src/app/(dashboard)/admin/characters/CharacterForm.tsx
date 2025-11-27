@@ -61,7 +61,7 @@ interface CharacterFormValues {
     arcship: string
     user:    string
     charName: string
-    status:  'Active' | 'Dead' | 'Retired' | 'NPC'
+    status:  'Active' | 'Dead' | 'Retired'
     faction: string
     factionCustom?: string
     role:    string
@@ -77,7 +77,7 @@ export interface CharacterFormData {
     arcship:       string;
     user:          string;
     charName:      string;
-    status:        'Active'|'Dead'|'Retired'|'NPC';
+    status:        'Active'|'Dead'|'Retired'
     faction:       string;
     factionCustom?: string;
     role:          string;
@@ -274,7 +274,6 @@ export default function CharacterForm({ initial, onSuccess, onCancel }: Characte
                         <option value="Active">Active</option>
                         <option value="Dead">Dead</option>
                         <option value="Retired">Retired</option>
-                        <option value="NPC">NPC</option>
                     </select>
                 </div>
 

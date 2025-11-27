@@ -12,8 +12,9 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 export default function AdminCharacters() {
     const { data, error, mutate } = useSWR<CharacterSummary[]>('/api/characters', fetcher)
     const [editing, setEditing] = useState<Partial<CharacterFormData> | null>(null)
-    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Retired' | 'Dead' | 'NPC' >('Active');
+    const [statusFilter, setStatusFilter] = useState<'All' | 'Active' | 'Retired' | 'Dead' >('Active');
     const [search, setSearch] = useState('');
+    const [npcFilter, setNpcFilter] = useState<'All' | 'NPC' | 'NotNPC'>('NotNPC');
 
     if (error) return <p className="p-6">Failed to load</p>
     if (!data) return <p className="p-6">Loading…</p>
@@ -25,6 +26,9 @@ export default function AdminCharacters() {
     const filteredChars = sortedChars.filter((char) => {
         // Status filter
         if (statusFilter !== 'All' && char.status !== statusFilter) return false;
+
+        if (npcFilter === 'NPC' && char.npc !== true) return false
+        if (npcFilter === 'NotNPC' && char.npc === true) return false
 
         // Free-text search
         if (search.trim() !== '') {
@@ -67,14 +71,24 @@ export default function AdminCharacters() {
                 <label className="text-gray-300">Filter by Status:</label>
                 <select
                     value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Retired' | 'Dead' | 'NPC')}
+                    onChange={(e) => setStatusFilter(e.target.value as 'All' | 'Active' | 'Retired' | 'Dead')}
                     className="bg-gray-700 text-white p-1 rounded"
                 >
                     <option value="All">All</option>
                     <option value="Active">Active</option>
                     <option value="Retired">Retired</option>
                     <option value="Dead">Dead</option>
-                    <option value="NPC">NPC</option>
+                </select>
+
+                <label className="text-gray-300 ml-4">NPC:</label>
+                <select
+                    value={npcFilter}
+                    onChange={(e) => setNpcFilter(e.target.value as 'All' | 'NPC' | 'NotNPC')}
+                    className="bg-gray-700 text-white p-1 rounded"
+                >
+                    <option value="All">All</option>
+                    <option value="NPC">NPC Only</option>
+                    <option value="NotNPC">Not NPC</option>
                 </select>
 
                 <input

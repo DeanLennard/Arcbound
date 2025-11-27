@@ -55,7 +55,7 @@ interface Phase {
 
 interface CharacterForm {
     charName:        string
-    status:          'Active'|'Dead'|'Retired'|'NPC'
+    status:          'Active'|'Dead'|'Retired'
     AdditionalArcships: string[]
     faction:         string
     archetype:       string

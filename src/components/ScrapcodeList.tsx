@@ -5,7 +5,7 @@ import { useState } from 'react'
 interface Props {
     scrapcode: Scrapcode[]
     characterId: string
-    characterStatus: 'Active' | 'Dead' | 'Retired' | 'NPC'
+    characterStatus: 'Active' | 'Dead' | 'Retired'
     isAdmin: boolean
 }
 
