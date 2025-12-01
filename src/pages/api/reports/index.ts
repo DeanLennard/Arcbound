@@ -4,6 +4,7 @@ import { dbConnect }           from '@/lib/mongodb'
 import Character               from '@/models/Character'
 import Phase                   from '@/models/Phase'
 import GamePhase               from '@/models/GamePhase'
+import Arcship                 from '@/models/Arcship';
 
 export interface PendingChar {
     _id:      string
@@ -68,12 +69,42 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             )
             .lean<PendingChar[]>()
 
+    const characterFinances = await Character.find(
+        { npc: { $ne: true } },   // exclude NPCs
+        { charName: 1, faction: 1, credits: 1 }
+    )
+        .sort({ credits: -1 })
+        .lean();
+
+    const arcshipFinances = await Arcship.find(
+        {},
+        {
+            name: 1,
+            faction: 1,
+            creditsBalance: 1,
+            alloysBalance: 1,
+            energyBalance: 1,
+            dataBalance: 1,
+            essenceBalance: 1,
+            entropyBalance: 1,
+            causalKeysBalance: 1,
+            resonantFractalsBalance: 1,
+            continuumThreadsBalance: 1,
+            anchorShardsBalance: 1,
+            recursionTokensBalance: 1
+        }
+    )
+        .sort({ creditsBalance: -1 })
+        .lean();
+
     return res.status(200).json({
         factionSpread:    factionBuckets,
         roleSpread:       roleBuckets,
         archetypeSpread:  archetypeBuckets,
         raceSpread:       raceBuckets,
         protocolByPhase,
-        pendingProtocols
+        pendingProtocols,
+        characterFinances,
+        arcshipFinances
     });
 }

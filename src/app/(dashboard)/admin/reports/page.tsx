@@ -10,6 +10,30 @@ type Bucket        = { _id: string; count: number }
 type PhaseBucket   = { _id: number; count: number }
 type PendingChar   = { _id: string; charName: string; faction: string; role: string; race: string }
 
+interface CharacterFinance {
+    _id: string
+    charName: string
+    faction: string
+    credits: number
+}
+
+interface ArcshipFinance {
+    _id: string
+    name: string
+    faction: string
+    creditsBalance: number
+    alloysBalance: number
+    energyBalance: number
+    dataBalance: number
+    essenceBalance: number
+    entropyBalance: number
+    causalKeysBalance: number
+    resonantFractalsBalance: number
+    continuumThreadsBalance: number
+    anchorShardsBalance: number
+    recursionTokensBalance: number
+}
+
 interface ReportsData {
     factionSpread:   Bucket[]
     roleSpread:      Bucket[]
@@ -17,6 +41,8 @@ interface ReportsData {
     raceSpread:      Bucket[]
     protocolByPhase: PhaseBucket[]
     pendingProtocols: PendingChar[]
+    characterFinances: CharacterFinance[]
+    arcshipFinances: ArcshipFinance[]
 }
 
 const COLORS = ['#8884d8','#82ca9d','#ffc658','#ff8042','#8dd1e1','#a4de6c']
@@ -125,6 +151,77 @@ export default function ReportsPage() {
                     </tbody>
                 </table>
             </div>
+
+            <div style={{ marginTop: 40 }}>
+                <h3>Character Finances (Credits)</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                    <tr>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Character</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Faction</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Credits</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {data.characterFinances.map((c, i) => (
+                        <tr key={i}>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>
+                                <a href={`/characters/${c._id}`} target="_blank">{c.charName}</a>
+                            </td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{c.faction}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>
+                                {c.credits.toLocaleString('en-GB')}
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style={{ marginTop: 40 }}>
+                <h3>Arcship Finances</h3>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                    <tr>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Name</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Faction</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Credits</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Alloys</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Energy</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Data</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Essence</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Entropy</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Causal Keys</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Resonant Fractals</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Continuum Threads</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Anchor Shards</th>
+                        <th style={{ border: '1px solid #ddd', padding: 8 }}>Recursion Tokens</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {data.arcshipFinances.map((ship, i) => (
+                        <tr key={i}>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>
+                                <a href={`/arcships/${ship._id}`} target="_blank">{ship.name}</a>
+                            </td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.faction}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.creditsBalance.toLocaleString('en-GB')}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.alloysBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.energyBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.dataBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.essenceBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.entropyBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.causalKeysBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.resonantFractalsBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.continuumThreadsBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.anchorShardsBalance}</td>
+                            <td style={{ border: '1px solid #ddd', padding: 8 }}>{ship.recursionTokensBalance}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
     )
 }
