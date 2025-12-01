@@ -70,14 +70,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             .lean<PendingChar[]>()
 
     const characterFinances = await Character.find(
-        { npc: { $ne: true } },   // exclude NPCs
+        {
+            npc: { $ne: true },     // exclude NPCs
+            status: 'Active'        // only active characters
+        },
         { charName: 1, faction: 1, credits: 1 }
     )
         .sort({ credits: -1 })
         .lean();
 
     const arcshipFinances = await Arcship.find(
-        {},
+        {
+            isCloaked: false        // only visible arcships
+        },
         {
             name: 1,
             faction: 1,
