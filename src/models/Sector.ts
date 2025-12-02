@@ -1,5 +1,5 @@
 // src/models/Sector.ts
-import mongoose, { Document, Model } from 'mongoose';
+import mongoose, {Document, Model, Types} from 'mongoose';
 
 export type ControlStatus = string; // you can tighten this to an enum if you like
 
@@ -10,6 +10,7 @@ export interface SectorDoc extends Document {
     y: number;
     control: ControlStatus;
     hasMission: boolean;
+    effects: Types.ObjectId[];
 }
 
 const SectorSchema = new mongoose.Schema<SectorDoc>({
@@ -38,6 +39,10 @@ const SectorSchema = new mongoose.Schema<SectorDoc>({
         required: true,
         default: false
     },
+    effects: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Effect'
+    }]
 }, {
     timestamps: true,
 });

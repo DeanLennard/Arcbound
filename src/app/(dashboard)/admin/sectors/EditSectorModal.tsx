@@ -1,10 +1,12 @@
 // src/app/(dashboard)/admin/sectors/EditSectorModal.tsx
 'use client';
 
-import React from 'react';
+import React, {useState} from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { mutate } from 'swr';
 import type { SectorDoc } from '@/models/Sector';
+import ManageSectorEffectsModal from "@/app/(dashboard)/admin/sectors/ManageSectorEffectsModal";
+import Link from "next/link";
 
 interface FormValues {
     name: string;
@@ -30,6 +32,7 @@ export default function EditSectorModal({
             hasMission: sector.hasMission
         }
     });
+    const [effectSector, setEffectSector] = useState<SectorDoc | null>(null);
 
     React.useEffect(() => {
         reset({
@@ -107,7 +110,26 @@ export default function EditSectorModal({
                     </label>
                 </div>
 
+                <button
+                    onClick={() => setEffectSector(sector)}
+                    className="px-2 py-1 bg-purple-600 text-white rounded"
+                >
+                    Effects
+                </button>
+                {effectSector && (
+                    <ManageSectorEffectsModal
+                        sector={effectSector}
+                        onClose={() => setEffectSector(null)}
+                    />
+                )}
+
                 <div className="flex justify-end space-x-2">
+                    <Link
+                        href={`/sectors/${encodeURIComponent(sector._id)}`}
+                        className="btn-sm"
+                    >
+                        View
+                    </Link>
                     <button
                         type="button"
                         onClick={onClose}
