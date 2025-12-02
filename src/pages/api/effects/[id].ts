@@ -1,4 +1,4 @@
-// pages/api/effects/[id].ts
+// pages/api/effects/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/lib/mongodb'
 import Effect from '@/models/Effect'

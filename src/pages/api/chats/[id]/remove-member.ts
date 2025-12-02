@@ -1,4 +1,4 @@
-// src/pages/api/chats/[id]/remove-member.ts
+// src/pages/api/chats/[[id]]/remove-member.ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { getServerSession }               from 'next-auth/next'
 import authOptions                        from '@/lib/authOptions'

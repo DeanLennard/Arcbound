@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[id]/EditEventLogModal.tsx
+// src/app/(dashboard)/admin/arcships/[[id]]/EditEventLogModal.tsx
 'use client'
 
 import React from 'react'

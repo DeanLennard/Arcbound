@@ -1,4 +1,4 @@
-// src/pages/api/posts/[id]/sidebar.ts
+// src/pages/api/posts/[[id]]/sidebar.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Post from '@/models/Post';

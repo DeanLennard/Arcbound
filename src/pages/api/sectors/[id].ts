@@ -1,4 +1,4 @@
-// src/pages/api/sectors/[id].ts
+// src/pages/api/sectors/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import mongoose from 'mongoose';
 import { dbConnect } from '@/lib/mongodb';

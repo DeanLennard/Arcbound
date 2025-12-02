@@ -1,4 +1,4 @@
-// src/pages/api/admin/posts/[id].ts
+// src/pages/api/admin/posts/[[id]].ts
 import { dbConnect } from '@/lib/mongodb';
 import Post, { PostDocument } from '@/models/Post';
 import type { NextApiRequest, NextApiResponse } from 'next';

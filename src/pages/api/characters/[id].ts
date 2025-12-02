@@ -1,4 +1,4 @@
-// pages/api/characters/[id].ts
+// pages/api/characters/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Character from '@/models/Character';

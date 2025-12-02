@@ -1,4 +1,4 @@
-// /src/pages/api/users/[id].ts
+// /src/pages/api/users/[[id]].ts
 import { dbConnect } from '@/lib/mongodb';
 import User, { UserDocument } from '@/models/User';
 import { getServerSession } from 'next-auth/next';

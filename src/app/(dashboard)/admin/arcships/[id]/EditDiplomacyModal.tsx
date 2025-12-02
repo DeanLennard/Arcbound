@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[id]/EditDiplomacyModal.tsx
+// src/app/(dashboard)/admin/arcships/[[id]]/EditDiplomacyModal.tsx
 'use client'
 
 import { useParams } from 'next/navigation'

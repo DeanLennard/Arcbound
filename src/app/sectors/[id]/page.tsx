@@ -14,10 +14,14 @@ type SectorWithEffects = {
     effects: EffectDoc[];
 };
 
-export default async function SectorPage({ params }: { params: { id: string } }) {
+export default async function SectorPage(
+    { params }: { params: Promise<{ id: string }> }
+) {
+    const { id } = await params;
+
     await dbConnect();
 
-    const sector = await Sector.findById(params.id)
+    const sector = await Sector.findById(id)
         .populate('effects')
         .lean<SectorWithEffects>();
 
@@ -40,7 +44,7 @@ export default async function SectorPage({ params }: { params: { id: string } })
             <section>
                 <h2 className="text-2xl font-semibold mb-2">Effects</h2>
                 <ul className="space-y-2">
-                    {sector.effects.map((e) => (
+                    {sector.effects.map(e => (
                         <li
                             key={String(e._id)}
                             className={`p-2 rounded ${

@@ -1,4 +1,4 @@
-// src/pages/api/admin/users/[id]/role.ts
+// src/pages/api/admin/users/[[id]]/role.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';

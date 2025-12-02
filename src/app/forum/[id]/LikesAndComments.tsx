@@ -1,4 +1,4 @@
-// /src/app/forum/[id]/LikesAndComments.tsx
+// /src/app/forum/[[id]]/LikesAndComments.tsx
 'use client';
 
 import React, {useCallback, useEffect, useState} from 'react';

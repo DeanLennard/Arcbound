@@ -1,4 +1,4 @@
-// src/app/arcships/[id]/page.tsx
+// src/app/arcships/[[id]]/page.tsx
 import React from 'react'
 import { redirect, notFound } from 'next/navigation'
 import { getServerSession }   from 'next-auth'

@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
-    // fetch only id+name for each arcship
+    // fetch only [id]+name for each arcship
     const ships = await Arcship.find()
         .select('_id name')
         .lean();

@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/characters/[id]/AddPhaseModal.tsx
+// src/app/(dashboard)/admin/characters/[[id]]/AddPhaseModal.tsx
 'use client'
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'
 import { mutate }                             from 'swr'

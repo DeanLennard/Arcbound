@@ -25,7 +25,7 @@ export default async function handler(
         }
 
         case 'POST': {
-            // expects { name, description, kind, ships: [<id>] }
+            // expects { name, description, kind, ships: [<[id]>] }
             const created = await Effect.create(req.body)
             return res.status(201).json(created)
         }

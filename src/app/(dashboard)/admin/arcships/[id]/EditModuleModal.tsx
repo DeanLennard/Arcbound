@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[id]/AddModuleModal.tsx
+// src/app/(dashboard)/admin/arcships/[[id]]/AddModuleModal.tsx
 'use client';
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';

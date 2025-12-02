@@ -1,4 +1,4 @@
-// src/app/profile/[id]/page.tsx
+// src/app/profile/[[id]]/page.tsx
 import React from 'react';
 import { getServerSession } from 'next-auth/next';
 import authOptions from '@/lib/authOptions';

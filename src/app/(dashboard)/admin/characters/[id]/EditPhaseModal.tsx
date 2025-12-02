@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/characters/[id]/EditPhaseModal.tsx
+// src/app/(dashboard)/admin/characters/[[id]]/EditPhaseModal.tsx
 'use client'
 
 import { useForm, Controller, SubmitHandler } from 'react-hook-form'

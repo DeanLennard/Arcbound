@@ -1,4 +1,4 @@
-// pages/api/eventlog/[id].ts
+// pages/api/eventlog/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/lib/mongodb'
 import EventLog, { type EventLogDoc } from '@/models/EventLog'

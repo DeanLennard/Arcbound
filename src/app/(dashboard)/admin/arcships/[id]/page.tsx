@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[id]/page.tsx
+// src/app/(dashboard)/admin/arcships/[[id]]/page.tsx
 'use client'
 import { useParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'

@@ -30,7 +30,7 @@ export default async function handler(
             return res.status(404).json({ error: 'Message not found' })
         }
 
-        // Our user‐id as an ObjectId
+        // Our user‐[id] as an ObjectId
         const uid = new Types.ObjectId(session.user.id)
 
         // find an existing reaction subdoc

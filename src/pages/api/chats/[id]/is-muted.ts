@@ -1,4 +1,4 @@
-// src/pages/api/chats/[id]/is-muted.ts
+// src/pages/api/chats/[[id]]/is-muted.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import User from '@/models/User';

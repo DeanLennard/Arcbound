@@ -1,4 +1,4 @@
-// /src/pages/api/posts/[id]/like.ts
+// /src/pages/api/posts/[[id]]/like.ts
 import { dbConnect } from '@/lib/mongodb';
 import Post from '@/models/Post';
 import { getServerSession } from 'next-auth/next';

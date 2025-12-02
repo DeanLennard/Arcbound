@@ -1,4 +1,4 @@
-// src/app/forum/[id]/page.tsx
+// src/app/forum/[[id]]/page.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';

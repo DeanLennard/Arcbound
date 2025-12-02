@@ -1,4 +1,4 @@
-// pages/api/modules/[id].ts
+// pages/api/modules/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/lib/mongodb'
 import Module from '@/models/Module'

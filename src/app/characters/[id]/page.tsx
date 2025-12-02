@@ -1,4 +1,4 @@
-// src/app/characters/[id]/page.tsx
+// src/app/characters/[[id]]/page.tsx
 import { notFound, redirect } from 'next/navigation'
 import { getServerSession }     from 'next-auth'
 import authOptions from '@/lib/authOptions'
@@ -131,7 +131,7 @@ export default async function CharacterPage({
         // if it looks like a populated arcship document, prefer its name
         if (isPopulatedArcship(a) && typeof a.name === 'string') return a.name
 
-        // otherwise treat it as an id (ObjectId or string)
+        // otherwise treat it as an [id] (ObjectId or string)
         return String(a)
     })()
 

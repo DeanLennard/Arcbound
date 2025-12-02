@@ -1,4 +1,4 @@
-// pages/api/character-assets/[id].ts
+// pages/api/character-assets/[[id]].ts
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect }               from '@/lib/mongodb'
 import CharacterAsset              from '@/models/CharacterAsset'

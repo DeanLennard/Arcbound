@@ -1,4 +1,4 @@
-// pages/api/characters/[id]/phases.ts
+// pages/api/characters/[[id]]/phases.ts
 import { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/lib/mongodb'
 import Phase from '@/models/Phase'

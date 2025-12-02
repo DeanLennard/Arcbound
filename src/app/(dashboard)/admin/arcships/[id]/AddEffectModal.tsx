@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[id]/AddEffectModal.tsx
+// src/app/(dashboard)/admin/arcships/[[id]]/AddEffectModal.tsx
 'use client'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { mutate } from 'swr'

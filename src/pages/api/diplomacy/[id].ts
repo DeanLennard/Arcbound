@@ -1,4 +1,4 @@
-// pages/api/diplomacy/[id].ts
+// pages/api/diplomacy/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect }                           from '@/lib/mongodb'
 import Diplomacy, { type DiplomacyDoc }        from '@/models/Diplomacy'
@@ -25,7 +25,7 @@ export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
 ) {
-    // normalize id to a string
+    // normalize [id] to a string
     const rawId = req.query.id
     const id = Array.isArray(rawId) ? rawId[0] : rawId
 

@@ -1,4 +1,4 @@
-// pages/api/chats/[id]/update.ts
+// pages/api/chats/[[id]]/update.ts
 import { dbConnect } from '@/lib/mongodb';
 import Chat from '@/models/Chat';
 import type { NextApiRequest, NextApiResponse } from 'next';

@@ -1,4 +1,4 @@
-// src/app/forum/[id]/Sidebar.tsx
+// src/app/forum/[[id]]/Sidebar.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';

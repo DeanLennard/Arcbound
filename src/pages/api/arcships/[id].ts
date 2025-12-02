@@ -1,4 +1,4 @@
-// pages/api/arcships/[id].ts
+// pages/api/arcships/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {dbConnect} from '@/lib/mongodb';
 import Arcship from '@/models/Arcship';

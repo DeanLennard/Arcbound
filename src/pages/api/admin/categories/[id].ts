@@ -1,4 +1,4 @@
-// src/pages/api/admin/categories/[id].ts
+// src/pages/api/admin/categories/[[id]].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import formidable from 'formidable';
 import path from 'path';

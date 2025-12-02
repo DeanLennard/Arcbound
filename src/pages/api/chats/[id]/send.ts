@@ -1,4 +1,4 @@
-// src/pages/api/chats/[id]/send.ts
+// src/pages/api/chats/[[id]]/send.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { dbConnect } from '@/lib/mongodb';
 import Message from '@/models/Message';
