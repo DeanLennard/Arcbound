@@ -3,6 +3,7 @@ import { dbConnect } from '@/lib/mongodb';
 import Sector from '@/models/Sector';
 import '@/models/Effect';
 import type { EffectDoc } from '@/models/Effect';
+import React from "react";
 
 type SectorWithEffects = {
     _id: string;
@@ -45,27 +46,23 @@ export default async function SectorPage(
                 <h2 className="text-2xl font-semibold mb-2">Effects</h2>
                 <ul className="space-y-2">
                     {sector.effects?.map(e => (
-                        <li
-                            key={String(e._id)}
-                            className={`p-2 rounded ${
-                                e.kind === 'Positive'
-                                    ? 'bg-green-600'
-                                    : e.kind === 'Negative'
-                                        ? 'bg-red-600'
-                                        : 'bg-gray-700'
-                            } text-white`}
+                        <li key={String(e._id)}
+                            className={`
+                                    p-2 rounded 
+                                    ${e.kind === 'Positive' ? 'bg-green-600 text-white'
+                                    : e.kind === 'Negative'   ? 'bg-red-600   text-white'
+                                    : 'bg-gray-600 text-gray-100'}
+                                `}
                         >
-                            <div className="flex flex-wrap items-center gap-2">
-                                <strong className="text-lg">{e.name}</strong>
-
-                                {/* Power Level Badge */}
-                                <span className="text-xs px-2 py-1 rounded bg-indigo-600">
+                            <strong>{e.name}</strong>
+                            <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {e.level}
                                 </span>
+                            <p className="text-sm break-smart">{e.description}</p>
+                            <div className="mt-1 text-xs">
+                                Status:{' '}
+                                <span>{e.kind}</span>
                             </div>
-
-                            {/* Description */}
-                            <p className="text-gray-300 text-sm">{e.description}</p>
                         </li>
                     ))}
                 </ul>
