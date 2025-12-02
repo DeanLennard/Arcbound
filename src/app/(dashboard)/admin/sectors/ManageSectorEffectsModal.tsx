@@ -82,6 +82,7 @@ export default function ManageSectorEffectsModal({
 
                 {/* Add Button */}
                 <button
+                    type="button"
                     onClick={() => setShowAdd(true)}
                     className="px-3 py-1 bg-indigo-600 rounded text-white"
                 >
