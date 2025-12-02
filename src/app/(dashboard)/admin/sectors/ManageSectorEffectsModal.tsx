@@ -50,7 +50,7 @@ export default function ManageSectorEffectsModal({
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={(e) => e.stopPropagation()}>
             <div className="bg-gray-800 p-6 rounded w-full max-w-lg space-y-4" onClick={(e) => e.stopPropagation()}>
                 <h2 className="text-xl text-white">
                     Manage Effects — {sector.name}
