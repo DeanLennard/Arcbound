@@ -7,6 +7,7 @@ import { mutate } from 'swr';
 import type { SectorDoc } from '@/models/Sector';
 import ManageSectorEffectsModal from "@/app/(dashboard)/admin/sectors/ManageSectorEffectsModal";
 import type { EffectDoc } from '@/models/Effect';
+import ModalPortal from "@/components/ModalPortal";
 
 type SectorWithEffects = Omit<SectorDoc, 'effects'> & {
     effects: EffectDoc[];
@@ -128,10 +129,12 @@ export default function EditSectorModal({
                     Effects
                 </button>
                 {effectSector && (
-                    <ManageSectorEffectsModal
-                        sector={effectSector}
-                        onClose={() => setEffectSector(null)}
-                    />
+                    <ModalPortal>
+                        <ManageSectorEffectsModal
+                            sector={effectSector}
+                            onClose={() => setEffectSector(null)}
+                        />
+                    </ModalPortal>
                 )}
 
                 <div className="flex justify-end space-x-2">

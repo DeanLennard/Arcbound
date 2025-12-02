@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { mutate } from 'swr';
 import type { EffectDoc } from '@/models/Effect';
 import AddSectorEffectModal from './AddSectorEffectModal';
+import ModalPortal from "@/components/ModalPortal";
 
 type SectorWithEffects = {
     _id: string;
@@ -101,11 +102,13 @@ export default function ManageSectorEffectsModal({
             </div>
 
             {showAdd && (
-                <AddSectorEffectModal
-                    sectorId={sector._id}
-                    onCreated={handleEffectCreated}
-                    onClose={() => setShowAdd(false)}
-                />
+                <ModalPortal>
+                    <AddSectorEffectModal
+                        sectorId={sector._id}
+                        onCreated={handleEffectCreated}
+                        onClose={() => setShowAdd(false)}
+                    />
+                </ModalPortal>
             )}
         </div>
     );

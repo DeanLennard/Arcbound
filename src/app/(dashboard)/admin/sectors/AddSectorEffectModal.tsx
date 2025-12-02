@@ -37,7 +37,7 @@ export default function AddSectorEffectModal({
 
         const newEffect = await res.json();
 
-        // 2. Attach effect to sector (THIS was missing)
+        // 2. Attach effect to sector
         await fetch(`/api/sectors/${sectorId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
