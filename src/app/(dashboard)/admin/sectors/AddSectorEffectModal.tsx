@@ -42,6 +42,7 @@ export default function AddSectorEffectModal({
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <form
+                onClick={(e) => e.stopPropagation()}
                 onSubmit={handleSubmit(onSubmit)}
                 className="bg-gray-800 p-6 rounded space-y-4 w-full max-w-md"
             >
