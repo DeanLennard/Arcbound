@@ -42,26 +42,33 @@ export default async function handler(
     // PUT — Update sector base fields + optional effects
     // ---------------------------------------
     if (req.method === 'PUT') {
-        const { name, x, y, control, hasMission, effects } = req.body;
+        const { name, x, y, control, hasMission, addEffect, removeEffect } = req.body;
 
-        const update: SectorUpdate = {};
+        const update: Record<string, unknown> = {};
 
-        // Normal fields (existing behaviour)
         if (typeof name === 'string') update.name = name;
         if (typeof x === 'number') update.x = x;
         if (typeof y === 'number') update.y = y;
         if (typeof control === 'string') update.control = control;
         if (typeof hasMission === 'boolean') update.hasMission = hasMission;
 
-        // New feature: Effects
-        if (Array.isArray(effects)) {
-            update.effects = effects;
+        // Add a new effect reference
+        if (typeof addEffect === 'string') {
+            await Sector.findByIdAndUpdate(id, {
+                $addToSet: { effects: addEffect }
+            });
         }
 
-        const updated = await Sector.findByIdAndUpdate(id, update, { new: true })
-            .lean();
+        // Remove effect reference
+        if (typeof removeEffect === 'string') {
+            await Sector.findByIdAndUpdate(id, {
+                $pull: { effects: removeEffect }
+            });
+        }
 
-        if (!updated) return res.status(404).json({ error: 'Not found' });
+        const updated = await Sector.findById(id)
+            .populate('effects')
+            .lean();
 
         return res.status(200).json(updated);
     }

@@ -1,90 +1,111 @@
 // src/app/(dashboard)/admin/sectors/ManageSectorEffectsModal.tsx
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { mutate } from 'swr';
-import type { Types } from 'mongoose';
-import type { SectorDoc } from '@/models/Sector';
+import type { EffectDoc } from '@/models/Effect';
+import AddSectorEffectModal from './AddSectorEffectModal';
 
-interface EffectOption {
+type SectorWithEffects = {
     _id: string;
     name: string;
-    kind: string;
-    level: number;
-}
-
-type SectorWithEffects = Omit<SectorDoc, 'effects'> & {
-    effects: (Types.ObjectId | EffectOption)[];
+    effects?: EffectDoc[];
 };
 
 export default function ManageSectorEffectsModal({
                                                      sector,
-                                                     onClose
+                                                     onClose,
                                                  }: {
     sector: SectorWithEffects;
     onClose: () => void;
 }) {
-    const [effects, setEffects] = useState<EffectOption[]>([]);
-    const initialSelected: string[] = sector.effects
-        ? sector.effects.map((e) =>
-            typeof e === 'string'
-                ? e
-                : typeof e === 'object' && '_id' in e
-                    ? String(e._id)
-                    : String(e)
-        )
-        : [];
+    const [showAdd, setShowAdd] = useState(false);
+    const [effects, setEffects] = useState<EffectDoc[]>(sector.effects ?? []);
 
-    const [selected, setSelected] = useState<string[]>(initialSelected);
-
-    useEffect(() => {
-        fetch('/api/effects')
-            .then(res => res.json())
-            .then(setEffects);
-    }, []);
-
-    const toggle = (id: string) => {
-        setSelected(prev =>
-            prev.includes(id)
-                ? prev.filter(x => x !== id)
-                : [...prev, id]
-        );
-    };
-
-    const save = async () => {
+    // Remove effect from sector
+    const removeEffect = async (effectId: string) => {
         await fetch(`/api/sectors/${sector._id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ effects: selected })
+            body: JSON.stringify({ removeEffect: effectId }),
         });
 
-        await mutate('/api/sectors');
-        onClose();
+        setEffects(prev => prev.filter(e => String(e._id) !== effectId));
+        mutate('/api/sectors');
+    };
+
+    // When a NEW effect is created
+    const handleEffectCreated = async (newEffectId: string) => {
+        await fetch(`/api/sectors/${sector._id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ addEffect: newEffectId }),
+        });
+
+        const updated = await fetch(`/api/sectors/${sector._id}`).then(r => r.json());
+
+        setEffects(updated.effects ?? []);
+        mutate('/api/sectors');
+        setShowAdd(false);
     };
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-            <div className="bg-gray-800 p-6 rounded w-full max-w-md space-y-4">
-                <h2 className="text-xl text-white">Manage Effects – {sector.name}</h2>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <div className="bg-gray-800 p-6 rounded w-full max-w-lg space-y-4">
+                <h2 className="text-xl text-white">
+                    Manage Effects — {sector.name}
+                </h2>
 
-                <div className="max-h-64 overflow-y-auto space-y-2">
+                {/* Existing Effects */}
+                <div className="space-y-2 max-h-72 overflow-y-auto">
+                    {effects.length === 0 && (
+                        <p className="text-gray-400 text-sm">No effects applied.</p>
+                    )}
+
                     {effects.map(e => (
-                        <label key={e._id} className="flex items-center space-x-2 text-white">
-                            <input
-                                type="checkbox"
-                                checked={selected.includes(e._id)}
-                                onChange={() => toggle(e._id)}
-                            />
-                            <span>{e.name} (Lv {e.level}) — {e.kind}</span>
-                        </label>
+                        <div
+                            key={String(e._id)}
+                            className="p-2 bg-gray-700 rounded text-white flex justify-between items-center"
+                        >
+                            <div>
+                                <strong>{e.name}</strong> (Lv {e.level}) — {e.kind}
+                            </div>
+                            <button
+                                onClick={() => removeEffect(String(e._id))}
+                                className="px-2 py-1 bg-red-600 text-white rounded"
+                            >
+                                Delete
+                            </button>
+                        </div>
                     ))}
                 </div>
 
-                <div className="flex justify-end space-x-2">
-                    <button onClick={onClose} className="px-3 py-1 bg-gray-600 rounded text-white">Cancel</button>
-                    <button onClick={save} className="px-3 py-1 bg-indigo-600 rounded text-white">Save</button>
+                {/* Add Button */}
+                <button
+                    onClick={() => setShowAdd(true)}
+                    className="px-3 py-1 bg-indigo-600 rounded text-white"
+                >
+                    + Add New Effect
+                </button>
+
+                {/* Close */}
+                <div className="flex justify-end pt-2">
+                    <button
+                        onClick={onClose}
+                        className="px-3 py-1 bg-gray-600 text-white rounded"
+                    >
+                        Close
+                    </button>
                 </div>
             </div>
+
+            {showAdd && (
+                <AddSectorEffectModal
+                    sectorId={sector._id}
+                    onCreated={handleEffectCreated}
+                    onClose={() => setShowAdd(false)}
+                />
+            )}
         </div>
     );
 }

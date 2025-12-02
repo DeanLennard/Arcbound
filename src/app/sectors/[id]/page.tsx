@@ -44,7 +44,7 @@ export default async function SectorPage(
             <section>
                 <h2 className="text-2xl font-semibold mb-2">Effects</h2>
                 <ul className="space-y-2">
-                    {sector.effects.map(e => (
+                    {sector.effects?.map(e => (
                         <li
                             key={String(e._id)}
                             className={`p-2 rounded ${
