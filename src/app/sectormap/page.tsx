@@ -127,6 +127,17 @@ export default function SectorMapPage() {
                                     height={12}
                                 />
                             )}
+                            {/* view sector (eye icon) */}
+                            <a href={`/sectors/${s._id}`}>
+                                <image
+                                    href="/flags/eye.png"
+                                    x={HEX_SIZE * 0.55}      // pushes to right side
+                                    y={-HEX_SIZE * 0.85}     // pushes upward
+                                    width={10}
+                                    height={10}
+                                    style={{ cursor: 'pointer' }}
+                                />
+                            </a>
                         </g>
                     );
                 })}

@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { mutate } from 'swr';
 import type { EffectDoc } from '@/models/Effect';
 import AddSectorEffectModal from './AddSectorEffectModal';
+import EditSectorEffectModal from "./EditSectorEffectModal";
 import ModalPortal from "@/components/ModalPortal";
 
 type SectorWithEffects = {
@@ -22,6 +23,7 @@ export default function ManageSectorEffectsModal({
 }) {
     const [showAdd, setShowAdd] = useState(false);
     const [effects, setEffects] = useState<EffectDoc[]>(sector.effects ?? []);
+    const [editingEffect, setEditingEffect] = useState<EffectDoc | null>(null);
 
     // Remove effect from sector
     const removeEffect = async (effectId: string) => {
@@ -69,14 +71,23 @@ export default function ManageSectorEffectsModal({
                             className="p-2 bg-gray-700 rounded text-white flex justify-between items-center"
                         >
                             <div>
-                                <strong>{e.name}</strong> (Lv {e.level}) — {e.kind}
+                                <strong>{e.name}</strong> ({e.level}) — {e.kind}
                             </div>
-                            <button
-                                onClick={() => removeEffect(String(e._id))}
-                                className="px-2 py-1 bg-red-600 text-white rounded"
-                            >
-                                Delete
-                            </button>
+                            <div className="flex space-x-2">
+                                <button
+                                    onClick={() => setEditingEffect(e)}
+                                    className="px-2 py-1 bg-blue-600 text-white rounded"
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    onClick={() => removeEffect(String(e._id))}
+                                    className="px-2 py-1 bg-red-600 text-white rounded"
+                                >
+                                    Delete
+                                </button>
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -107,6 +118,20 @@ export default function ManageSectorEffectsModal({
                         sectorId={sector._id}
                         onCreated={handleEffectCreated}
                         onClose={() => setShowAdd(false)}
+                    />
+                </ModalPortal>
+            )}
+            {editingEffect && (
+                <ModalPortal>
+                    <EditSectorEffectModal
+                        effect={editingEffect}
+                        onClose={() => setEditingEffect(null)}
+                        onSaved={async () => {
+                            const updated = await fetch(`/api/sectors/${sector._id}`).then(r => r.json());
+                            setEffects(updated.effects ?? []);
+                            mutate('/api/sectors');
+                            setEditingEffect(null);
+                        }}
                     />
                 </ModalPortal>
             )}
