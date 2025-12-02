@@ -5,6 +5,15 @@ import { dbConnect } from '@/lib/mongodb';
 import Sector from '@/models/Sector';
 import '@/models/Effect';
 
+type SectorUpdate = Partial<{
+    name: string;
+    x: number;
+    y: number;
+    control: string;
+    hasMission: boolean;
+    effects: string[]; // IDs only
+}>;
+
 export default async function handler(
     req: NextApiRequest,
     res: NextApiResponse
@@ -35,7 +44,7 @@ export default async function handler(
     if (req.method === 'PUT') {
         const { name, x, y, control, hasMission, effects } = req.body;
 
-        const update: Record<string, any> = {};
+        const update: SectorUpdate = {};
 
         // Normal fields (existing behaviour)
         if (typeof name === 'string') update.name = name;
