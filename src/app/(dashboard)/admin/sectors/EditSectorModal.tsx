@@ -6,7 +6,6 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { mutate } from 'swr';
 import type { SectorDoc } from '@/models/Sector';
 import ManageSectorEffectsModal from "@/app/(dashboard)/admin/sectors/ManageSectorEffectsModal";
-import Link from "next/link";
 
 interface FormValues {
     name: string;
