@@ -3,6 +3,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { mutate } from 'swr';
+import type { Types } from 'mongoose';
+import type { SectorDoc } from '@/models/Sector';
 
 interface EffectOption {
     _id: string;
@@ -11,15 +13,29 @@ interface EffectOption {
     level: number;
 }
 
+type SectorWithEffects = Omit<SectorDoc, 'effects'> & {
+    effects: (Types.ObjectId | EffectOption)[];
+};
+
 export default function ManageSectorEffectsModal({
                                                      sector,
                                                      onClose
                                                  }: {
-    sector: any;
+    sector: SectorWithEffects;
     onClose: () => void;
 }) {
     const [effects, setEffects] = useState<EffectOption[]>([]);
-    const [selected, setSelected] = useState<string[]>(sector.effects?.map((e: any) => e._id) || []);
+    const initialSelected: string[] = sector.effects
+        ? sector.effects.map((e) =>
+            typeof e === 'string'
+                ? e
+                : typeof e === 'object' && '_id' in e
+                    ? String(e._id)
+                    : String(e)
+        )
+        : [];
+
+    const [selected, setSelected] = useState<string[]>(initialSelected);
 
     useEffect(() => {
         fetch('/api/effects')

@@ -39,10 +39,9 @@ const SectorSchema = new mongoose.Schema<SectorDoc>({
         required: true,
         default: false
     },
-    effects: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Effect'
-    }]
+    effects: [
+        { type: mongoose.Schema.Types.ObjectId, ref: 'Effect', default: [] }
+    ],
 }, {
     timestamps: true,
 });
