@@ -48,16 +48,16 @@ export default async function SectorPage(
                     {sector.effects?.map(e => (
                         <li key={String(e._id)}
                             className={`
-                                    p-2 rounded 
-                                    ${e.kind === 'Positive' ? 'bg-green-600 text-white'
+                                p-2 rounded 
+                                ${e.kind === 'Positive' ? 'bg-green-600 text-white'
                                     : e.kind === 'Negative'   ? 'bg-red-600   text-white'
                                     : 'bg-gray-600 text-gray-100'}
-                                `}
+                            `}
                         >
                             <strong>{e.name}</strong>
                             <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
-                                    {e.level}
-                                </span>
+                                {e.level}
+                            </span>
                             <p className="text-sm break-smart">{e.description}</p>
                             <div className="mt-1 text-xs">
                                 Status:{' '}
