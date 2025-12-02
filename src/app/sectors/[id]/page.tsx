@@ -55,11 +55,21 @@ export default async function SectorPage(
                                         : 'bg-gray-700'
                             } text-white`}
                         >
-                            <strong>{e.name}</strong> (Lv {e.level})
-                            <p className="text-sm">{e.description}</p>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <strong className="text-lg">{e.name}</strong>
+
+                                {/* Power Level Badge */}
+                                <span className="text-xs px-2 py-1 rounded bg-indigo-600">
+                                    {e.level}
+                                </span>
+                            </div>
+
+                            {/* Description */}
+                            <p className="text-gray-300 text-sm">{e.description}</p>
                         </li>
                     ))}
                 </ul>
+
             </section>
         </div>
     );
