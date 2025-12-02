@@ -6,6 +6,7 @@ import useSWR, { mutate } from 'swr';
 import type { SectorDoc } from '@/models/Sector';
 import AddSectorModal from './AddSectorModal';
 import EditSectorModal from './EditSectorModal';
+import Link from "next/link";
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
@@ -43,6 +44,12 @@ export default function AdminSectorsPage() {
                         <td className="px-4 py-2">{s.y}</td>
                         <td className="px-4 py-2">{s.control}</td>
                         <td className="px-4 py-2 space-x-2">
+                            <Link
+                                href={`/sectors/${s._id}`}
+                                className="btn-sm"
+                            >
+                                View
+                            </Link>
                             <button
                                 onClick={() => setEditSector(s)}
                                 className="px-2 py-1 bg-blue-600 text-white rounded"

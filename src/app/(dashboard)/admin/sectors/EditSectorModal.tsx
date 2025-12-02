@@ -111,6 +111,7 @@ export default function EditSectorModal({
                 </div>
 
                 <button
+                    type="button"
                     onClick={() => setEffectSector(sector)}
                     className="px-2 py-1 bg-purple-600 text-white rounded"
                 >
@@ -124,12 +125,6 @@ export default function EditSectorModal({
                 )}
 
                 <div className="flex justify-end space-x-2">
-                    <Link
-                        href={`/sectors/${encodeURIComponent(sector._id)}`}
-                        className="btn-sm"
-                    >
-                        View
-                    </Link>
                     <button
                         type="button"
                         onClick={onClose}
