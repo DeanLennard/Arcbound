@@ -6,6 +6,11 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { mutate } from 'swr';
 import type { SectorDoc } from '@/models/Sector';
 import ManageSectorEffectsModal from "@/app/(dashboard)/admin/sectors/ManageSectorEffectsModal";
+import type { EffectDoc } from '@/models/Effect';
+
+type SectorWithEffects = Omit<SectorDoc, 'effects'> & {
+    effects: EffectDoc[];
+};
 
 interface FormValues {
     name: string;
@@ -31,7 +36,7 @@ export default function EditSectorModal({
             hasMission: sector.hasMission
         }
     });
-    const [effectSector, setEffectSector] = useState<SectorDoc | null>(null);
+    const [effectSector, setEffectSector] = useState<SectorWithEffects | null>(null);
 
     React.useEffect(() => {
         reset({
