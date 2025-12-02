@@ -23,19 +23,28 @@ export default function AddSectorEffectModal({
         useForm<FormValues>();
 
     const onSubmit: SubmitHandler<FormValues> = async vals => {
-        const res = await fetch('/api/sector-effects', {
+        // 1. Create effect
+        const res = await fetch('/api/effects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 name: vals.name,
                 description: vals.description,
                 kind: vals.kind,
-                level: vals.level,
-                sectors: [sectorId], // store effect on a sector
+                level: vals.level
             }),
         });
 
         const newEffect = await res.json();
+
+        // 2. Attach effect to sector (THIS was missing)
+        await fetch(`/api/sectors/${sectorId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ addEffect: newEffect._id }),
+        });
+
+        // 3. Notify parent
         onCreated(newEffect._id);
     };
 

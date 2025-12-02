@@ -11,7 +11,11 @@ import Link from "next/link";
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function AdminSectorsPage() {
-    const { data: sectors, error } = useSWR<SectorDoc[]>('/api/sectors', fetcher);
+    const { data: sectors, error } = useSWR('/api/sectors', fetcher, {
+        revalidateOnFocus: false,
+        revalidateIfStale: false,
+    });
+
     const [showAdd, setShowAdd] = useState(false);
     const [editSector, setEditSector] = useState<SectorDoc | null>(null);
 
