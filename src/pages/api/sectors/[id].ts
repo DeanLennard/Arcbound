@@ -1,9 +1,9 @@
-// src/pages/api/sectors/[[id]].ts
+// src/pages/api/sectors/[id].ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import mongoose from 'mongoose';
+import mongoose, {UpdateQuery} from 'mongoose';
 import { dbConnect } from '@/lib/mongodb';
-import Sector from '@/models/Sector';
-import '@/models/Effect';
+import Sector, { SectorDoc } from '@/models/Sector';
+import SectorEffect from "@/models/SectorEffect";
 
 export default async function handler(
     req: NextApiRequest,
@@ -33,31 +33,42 @@ export default async function handler(
     // PUT — Update sector base fields + optional effects
     // ---------------------------------------
     if (req.method === 'PUT') {
-        const { name, x, y, control, hasMission, addEffect, removeEffect } = req.body;
+        const { addEffect, removeEffect, ...rest } = req.body;
 
-        const update: Record<string, unknown> = {};
+        // Strong typing: update only fields that genuinely exist on SectorDoc
+        const update: UpdateQuery<SectorDoc> = {};
 
-        if (typeof name === 'string') update.name = name;
-        if (typeof x === 'number') update.x = x;
-        if (typeof y === 'number') update.y = y;
-        if (typeof control === 'string') update.control = control;
-        if (typeof hasMission === 'boolean') update.hasMission = hasMission;
+        // Assign only known, allowed fields
+        if (typeof rest.name === 'string') update.name = rest.name;
+        if (typeof rest.x === 'number') update.x = rest.x;
+        if (typeof rest.y === 'number') update.y = rest.y;
+        if (typeof rest.control === 'string') update.control = rest.control;
+        if (typeof rest.hasMission === 'boolean') update.hasMission = rest.hasMission;
 
-        // Add a new effect reference
+        // ---- Add effect ----
         if (typeof addEffect === 'string') {
             await Sector.findByIdAndUpdate(id, {
                 $addToSet: { effects: addEffect }
             });
+
+            await SectorEffect.findByIdAndUpdate(addEffect, {
+                $addToSet: { sectors: id }
+            });
         }
 
-        // Remove effect reference
+        // ---- Remove effect ----
         if (typeof removeEffect === 'string') {
             await Sector.findByIdAndUpdate(id, {
                 $pull: { effects: removeEffect }
             });
+
+            await SectorEffect.findByIdAndUpdate(removeEffect, {
+                $pull: { sectors: id }
+            });
         }
 
-        const updated = await Sector.findById(id)
+        // Apply normal updates
+        const updated = await Sector.findByIdAndUpdate(id, update, { new: true })
             .populate('effects')
             .lean();
 

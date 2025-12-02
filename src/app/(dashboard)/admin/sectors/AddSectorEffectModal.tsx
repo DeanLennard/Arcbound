@@ -23,7 +23,7 @@ export default function AddSectorEffectModal({
         useForm<FormValues>();
 
     const onSubmit: SubmitHandler<FormValues> = async vals => {
-        const res = await fetch('/api/effects', {
+        const res = await fetch('/api/sector-effects', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
