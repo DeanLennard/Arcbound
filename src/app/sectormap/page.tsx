@@ -131,7 +131,7 @@ export default function SectorMapPage() {
                             <a href={`/sectors/${s._id}`}>
                                 <image
                                     href="/flags/eye.png"
-                                    x={HEX_SIZE * 0.55}      // pushes to right side
+                                    x={HEX_SIZE * 0.25}      // pushes to right side
                                     y={-HEX_SIZE * 0.85}     // pushes upward
                                     width={10}
                                     height={10}
