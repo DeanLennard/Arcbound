@@ -2,13 +2,24 @@
 import { dbConnect } from '@/lib/mongodb';
 import Sector from '@/models/Sector';
 import '@/models/Effect';
+import type { EffectDoc } from '@/models/Effect';
+
+type SectorWithEffects = {
+    _id: string;
+    name: string;
+    x: number;
+    y: number;
+    control: string;
+    hasMission: boolean;
+    effects: EffectDoc[];
+};
 
 export default async function SectorPage({ params }: { params: { id: string } }) {
     await dbConnect();
 
     const sector = await Sector.findById(params.id)
         .populate('effects')
-        .lean();
+        .lean<SectorWithEffects>();
 
     if (!sector) return <p>Sector not found</p>;
 
@@ -29,11 +40,14 @@ export default async function SectorPage({ params }: { params: { id: string } })
             <section>
                 <h2 className="text-2xl font-semibold mb-2">Effects</h2>
                 <ul className="space-y-2">
-                    {sector.effects.map((e: any) => (
-                        <li key={e._id}
+                    {sector.effects.map((e) => (
+                        <li
+                            key={String(e._id)}
                             className={`p-2 rounded ${
-                                e.kind === 'Positive' ? 'bg-green-600'
-                                    : e.kind === 'Negative' ? 'bg-red-600'
+                                e.kind === 'Positive'
+                                    ? 'bg-green-600'
+                                    : e.kind === 'Negative'
+                                        ? 'bg-red-600'
                                         : 'bg-gray-700'
                             } text-white`}
                         >
