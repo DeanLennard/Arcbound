@@ -111,7 +111,12 @@ export default function EditSectorModal({
 
                 <button
                     type="button"
-                    onClick={() => setEffectSector(sector)}
+                    onClick={async () => {
+                        const populated = await fetch(`/api/sectors/${sector._id}`)
+                            .then(r => r.json());
+
+                        setEffectSector(populated);
+                    }}
                     className="px-2 py-1 bg-purple-600 text-white rounded"
                 >
                     Effects
