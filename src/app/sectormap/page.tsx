@@ -2,6 +2,17 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import type { EffectDoc } from '@/models/Effect';
+
+type SectorWithEffects = {
+    _id: string;
+    name: string;
+    x: number;
+    y: number;
+    control: string;
+    hasMission: boolean;
+    effects: EffectDoc[];
+};
 
 type Sector = {
     _id:    string;
@@ -49,7 +60,7 @@ export default function SectorMapPage() {
     const [ships,   setShips]   = useState<ShipPos[] | null>(null);
     const [error,   setError]   = useState<string | null>(null);
     const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
-    const [selectedSector, setSelectedSector] = useState<any | null>(null);
+    const [selectedSector, setSelectedSector] = useState<SectorWithEffects | null>(null);
 
     useEffect(() => {
         Promise.all([
@@ -93,6 +104,7 @@ export default function SectorMapPage() {
 
     return (
         <div className="pt-12 md:pt-14 w-full h-full p-4 flex justify-center items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
                 src="/map.jpg"
                 alt="Sector background"
@@ -223,9 +235,9 @@ export default function SectorMapPage() {
 
                         <h3 className="text-xl font-semibold mt-4">Effects</h3>
                         <ul className="space-y-2">
-                            {selectedSector.effects?.map((e: any) => (
+                            {selectedSector.effects?.map((e: EffectDoc) => (
                                 <li
-                                    key={e._id}
+                                    key={String(e._id)}
                                     className={`p-2 rounded text-white ${
                                         e.kind === 'Positive'
                                             ? 'bg-green-600'
