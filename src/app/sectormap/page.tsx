@@ -239,18 +239,23 @@ export default function SectorMapPage() {
                         <h3 className="text-xl font-semibold mt-4">Effects</h3>
                         <ul className="space-y-2">
                             {selectedSector.effects?.map((e: EffectDoc) => (
-                                <li
-                                    key={String(e._id)}
-                                    className={`p-2 rounded text-white ${
-                                        e.kind === 'Positive'
-                                            ? 'bg-green-600'
-                                            : e.kind === 'Negative'
-                                                ? 'bg-red-600'
-                                                : 'bg-gray-700'
-                                    }`}
+                                <li key={String(e._id)}
+                                    className={`
+                                        p-2 rounded 
+                                        ${e.kind === 'Positive' ? 'bg-green-600 text-white'
+                                            : e.kind === 'Negative'   ? 'bg-red-600   text-white'
+                                            : 'bg-gray-600 text-gray-100'}
+                                    `}
                                 >
-                                    <strong>{e.name}</strong> (Lv {e.level})
-                                    <p className="text-sm">{e.description}</p>
+                                    <strong>{e.name}</strong>
+                                    <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                        {e.level}
+                                    </span>
+                                    <p className="text-sm break-smart">{e.description}</p>
+                                    <div className="mt-1 text-xs">
+                                        Status:{' '}
+                                        <span>{e.kind}</span>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
