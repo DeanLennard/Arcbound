@@ -48,6 +48,8 @@ export default function SectorMapPage() {
     const [sectors, setSectors] = useState<Sector[] | null>(null);
     const [ships,   setShips]   = useState<ShipPos[] | null>(null);
     const [error,   setError]   = useState<string | null>(null);
+    const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
+    const [selectedSector, setSelectedSector] = useState<any | null>(null);
 
     useEffect(() => {
         Promise.all([
@@ -60,6 +62,14 @@ export default function SectorMapPage() {
             })
             .catch(err => setError(err.message));
     }, []);
+
+    useEffect(() => {
+        if (!selectedSectorId) return;
+
+        fetch(`/api/sectors/${selectedSectorId}`)
+            .then(r => r.json())
+            .then(data => setSelectedSector(data));
+    }, [selectedSectorId]);
 
     if (error) return <p style={{ color: 'red' }}>Error: {error}</p>;
     if (!sectors || !ships) return <p>Loading…</p>;
@@ -128,16 +138,15 @@ export default function SectorMapPage() {
                                 />
                             )}
                             {/* view sector (eye icon) */}
-                            <a href={`/sectors/${s._id}`}>
-                                <image
-                                    href="/flags/eye.png"
-                                    x={HEX_SIZE * 0.25}      // pushes to right side
-                                    y={-HEX_SIZE * 0.85}     // pushes upward
-                                    width={10}
-                                    height={10}
-                                    style={{ cursor: 'pointer' }}
-                                />
-                            </a>
+                            <image
+                                href="/flags/eye.png"
+                                x={HEX_SIZE * 0.25}
+                                y={-HEX_SIZE * 0.85}
+                                width={10}
+                                height={10}
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => setSelectedSectorId(s._id)}
+                            />
                         </g>
                     );
                 })}
@@ -190,6 +199,56 @@ export default function SectorMapPage() {
                     });
                 })()}
             </svg>
+            {selectedSector && (
+                <div
+                    className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
+                    onClick={() => setSelectedSectorId(null)}
+                >
+                    <div
+                        className="bg-gray-800 p-6 rounded-xl w-full max-w-lg space-y-4 text-white"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        <h2 className="text-2xl font-bold">{selectedSector.name}</h2>
+
+                        <p className="text-gray-300">
+                            Coordinates: ({selectedSector.x}, {selectedSector.y})<br />
+                            Control: {selectedSector.control}
+                        </p>
+
+                        {selectedSector.hasMission && (
+                            <div className="bg-indigo-700 p-3 rounded text-white">
+                                This sector contains a mission.
+                            </div>
+                        )}
+
+                        <h3 className="text-xl font-semibold mt-4">Effects</h3>
+                        <ul className="space-y-2">
+                            {selectedSector.effects?.map((e: any) => (
+                                <li
+                                    key={e._id}
+                                    className={`p-2 rounded text-white ${
+                                        e.kind === 'Positive'
+                                            ? 'bg-green-600'
+                                            : e.kind === 'Negative'
+                                                ? 'bg-red-600'
+                                                : 'bg-gray-700'
+                                    }`}
+                                >
+                                    <strong>{e.name}</strong> (Lv {e.level})
+                                    <p className="text-sm">{e.description}</p>
+                                </li>
+                            ))}
+                        </ul>
+
+                        <button
+                            className="px-4 py-2 bg-red-600 rounded w-full mt-4"
+                            onClick={() => setSelectedSectorId(null)}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
