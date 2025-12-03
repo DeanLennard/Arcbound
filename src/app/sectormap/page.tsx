@@ -214,7 +214,10 @@ export default function SectorMapPage() {
             {selectedSector && (
                 <div
                     className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50"
-                    onClick={() => setSelectedSectorId(null)}
+                    onClick={() => {
+                        setSelectedSectorId(null);
+                        setSelectedSector(null);
+                    }}
                 >
                     <div
                         className="bg-gray-800 p-6 rounded-xl w-full max-w-lg space-y-4 text-white"
@@ -254,7 +257,10 @@ export default function SectorMapPage() {
 
                         <button
                             className="px-4 py-2 bg-red-600 rounded w-full mt-4"
-                            onClick={() => setSelectedSectorId(null)}
+                            onClick={() => {
+                                setSelectedSectorId(null);
+                                setSelectedSector(null);
+                            }}
                         >
                             Close
                         </button>
