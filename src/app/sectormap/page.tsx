@@ -4,6 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import type { EffectDoc } from '@/models/Effect';
+import { useSession } from 'next-auth/react';
 
 type SectorWithEffects = {
     _id: string;
@@ -70,6 +71,7 @@ export default function SectorMapPage() {
     const [error,   setError]   = useState<string | null>(null);
     const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
     const [selectedSector, setSelectedSector] = useState<SectorWithEffects | null>(null);
+    const { data: session } = useSession();
 
     const fetcher = (url: string) => fetch(url).then(r => r.json());
     const { data: myShips } = useSWR<ShipSummary[]>('/api/arcships/my', fetcher);

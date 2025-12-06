@@ -41,7 +41,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3️⃣ fetch them in one go
     const ships = await Arcship
         .find({ _id: { $in: Array.from(allIds) } })
-        .select('_id name')
+        .select('_id name xSector ySector flagUrl')
         .sort({ name: 1 })
         .lean<ShipSummary[]>()
 
