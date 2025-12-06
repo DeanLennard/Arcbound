@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import type { EffectDoc } from '@/models/Effect';
 
 type SectorWithEffects = {
@@ -30,6 +31,14 @@ type ShipPos = {
     ySector: number;
     flagUrl?: string;
 };
+
+interface ShipSummary {
+    _id: string;
+    name: string;
+    xSector?: number;
+    ySector?: number;
+    flagUrl?: string;
+}
 
 const CONTROL_COLORS: Record<string, string> = {
     'Aeon Collective':      '#008080',
@@ -61,6 +70,12 @@ export default function SectorMapPage() {
     const [error,   setError]   = useState<string | null>(null);
     const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
     const [selectedSector, setSelectedSector] = useState<SectorWithEffects | null>(null);
+
+    const fetcher = (url: string) => fetch(url).then(r => r.json());
+    const { data: myShips } = useSWR<ShipSummary[]>('/api/arcships/my', fetcher);
+    const myShipSectors = new Set(
+        myShips?.map(s => `${s.xSector},${s.ySector}`) || []
+    );
 
     useEffect(() => {
         Promise.all([
@@ -150,15 +165,17 @@ export default function SectorMapPage() {
                                 />
                             )}
                             {/* view sector (eye icon) */}
-                            <image
-                                href="/flags/eye.png"
-                                x={HEX_SIZE * 0.25}
-                                y={-HEX_SIZE * 0.85}
-                                width={10}
-                                height={10}
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => setSelectedSectorId(s._id)}
-                            />
+                            {myShipSectors.has(`${s.x},${s.y}`) && (
+                                <image
+                                    href="/flags/eye.png"
+                                    x={HEX_SIZE * 0.25}
+                                    y={-HEX_SIZE * 0.85}
+                                    width={10}
+                                    height={10}
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => setSelectedSectorId(s._id)}
+                                />
+                            )}
                         </g>
                     );
                 })}
