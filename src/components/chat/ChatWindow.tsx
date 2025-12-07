@@ -858,6 +858,9 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                             body: JSON.stringify({ groupImage: data.url })
                                         });
                                         if (updateRes.ok) {
+                                            const { chat: updated } = await updateRes.json();
+                                            chat.groupImage = updated.groupImage; // Mutation but works for now
+                                            setMembers(updated.members);
                                             window.dispatchEvent(new Event('refreshChats'));
                                         } else {
                                             console.error('Failed to update group image');
