@@ -2,8 +2,8 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import socket from '@/socket/socket';
 import { formatTimestamp } from '@/lib/formatTimestamp';
-import data from '@emoji-mart/data'
-import Picker from '@emoji-mart/react'
+import Picker from '@emoji-mart/react';
+import data from '@emoji-mart/data';
 import Image from "next/image";
 import type { Chat } from '@/types/chat';
 import Select from 'react-select';
