@@ -310,15 +310,20 @@ export default function AdminCharacterDetail() {
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {a.level}
                                     </span>
+                                    {/* Combined Charges Badge */}
                                     {typeof a.charges === 'number' && a.charges > 0 && (
                                         <span className="ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
                                             {a.charges} charge{a.charges !== 1 ? 's' : ''}
-                                        </span>
-                                    )}
-
-                                    {a.chargeInterval && a.chargeInterval !== 'NONE' && (
-                                        <span className="ml-2 text-xs px-1 py-0.5 bg-gray-600 text-white rounded">
-                                            {a.chargeInterval === 'PHASE' ? 'per Phase' : a.chargeInterval === 'GAME'  ? 'per Game' : ''}
+                                            {a.chargeInterval && a.chargeInterval !== 'NONE' && (
+                                                <>
+                                                    {' '}per{' '}
+                                                    {a.chargeInterval === 'PHASE'
+                                                        ? 'phase'
+                                                        : a.chargeInterval === 'GAME'
+                                                            ? 'game'
+                                                            : ''}
+                                                </>
+                                            )}
                                         </span>
                                     )}
                                     <span
