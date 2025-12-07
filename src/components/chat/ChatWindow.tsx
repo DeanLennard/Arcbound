@@ -34,10 +34,6 @@ interface Props {
     currentUserId: string;
 }
 
-interface Emoji {
-    native: string;
-}
-
 interface TenorGifResult {
     media_formats: {
         gif: {
