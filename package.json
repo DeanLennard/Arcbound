@@ -9,8 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emoji-mart/data": "^1.2.1",
-    "@emoji-mart/react": "^1.1.1",
     "@headlessui/react": "^2.2.4",
     "@tailwindcss/typography": "^0.5.16",
     "@tiptap/extension-image": "^2.14.0",
@@ -25,6 +23,7 @@
     "@tiptap/react": "^2.14.0",
     "@tiptap/starter-kit": "^2.14.0",
     "bcrypt": "^6.0.0",
+    "emoji-picker-react": "^4.16.1",
     "formidable": "^3.5.4",
     "linkify-react": "^4.3.1",
     "linkifyjs": "^4.3.1",

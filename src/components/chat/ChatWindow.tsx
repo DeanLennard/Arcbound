@@ -2,8 +2,7 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
 import socket from '@/socket/socket';
 import { formatTimestamp } from '@/lib/formatTimestamp';
-import Picker from '@emoji-mart/react';
-import data from '@emoji-mart/data';
+import EmojiPicker, { Theme } from "emoji-picker-react";
 import Image from "next/image";
 import type { Chat } from '@/types/chat';
 import Select from 'react-select';
@@ -251,14 +250,6 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
             sawSelf.current = true;
         }
     }, [chat.members, currentUserId]);
-
-    const handleEmojiSelect = (emoji: Emoji) => {
-        if (!emoji?.native) {
-            console.error('Emoji native not found:', emoji);
-            return;
-        }
-        setNewMessage((prev) => prev + emoji.native);
-    };
 
     const handleTyping = () => {
         socket.emit('typing', { chatId: chat._id, userId: currentUserId });
@@ -724,10 +715,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                     {showEmojiPicker && (
                         <div
                             className="absolute bottom-full left-0 mb-2 z-50 origin-bottom-left scale-75 bg-gray-800 rounded-lg shadow-lg">
-                            <Picker
-                                data={data}
-                                onEmojiSelect={handleEmojiSelect}
-                                theme="dark"
+                            <EmojiPicker
+                                theme={Theme.DARK}
+                                onEmojiClick={(emojiData) => {
+                                    setNewMessage(prev => prev + emojiData.emoji);
+                                }}
                             />
                         </div>
                     )}
