@@ -78,22 +78,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             const totalShipping = baseShipping + modShipping
 
             // 7) Validate capacity & fee
-            if (
-                totalShipping <= 0 ||
-                fromShip.alloysBalance < 2000 ||
-                fromShip.dataBalance < 2000
-            ) {
-                return res
-                    .status(400)
-                    .json({error: 'Ship lacks capacity or cannot pay the 2 000/alloys+data fee'})
+            // find diplomacy records that include the sender’s ship
+            const diplomacy = await import('@/models/Diplomacy').then(m => m.default);
+            const diploDocs = await diplomacy
+                .find({ ships: fromShipId })
+                .lean<{ freeTrade?: boolean; ships: (Types.ObjectId | string)[] }[]>();
+
+            const freeTradeApplies =
+                toShipId !== undefined &&
+                diploDocs.some(d =>
+                    d.freeTrade === true &&
+                    d.ships.some((s: Types.ObjectId | string) => s.toString() === toShipId)
+                );
+
+            if (!freeTradeApplies) {
+                if (
+                    totalShipping <= 0 ||
+                    fromShip.alloysBalance < 2000 ||
+                    fromShip.dataBalance < 2000
+                ) {
+                    return res
+                        .status(400)
+                        .json({error: 'Ship lacks capacity or cannot pay the 2 000/alloys+data fee'})
+                }
+
+                // 8) Deduct the fee
+                fromShip.alloysBalance -= 2000
+                fromShip.dataBalance -= 2000
+
+                // 9) Consume one shipping slot
+                fromShip.shippingItemsMod = modShipping - 1
             }
-
-            // 8) Deduct the fee
-            fromShip.alloysBalance -= 2000
-            fromShip.dataBalance -= 2000
-
-            // 9) Consume one shipping slot
-            fromShip.shippingItemsMod = modShipping - 1
 
             await fromShip.save()
         }
