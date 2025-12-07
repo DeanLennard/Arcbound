@@ -116,17 +116,21 @@ export default async function ArcshipPage(
     const sectorName = ship.currentSector.name
     const { x: sx, y: sy } = ship.currentSector
 
-    // build an array of plain‐old JS objects
-    const tradePartners: ShipSummary[] = agreements
-        .filter(d => d.type === 'Trade Agreement')
-        .flatMap(d =>
-            d.ships.map(s => ({
-                // String(...) will turn either an ObjectId or a string
-                // into a plain JS string
-                _id:   String(s._id),
-                name:  s.name,
-            }))
-        )
+    // All ships you can freely trade with
+    const tradePartners = Array.from(
+        new Map(
+            agreements
+                .filter(d =>
+                    d.type === 'Trade Agreement' ||
+                    (d.type === 'Alliance' && d.freeTrade === true)
+                )
+                .flatMap(d =>
+                    d.ships
+                        .filter(s => String(s._id) !== id)
+                        .map(s => [String(s._id), { _id: String(s._id), name: s.name }])
+                )
+        ).values()
+    )
 
     // guard
     const isAdmin     = session.user.role === 'admin'
