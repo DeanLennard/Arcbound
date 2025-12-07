@@ -86,6 +86,7 @@ export default function EditDiplomacyModal({
                 description: vals.description,
                 type:        vals.type,
                 level:       vals.level,
+                freeTrade:   vals.freeTrade,
                 ships,
             }),
         })
