@@ -4,6 +4,7 @@ import { getServerSession }                  from 'next-auth'
 import authOptions                           from '@/lib/authOptions'
 import { dbConnect }                         from '@/lib/mongodb'
 import GamePhase, { GamePhaseDoc }           from '@/models/GamePhase'
+import CharacterAsset from '@/models/CharacterAsset'
 
 export default async function handler(
     req: NextApiRequest,
@@ -42,6 +43,19 @@ export default async function handler(
             } else {
                 gp = await GamePhase.create({ name, phase, isOpen })
             }
+
+            // Reset PHASE charges automatically:
+            await CharacterAsset.updateMany(
+                { chargeInterval: 'PHASE' },
+                [
+                    {
+                        $set: {
+                            currentCharges: '$charges'
+                        }
+                    }
+                ]
+            )
+
             return res.status(200).json(gp)
         }
 

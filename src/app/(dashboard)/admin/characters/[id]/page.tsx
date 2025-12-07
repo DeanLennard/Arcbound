@@ -310,20 +310,19 @@ export default function AdminCharacterDetail() {
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {a.level}
                                     </span>
-                                    {/* Combined Charges Badge */}
+                                    {/* Combined Charge Badge */}
                                     {typeof a.charges === 'number' && a.charges > 0 && (
-                                        <span className="ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
-                                            {a.charges} charge{a.charges !== 1 ? 's' : ''}
-                                            {a.chargeInterval && a.chargeInterval !== 'NONE' && (
-                                                <>
-                                                    {' '}per{' '}
-                                                    {a.chargeInterval === 'PHASE'
-                                                        ? 'phase'
-                                                        : a.chargeInterval === 'GAME'
-                                                            ? 'game'
-                                                            : ''}
-                                                </>
-                                            )}
+                                        <span className={`
+                                            ml-2 text-xs px-1 py-0.5 rounded 
+                                            ${a.currentCharges === 0 ? 'bg-red-700 text-white' : 'bg-purple-600 text-white'}
+                                        `}>
+                                            {a.chargeInterval && a.chargeInterval !== 'NONE'
+                                                ? `${a.currentCharges ?? a.charges} / ${a.charges} charges`
+                                                : `${a.currentCharges ?? a.charges} charge${(a.currentCharges ?? a.charges) !== 1 ? 's' : ''}`
+                                            }
+                                            {a.currentCharges === 0 && ' — NO CHARGES'}
+                                            {a.chargeInterval === 'PHASE' && a.currentCharges !== 0 && ' per phase'}
+                                            {a.chargeInterval === 'GAME' && a.currentCharges !== 0 && ' per game'}
                                         </span>
                                     )}
                                     <span
@@ -352,6 +351,19 @@ export default function AdminCharacterDetail() {
                                     <p className="text-gray-200">{a.description}</p>
                                 </div>
                                 <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                    {typeof a.charges === 'number' && a.charges > 0 && (
+                                        <button
+                                            className="btn-sm bg-yellow-600 text-white px-2 py-1 rounded"
+                                            onClick={async () => {
+                                                await fetch(`/api/character-assets/${a._id}/use-charge`, {
+                                                    method: 'POST'
+                                                });
+                                                mutate(`/api/character-assets?character=${id}&category=${key}`);
+                                            }}
+                                        >
+                                            Use Charge
+                                        </button>
+                                    )}
                                     <button
                                         className="btn-sm bg-blue-600 text-white px-2 py-1 rounded cursor-pointer"
                                         onClick={() => setEditingAsset(a)}

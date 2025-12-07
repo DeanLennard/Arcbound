@@ -24,8 +24,15 @@ export default async function handler(
     }
 
     if (req.method === 'POST') {
-        const created = await CharacterAsset.create(req.body)
-        return res.status(201).json(created)
+        const body = req.body;
+
+        // Initialise currentCharges if the asset uses charges
+        if (typeof body.charges === 'number' && body.charges > 0) {
+            body.currentCharges = body.currentCharges ?? body.charges;
+        }
+
+        const created = await CharacterAsset.create(body);
+        return res.status(201).json(created);
     }
 
     res.setHeader('Allow', ['GET', 'POST'])

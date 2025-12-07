@@ -33,6 +33,7 @@ export interface CharacterAssetDoc extends Document {
     buildEssence:  number;
     charges?: number;
     chargeInterval?: 'NONE' | 'PHASE' | 'GAME';
+    currentCharges?: number
     character:   Types.ObjectId;
 }
 
@@ -60,6 +61,7 @@ const CharacterAssetSchema = new mongoose.Schema<CharacterAssetDoc>({
         enum: ['NONE', 'PHASE', 'GAME'],
         default: 'NONE'
     },
+    currentCharges: { type: Number, default: null },
     character:   { type: mongoose.Schema.Types.ObjectId, ref: 'Character', required: true },
 }, { timestamps: true });
 

@@ -17,6 +17,7 @@ import React from "react";
 import PhaseHistoryClient from '@/components/PhaseHistoryClient'
 import type { Phase as PhaseClientType } from '@/components/PhaseHistory'
 import ScrapcodeList, {Scrapcode} from '@/components/ScrapcodeList'
+import UseChargeButton from "@/components/UseChargeButton";
 
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument | Types.ObjectId | null
@@ -235,16 +236,26 @@ export default async function CharacterPage({
                                     </span>
                                     {/* Combined Charges Badge */}
                                     {typeof rel.charges === 'number' && rel.charges > 0 && (
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
-                                            {rel.charges} charge{rel.charges !== 1 ? 's' : ''}
-                                            {rel.chargeInterval && rel.chargeInterval !== 'NONE' && (
+                                        <span
+                                            className={`ml-2 text-xs px-1 py-0.5 rounded ${
+                                                (rel.currentCharges ?? rel.charges) === 0
+                                                    ? 'bg-red-700 text-white'
+                                                    : 'bg-purple-600 text-white'
+                                            }`}
+                                        >
+                                            {/* Static formatting for server component */}
+                                            {rel.chargeInterval === 'NONE' ? (
                                                 <>
-                                                    {' '}per{' '}
-                                                    {rel.chargeInterval === 'PHASE'
-                                                        ? 'phase'
-                                                        : rel.chargeInterval === 'GAME'
-                                                            ? 'game'
-                                                            : ''}
+                                                    {rel.currentCharges ?? rel.charges} charge
+                                                    {(rel.currentCharges ?? rel.charges) !== 1 && 's'}
+                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {(rel.currentCharges ?? rel.charges)}/{rel.charges} charges
+                                                    {rel.chargeInterval === 'PHASE' && ' per phase'}
+                                                    {rel.chargeInterval === 'GAME'  && ' per game'}
+                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
                                                 </>
                                             )}
                                         </span>
@@ -273,6 +284,9 @@ export default async function CharacterPage({
                                         </span>
                                     )}
                                     <p className="text-gray-200 mt-1">{rel.description}</p>
+                                    {isAdmin && (
+                                        <UseChargeButton assetId={String(rel._id)} />
+                                    )}
                                 </li>
                             ))}
                         </ul>
@@ -302,16 +316,26 @@ export default async function CharacterPage({
                                     </span>
                                     {/* Combined Charges Badge */}
                                     {typeof rel.charges === 'number' && rel.charges > 0 && (
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
-                                            {rel.charges} charge{rel.charges !== 1 ? 's' : ''}
-                                            {rel.chargeInterval && rel.chargeInterval !== 'NONE' && (
+                                        <span
+                                            className={`ml-2 text-xs px-1 py-0.5 rounded ${
+                                                (rel.currentCharges ?? rel.charges) === 0
+                                                    ? 'bg-red-700 text-white'
+                                                    : 'bg-purple-600 text-white'
+                                            }`}
+                                        >
+                                            {/* Static formatting for server component */}
+                                            {rel.chargeInterval === 'NONE' ? (
                                                 <>
-                                                    {' '}per{' '}
-                                                    {rel.chargeInterval === 'PHASE'
-                                                        ? 'phase'
-                                                        : rel.chargeInterval === 'GAME'
-                                                            ? 'game'
-                                                            : ''}
+                                                    {rel.currentCharges ?? rel.charges} charge
+                                                    {(rel.currentCharges ?? rel.charges) !== 1 && 's'}
+                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {(rel.currentCharges ?? rel.charges)}/{rel.charges} charges
+                                                    {rel.chargeInterval === 'PHASE' && ' per phase'}
+                                                    {rel.chargeInterval === 'GAME'  && ' per game'}
+                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
                                                 </>
                                             )}
                                         </span>
@@ -340,6 +364,9 @@ export default async function CharacterPage({
                                     </span>
                                     )}
                                     <div className="text-gray-200 mt-1">{rel.description}</div>
+                                    {isAdmin && (
+                                        <UseChargeButton assetId={String(rel._id)} />
+                                    )}
                                 </li>
                             ))}
                         </ul>
