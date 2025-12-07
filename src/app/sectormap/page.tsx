@@ -39,6 +39,7 @@ interface ShipSummary {
     xSector?: number;
     ySector?: number;
     flagUrl?: string;
+    totalRangeHexes: number;
 }
 
 const CONTROL_COLORS: Record<string, string> = {
@@ -65,19 +66,55 @@ function getHexPoints(size: number): string {
         .join(' ');
 }
 
+function offsetToCube(x: number, y: number) {
+    const xCube = x;
+    const zCube = y - (x - (x & 1)) / 2;
+    const yCube = -xCube - zCube;
+    return { x: xCube, y: yCube, z: zCube };
+}
+
+function hexDistance(a: {x:number, y:number}, b: {x:number, y:number}) {
+    const ac = offsetToCube(a.x, a.y);
+    const bc = offsetToCube(b.x, b.y);
+    return Math.max(
+        Math.abs(ac.x - bc.x),
+        Math.abs(ac.y - bc.y),
+        Math.abs(ac.z - bc.z)
+    );
+}
+
 export default function SectorMapPage() {
     const [sectors, setSectors] = useState<Sector[] | null>(null);
     const [ships,   setShips]   = useState<ShipPos[] | null>(null);
     const [error,   setError]   = useState<string | null>(null);
     const [selectedSectorId, setSelectedSectorId] = useState<string | null>(null);
     const [selectedSector, setSelectedSector] = useState<SectorWithEffects | null>(null);
-    const { data: session } = useSession();
+    //const { data: session } = useSession();
 
     const fetcher = (url: string) => fetch(url).then(r => r.json());
     const { data: myShips } = useSWR<ShipSummary[]>('/api/arcships/my', fetcher);
-    const myShipSectors = new Set(
+    /*const myShipSectors = new Set(
         myShips?.map(s => `${s.xSector},${s.ySector}`) || []
-    );
+    );*/
+
+    const visibleSectors = new Set<string>();
+
+    if (sectors && myShips) {
+        for (const ship of myShips) {
+
+            // Skip ships with no coordinates
+            if (ship.xSector == null || ship.ySector == null) continue;
+
+            const shipPos = { x: ship.xSector, y: ship.ySector };
+
+            sectors.forEach(sec => {
+                const d = hexDistance(shipPos, { x: sec.x, y: sec.y });
+                if (d <= ship.totalRangeHexes) {
+                    visibleSectors.add(`${sec.x},${sec.y}`);
+                }
+            });
+        }
+    }
 
     useEffect(() => {
         Promise.all([
@@ -167,7 +204,8 @@ export default function SectorMapPage() {
                                 />
                             )}
                             {/* view sector (eye icon) */}
-                            {(session?.user?.role === 'admin' || myShipSectors.has(`${s.x},${s.y}`)) && (
+                            {/*{(session?.user?.role === 'admin' || visibleSectors.has(`${s.x},${s.y}`)) && (*/}
+                            {visibleSectors.has(`${s.x},${s.y}`) && (
                                 <image
                                     href="/flags/eye.png"
                                     x={HEX_SIZE * 0.25}

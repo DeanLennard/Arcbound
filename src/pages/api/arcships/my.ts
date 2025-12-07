@@ -45,5 +45,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .sort({ name: 1 })
         .lean<ShipSummary[]>()
 
-    return res.status(200).json(ships)
+    // Compute sense totals & range
+    const shipsWithRange = ships.map(s => {
+        const arcship = s as any; // since lean()
+        const senseTotal = (arcship.sense?.base ?? 0) + (arcship.sense?.mod ?? 0);
+
+        const baseRangeHexes =
+            senseTotal <= 1 ? 0 :
+                senseTotal <= 4 ? 1 :
+                    senseTotal <= 7 ? 2 :
+                        senseTotal <= 9 ? 3 : 5;
+
+        const totalRangeHexes = baseRangeHexes + (arcship.targetRangeMod ?? 0);
+
+        return {
+            ...s,
+            totalRangeHexes,
+        };
+    });
+
+    return res.status(200).json(shipsWithRange);
 }
