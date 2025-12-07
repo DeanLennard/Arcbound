@@ -4,7 +4,7 @@ import socket from '@/socket/socket';
 import { formatTimestamp } from '@/lib/formatTimestamp';
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import Image from "next/image";
-import type { Chat } from '@/types/chat';
+import type { FrontendChat } from '@/types/chat';
 import Select from 'react-select';
 import Linkify from 'linkify-react';
 
@@ -28,7 +28,7 @@ interface Message {
 }
 
 interface Props {
-    chat: Chat;
+    chat: FrontendChat;
     onClose: () => void;
     currentUserId: string;
 }
@@ -220,7 +220,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         // if the array includes you, mark sawSelf
         if (members.some(m => {
             if (!m?._id) return false;
-            const idStr = typeof m._id === 'string' ? m._id : m._id.toString();
+            const idStr = m._id;
             return idStr === currentUserId;
         })) {
             sawSelf.current = true;
@@ -239,7 +239,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         // if the new chat already includes you, mark sawSelf
         if (chat.members.some(m => {
             if (!m?._id) return false;
-            const idStr = typeof m._id === 'string' ? m._id : m._id.toString();
+            const idStr = m._id;
             return idStr === currentUserId;
         })) {
             sawSelf.current = true;
@@ -444,9 +444,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                             ? 'Group Chat'
                             : members.find(m => {
                                 if (!m || !m._id) return false
-                                const idString = typeof m._id === 'string'
-                                    ? m._id
-                                    : m._id.toString()
+                                const idString = m._id
                                 return idString !== currentUserId
                             })?.characterName
                             || 'Chat'}
@@ -662,7 +660,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                 {(() => {
                     const typingUser = members.find((m) => {
                         if (!m || !m._id) return false;
-                        const idString = typeof m._id === 'string' ? m._id : m._id.toString();
+                        const idString = m._id;
                         return idString === typingUserId;
                     });
                     const typingName = typingUser?.characterName || 'Someone';
