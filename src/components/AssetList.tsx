@@ -50,7 +50,7 @@ export default function AssetList({
 
                     <p className="text-gray-200 mt-1">{rel.description}</p>
 
-                    {isAdmin && rel.charges > 0 && (
+                    {isAdmin && typeof rel.charges === "number" && rel.charges > 0 && (
                         <UseChargeButton
                             assetId={String(rel._id)}
                             onUsed={() => mutate()}
