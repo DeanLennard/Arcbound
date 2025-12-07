@@ -18,6 +18,7 @@ import PhaseHistoryClient from '@/components/PhaseHistoryClient'
 import type { Phase as PhaseClientType } from '@/components/PhaseHistory'
 import ScrapcodeList, {Scrapcode} from '@/components/ScrapcodeList'
 import UseChargeButton from "@/components/UseChargeButton";
+import AssetList from "@/components/AssetList";
 
 type PopulatedCharacter = Omit<CharacterDocument,'arcship'|'user'> & {
     arcship?: ArcshipDocument | Types.ObjectId | null
@@ -227,69 +228,11 @@ export default async function CharacterPage({
                 <section key={label}>
                     <h2 className="text-2xl font-semibold mb-2 text-white">{label}</h2>
                     {data.length > 0 ? (
-                        <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                            {data.map((rel) => (
-                                <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
-                                    <strong className="block text-indigo-300 text-lg mb-2">{rel.name}</strong>{' '}
-                                    <span className="inline-block ml-0 text-xs px-1 py-0.5 bg-indigo-600 rounded">
-                                        {rel.level}
-                                    </span>
-                                    {/* Combined Charges Badge */}
-                                    {typeof rel.charges === 'number' && rel.charges > 0 && (
-                                        <span
-                                            className={`ml-2 text-xs px-1 py-0.5 rounded ${
-                                                (rel.currentCharges ?? rel.charges) === 0
-                                                    ? 'bg-red-700 text-white'
-                                                    : 'bg-purple-600 text-white'
-                                            }`}
-                                        >
-                                            {/* Static formatting for server component */}
-                                            {rel.chargeInterval === 'NONE' ? (
-                                                <>
-                                                    {rel.currentCharges ?? rel.charges} charge
-                                                    {(rel.currentCharges ?? rel.charges) !== 1 && 's'}
-                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {(rel.currentCharges ?? rel.charges)}/{rel.charges} charges
-                                                    {rel.chargeInterval === 'PHASE' && ' per phase'}
-                                                    {rel.chargeInterval === 'GAME'  && ' per game'}
-                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
-                                                </>
-                                            )}
-                                        </span>
-                                    )}
-                                    <span
-                                        className={`
-                                            inline-block ml-2
-                                            text-xs px-1 py-0.5 rounded
-                                            ${rel.state === 'Active'
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-red-600 text-white'
-                                        }
-                                        `}
-                                    >
-                                        {rel.state}
-                                    </span>
-                                    {typeof rel.apcost === 'number' && rel.apcost > 0 && (
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
-                                            {rel.apcost} AP
-                                        </span>
-                                    )}
-
-                                    {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
-                                            {rel.ebcost} EB
-                                        </span>
-                                    )}
-                                    <p className="text-gray-200 mt-1">{rel.description}</p>
-                                    {isAdmin && rel.charges > 0 && (
-                                        <UseChargeButton assetId={String(rel._id)} />
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
+                        <AssetList
+                            characterId={id}
+                            category={label}
+                            isAdmin={isAdmin}
+                        />
                     ) : (
                         <p className="text-gray-400"><em>None.</em></p>
                     )}
@@ -307,69 +250,11 @@ export default async function CharacterPage({
                 data.length > 0 ? (
                     <section key={label}>
                         <h2 className={`text-2xl font-semibold mb-2 text-${color}`}>{label}</h2>
-                        <ul className="space-y-2">
-                            {data.map(rel => (
-                                <li key={String(rel._id)} className="bg-gray-800 p-4 rounded-lg">
-                                    <strong className="block text-indigo-300 text-lg mb-2">{rel.name}</strong>{' '}
-                                    <span className="inline-block ml-0 text-xs px-1 py-0.5 bg-indigo-600 rounded">
-                                        {rel.level}
-                                    </span>
-                                    {/* Combined Charges Badge */}
-                                    {typeof rel.charges === 'number' && rel.charges > 0 && (
-                                        <span
-                                            className={`ml-2 text-xs px-1 py-0.5 rounded ${
-                                                (rel.currentCharges ?? rel.charges) === 0
-                                                    ? 'bg-red-700 text-white'
-                                                    : 'bg-purple-600 text-white'
-                                            }`}
-                                        >
-                                            {/* Static formatting for server component */}
-                                            {rel.chargeInterval === 'NONE' ? (
-                                                <>
-                                                    {rel.currentCharges ?? rel.charges} charge
-                                                    {(rel.currentCharges ?? rel.charges) !== 1 && 's'}
-                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {(rel.currentCharges ?? rel.charges)}/{rel.charges} charges
-                                                    {rel.chargeInterval === 'PHASE' && ' per phase'}
-                                                    {rel.chargeInterval === 'GAME'  && ' per game'}
-                                                    {(rel.currentCharges ?? rel.charges) === 0 && ' — NO CHARGES'}
-                                                </>
-                                            )}
-                                        </span>
-                                    )}
-                                    <span
-                                        className={`
-                                        inline-block ml-2
-                                        text-xs px-1 py-0.5 rounded
-                                        ${rel.state === 'Active'
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-red-600 text-white'
-                                        }
-                                    `}
-                                    >
-                                    {rel.state}
-                                    </span>
-                                    {typeof rel.apcost === 'number' && rel.apcost > 0 && (
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
-                                        {rel.apcost} AP
-                                    </span>
-                                    )}
-
-                                    {typeof rel.ebcost === 'number' && rel.ebcost > 0 && (
-                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-gray-500 text-white rounded">
-                                        {rel.ebcost} EB
-                                    </span>
-                                    )}
-                                    <div className="text-gray-200 mt-1">{rel.description}</div>
-                                    {isAdmin && rel.charges > 0 && (
-                                        <UseChargeButton assetId={String(rel._id)} />
-                                    )}
-                                </li>
-                            ))}
-                        </ul>
+                        <AssetList
+                            characterId={id}
+                            category={label}
+                            isAdmin={isAdmin}
+                        />
                     </section>
                 ) : null
             )}
