@@ -1,4 +1,4 @@
-// pages/api/diplomacy/[[id]].ts
+// pages/api/diplomacy/[id].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect }                           from '@/lib/mongodb'
 import Diplomacy, { type DiplomacyDoc }        from '@/models/Diplomacy'

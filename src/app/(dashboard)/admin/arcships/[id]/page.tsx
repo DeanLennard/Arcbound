@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[[id]]/page.tsx
+// src/app/(dashboard)/admin/arcships/[id]/page.tsx
 'use client'
 import { useParams } from 'next/navigation'
 import React, { useState, useEffect } from 'react'
@@ -122,6 +122,7 @@ interface DiplomacyDoc {
     type: 'Trade Agreement' | 'Non Aggression Pact' | 'Alliance' | 'War' | 'Total Annihilation' | 'Vassal'
     level: 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
     ships: { _id: string; name: string }[]
+    freeTrade: boolean;
 }
 
 export default function AdminArcshipDetail() {
