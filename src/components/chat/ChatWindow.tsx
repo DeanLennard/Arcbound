@@ -6,7 +6,34 @@ import EmojiPicker, { Theme } from "emoji-picker-react";
 import Image from "next/image";
 import type { FrontendChat } from '@/types/chat';
 import Select from 'react-select';
-import Linkify from 'linkify-react';
+import LinkifyIt from "linkify-it";
+const linkify = new LinkifyIt();
+
+function AutoLinks({ text }: { text: string }) {
+    const matches = linkify.match(text);
+    if (!matches) return <span>{text}</span>;
+
+    const parts = [];
+    let lastIndex = 0;
+
+    matches.forEach((m, i) => {
+        if (m.index > lastIndex) {
+            parts.push(text.slice(lastIndex, m.index));
+        }
+        parts.push(
+            <a key={i} href={m.url} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline">
+                {m.text}
+            </a>
+        );
+        lastIndex = m.lastIndex;
+    });
+
+    if (lastIndex < text.length) {
+        parts.push(text.slice(lastIndex));
+    }
+
+    return <>{parts}</>;
+}
 
 interface User {
     _id: string;
@@ -427,11 +454,6 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     }
 
-    function SafeLinkify({ text }: { text: unknown }) {
-        const safe = typeof text === "string" ? text : String(text ?? "");
-        return <Linkify options={{ target: "_blank", rel: "noopener" }}>{safe}</Linkify>;
-    }
-
     return (
         <div
             className={`bg-gray-800 p-2 flex flex-col rounded shadow-lg overflow-x-hidden ${
@@ -573,7 +595,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                                     </button>
                                                 </div>
                                             </>
-                                            : <SafeLinkify text={msg.content} />
+                                            : <AutoLinks text={String(msg.content ?? "")} />
                                         }
                                         </>
                                     )}
