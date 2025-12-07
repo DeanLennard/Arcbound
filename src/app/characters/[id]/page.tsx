@@ -217,19 +217,19 @@ export default async function CharacterPage({
 
             {/* Relations */}
             {[
-                { data: tags,         label: 'Tags'        },
-                { data: items,        label: 'Items'        },
-                { data: shards,       label: 'Shards'       },
-                { data: resistances,  label: 'Resistances'  },
-                { data: weaknesses,   label: 'Weaknesses'   },
-                { data: otherEffects, label: 'Other Effects'},
-            ].map(({ data, label }) => (
+                { data: tags,         label: 'Tags',          category: 'Tag' },
+                { data: items,        label: 'Items',         category: 'Item' },
+                { data: shards,       label: 'Shards',        category: 'Shard' },
+                { data: resistances,  label: 'Resistances',   category: 'Resistance' },
+                { data: weaknesses,   label: 'Weaknesses',    category: 'Weakness' },
+                { data: otherEffects, label: 'Other Effects', category: 'OtherEffect' },
+            ].map(({ data, label, category }) => (
                 <section key={label}>
                     <h2 className="text-2xl font-semibold mb-2 text-white">{label}</h2>
                     {data.length > 0 ? (
                         <AssetList
                             characterId={id}
-                            category={label}
+                            category={category}
                             isAdmin={isAdmin}
                         />
                     ) : (
@@ -239,19 +239,19 @@ export default async function CharacterPage({
             ))}
 
             {[
-                { data: threatLedger,     label: 'Threat Ledger',    color: 'red-300'},
-                { data: implants,         label: 'Implants',        color: 'green-300' },
-                { data: thresholdforms,   label: 'Threshold Forms',  color: 'blue-300'  },
-                { data: genomethreads,    label: 'Genome Threads',   color: 'teal-300'  },
-                { data: vitalsignatures,  label: 'Vital Signatures',  color: 'pink-300'  },
-                { data: rituals,          label: 'Codified Rituals',  color: 'purple-300'},
-            ].map(({ data, label, color }) =>
+                { data: threatLedger,     label: 'Threat Ledger',    category: 'ThreatLedger',    color: 'red-300'},
+                { data: implants,         label: 'Implants',         category: 'Implant',         color: 'green-300' },
+                { data: thresholdforms,   label: 'Threshold Forms',  category: 'ThresholdForm',   color: 'blue-300'  },
+                { data: genomethreads,    label: 'Genome Threads',   category: 'GenomeThread',    color: 'teal-300'  },
+                { data: vitalsignatures,  label: 'Vital Signatures', category: 'VitalSignature',  color: 'pink-300'  },
+                { data: rituals,          label: 'Codified Rituals', category: 'Ritual',          color: 'purple-300'},
+            ].map(({ data, label, category, color }) =>
                 data.length > 0 ? (
                     <section key={label}>
                         <h2 className={`text-2xl font-semibold mb-2 text-${color}`}>{label}</h2>
                         <AssetList
                             characterId={id}
-                            category={label}
+                            category={category}
                             isAdmin={isAdmin}
                         />
                     </section>
