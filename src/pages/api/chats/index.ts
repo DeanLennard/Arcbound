@@ -69,6 +69,7 @@ export default async function handler(
         const safeChats = chats.map((chat) => ({
             _id: chat._id.toString(),
             groupName: chat.groupName || null,
+            groupImage: chat.groupImage || null,
             isGroup: Boolean(chat.isGroup),
             createdAt: chat.createdAt,
             updatedAt: chat.updatedAt,
