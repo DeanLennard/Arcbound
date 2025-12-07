@@ -3,6 +3,7 @@
 
 import useSWR from "swr";
 import UseChargeButton from "@/components/UseChargeButton";
+import type { CharacterAssetClient } from "@/types/CharacterAssetClient";
 
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
@@ -15,7 +16,7 @@ export default function AssetList({
     category: string;
     isAdmin: boolean;
 }) {
-    const { data, mutate } = useSWR(
+    const { data, mutate } = useSWR<CharacterAssetClient[]>(
         `/api/character-assets?character=${characterId}&category=${category}`,
         fetcher
     );
@@ -24,7 +25,7 @@ export default function AssetList({
 
     return (
         <ul className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {data.map((rel: any) => (
+            {data.map((rel) => (
                 <li key={rel._id} className="bg-gray-800 p-4 rounded-lg">
                     <strong className="block text-indigo-300 text-lg mb-2">
                         {rel.name}
