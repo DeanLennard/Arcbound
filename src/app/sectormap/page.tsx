@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from 'react';
 import useSWR from 'swr';
 import type { EffectDoc } from '@/models/Effect';
-import { useSession } from 'next-auth/react';
+//import { useSession } from 'next-auth/react';
 
 type SectorWithEffects = {
     _id: string;
