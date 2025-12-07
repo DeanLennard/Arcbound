@@ -11,6 +11,7 @@ export interface DiplomacyDoc extends Document {
     type: DiplomacyType
     level: PowerLevel;
     ships: mongoose.Types.ObjectId[]  // ← all ships in this arrangement
+    freeTrade: boolean
 }
 
 const DiplomacySchema = new mongoose.Schema<DiplomacyDoc>({
@@ -19,6 +20,7 @@ const DiplomacySchema = new mongoose.Schema<DiplomacyDoc>({
     type:       { type: String, enum: ['Trade Agreement','Non Aggression Pact','Alliance','War','Total Annihilation','Vassal'] },
     level:        { type: String, enum: ['SPARK','SURGE','FLUX', 'BREAK', 'ASCENDANCE'], default: 'SPARK' },
     ships:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' }],
+    freeTrade: { type: Boolean, default: false, },
 })
 
 export default mongoose.models.Diplomacy ||

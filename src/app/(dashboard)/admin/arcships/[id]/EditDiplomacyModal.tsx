@@ -29,6 +29,7 @@ interface PageDiplomacyDoc {
     type: DiplomacyType
     level: PowerLevel
     ships: { _id: string; name: string }[]
+    freeTrade: boolean;
 }
 
 interface FormValues {
@@ -37,6 +38,7 @@ interface FormValues {
     type:        DiplomacyType
     level:       PowerLevel
     partnerIds:  string[]
+    freeTrade: boolean;
 }
 
 interface EditDiplomacyModalProps {
@@ -70,6 +72,7 @@ export default function EditDiplomacyModal({
                 type:        diplomacy.type,
                 level:       diplomacy.level,
                 partnerIds:  initialPartners,
+                freeTrade: diplomacy.freeTrade ?? false,
             },
         })
 
@@ -141,6 +144,17 @@ export default function EditDiplomacyModal({
                         <option value="BREAK">BREAK</option>
                         <option value="ASCENDANCE">ASCENDANCE</option>
                     </select>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        {...register('freeTrade')}
+                        className="h-4 w-4 text-indigo-600"
+                    />
+                    <label className="text-sm text-gray-300">
+                        Allows Free Trade
+                    </label>
                 </div>
 
                 {/* Type */}

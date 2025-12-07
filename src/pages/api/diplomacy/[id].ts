@@ -19,6 +19,7 @@ type PutBody = {
     type?: DiplomacyDoc['type']
     level?: DiplomacyDoc['level']
     ships?: string[] | ShipsPayload
+    freeTrade: boolean;
 }
 
 export default async function handler(
@@ -41,6 +42,7 @@ export default async function handler(
         if (body.description !== undefined) setFields.description = body.description
         if (body.type        !== undefined) setFields.type        = body.type
         if (body.level       !== undefined) setFields.level       = body.level
+        if (body.freeTrade !== undefined) setFields.freeTrade = body.freeTrade;
 
         // handle ships
         if (Array.isArray(body.ships)) {

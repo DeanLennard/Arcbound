@@ -25,6 +25,7 @@ interface FormValues {
     type:          DiplomacyType
     level:       'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
     partnerIds:    string[]    // all ships in arrangement
+    freeTrade: boolean;
 }
 
 interface AddDiplomacyModalProps {
@@ -52,6 +53,7 @@ export default function AddDiplomacyModal({ onClose }: AddDiplomacyModalProps) {
                 // likewise supply a default level:
                 level:       'SPARK',
                 partnerIds:  [],
+                freeTrade: false,
             }
         })
 
@@ -111,6 +113,16 @@ export default function AddDiplomacyModal({ onClose }: AddDiplomacyModalProps) {
                         <option value="BREAK">BREAK</option>
                         <option value="ASCENDANCE">ASCENDANCE</option>
                     </select>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        {...register('freeTrade')}
+                        className="h-4 w-4 text-indigo-600"
+                    />
+                    <label className="text-sm text-gray-300">
+                        Allows Free Trade
+                    </label>
                 </div>
                 <div>
                     <label className="block text-sm text-gray-300">Type</label>
