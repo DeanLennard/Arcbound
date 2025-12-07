@@ -7,7 +7,6 @@ import Image from "next/image";
 import type { Chat } from '@/types/chat';
 import Select from 'react-select';
 import Linkify from 'linkify-react';
-import {Types} from "mongoose";
 
 interface User {
     _id: string;
@@ -22,10 +21,10 @@ interface Message {
     content: string;
     senderId: { _id: string; characterName: string; profileImage: string };
     createdAt: string;
-    readBy: Types.ObjectId[];
     updatedAt: Date;
     editedAt: Date;
-    reactions: { emoji: string; users: Types.ObjectId[] }[];
+    readBy: string[];
+    reactions: { emoji: string; users: string[] }[];
 }
 
 interface Props {
