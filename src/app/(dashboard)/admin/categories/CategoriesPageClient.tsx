@@ -121,18 +121,16 @@ export default function CategoriesPageClient() {
                     className="p-2 border rounded"
                     required
                 />
-                {!editingId && (
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setImage(e.target.files?.[0] || '')}
-                        className="p-2 border rounded"
-                        required
-                    />
-                )}
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImage(e.target.files?.[0] || '')}
+                    className="p-2 border rounded"
+                />
+
                 {editingId && (
-                    <p className="text-sm text-gray-500">
-                        The current image will be preserved. To update it, delete and recreate the category.
+                    <p className="text-sm text-gray-400">
+                        Leave file empty to keep the current image, or upload a new one to replace it.
                     </p>
                 )}
                 <select
