@@ -31,6 +31,8 @@ export interface CharacterAssetDoc extends Document {
     buildEnergy:  number;
     buildData:  number;
     buildEssence:  number;
+    charges?: number;
+    chargeInterval?: 'NONE' | 'PHASE' | 'GAME';
     character:   Types.ObjectId;
 }
 
@@ -52,6 +54,12 @@ const CharacterAssetSchema = new mongoose.Schema<CharacterAssetDoc>({
             'ThreatLedger','Implant','ThresholdForm','GenomeThread','VitalSignature',
             'Ritual','Scrapcode'
         ], required: true },
+    charges: { type: Number, default: null },
+    chargeInterval: {
+        type: String,
+        enum: ['NONE', 'PHASE', 'GAME'],
+        default: 'NONE'
+    },
     character:   { type: mongoose.Schema.Types.ObjectId, ref: 'Character', required: true },
 }, { timestamps: true });
 

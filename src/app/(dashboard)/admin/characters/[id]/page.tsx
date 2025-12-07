@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/characters/[[id]]/page.tsx
+// src/app/(dashboard)/admin/characters/[id]/page.tsx
 'use client'
 
 import { useParams }              from 'next/navigation'
@@ -43,6 +43,8 @@ export interface CharacterAsset {
     buildData?: number
     buildEssence?: number
     category:  AssetCategory
+    charges?: number
+    chargeInterval?: 'NONE' | 'PHASE' | 'GAME'
 }
 
 interface Phase {
@@ -308,6 +310,17 @@ export default function AdminCharacterDetail() {
                                     <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {a.level}
                                     </span>
+                                    {typeof a.charges === 'number' && a.charges > 0 && (
+                                        <span className="ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
+                                            {a.charges} charge{a.charges !== 1 ? 's' : ''}
+                                        </span>
+                                    )}
+
+                                    {a.chargeInterval && a.chargeInterval !== 'NONE' && (
+                                        <span className="ml-2 text-xs px-1 py-0.5 bg-gray-600 text-white rounded">
+                                            {a.chargeInterval === 'PHASE' ? 'per Phase' : a.chargeInterval === 'GAME'  ? 'per Game' : ''}
+                                        </span>
+                                    )}
                                     <span
                                         className={`
                                             ml-2

@@ -1,4 +1,4 @@
-// src/app/characters/[[id]]/page.tsx
+// src/app/characters/[id]/page.tsx
 import { notFound, redirect } from 'next/navigation'
 import { getServerSession }     from 'next-auth'
 import authOptions from '@/lib/authOptions'
@@ -233,6 +233,22 @@ export default async function CharacterPage({
                                     <span className="inline-block ml-0 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
                                     </span>
+                                    {/* Combined Charges Badge */}
+                                    {typeof rel.charges === 'number' && rel.charges > 0 && (
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
+                                            {rel.charges} charge{rel.charges !== 1 ? 's' : ''}
+                                            {rel.chargeInterval && rel.chargeInterval !== 'NONE' && (
+                                                <>
+                                                    {' '}per{' '}
+                                                    {rel.chargeInterval === 'PHASE'
+                                                        ? 'phase'
+                                                        : rel.chargeInterval === 'GAME'
+                                                            ? 'game'
+                                                            : ''}
+                                                </>
+                                            )}
+                                        </span>
+                                    )}
                                     <span
                                         className={`
                                             inline-block ml-2
@@ -284,6 +300,22 @@ export default async function CharacterPage({
                                     <span className="inline-block ml-0 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                         {rel.level}
                                     </span>
+                                    {/* Combined Charges Badge */}
+                                    {typeof rel.charges === 'number' && rel.charges > 0 && (
+                                        <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-purple-600 text-white rounded">
+                                            {rel.charges} charge{rel.charges !== 1 ? 's' : ''}
+                                            {rel.chargeInterval && rel.chargeInterval !== 'NONE' && (
+                                                <>
+                                                    {' '}per{' '}
+                                                    {rel.chargeInterval === 'PHASE'
+                                                        ? 'phase'
+                                                        : rel.chargeInterval === 'GAME'
+                                                            ? 'game'
+                                                            : ''}
+                                                </>
+                                            )}
+                                        </span>
+                                    )}
                                     <span
                                         className={`
                                         inline-block ml-2

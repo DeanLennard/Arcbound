@@ -1,3 +1,4 @@
+//src/app/(dashboard)/admin/characters/[id]/AddAssetModal.tsx
 'use client'
 
 import { useForm, SubmitHandler } from 'react-hook-form'
@@ -19,6 +20,8 @@ interface FormValues {
     buildEnergy?:  number;
     buildData?:  number;
     buildEssence?:  number;
+    charges?: number;
+    chargeInterval?: 'NONE' | 'PHASE' | 'GAME';
 }
 
 export default function AddAssetModal({
@@ -47,7 +50,9 @@ export default function AddAssetModal({
             buildAlloys: 0,
             buildEnergy: 0,
             buildData: 0,
-            buildEssence: 0
+            buildEssence: 0,
+            charges: 0,
+            chargeInterval: 'NONE',
         },
     })
 
@@ -135,6 +140,27 @@ export default function AddAssetModal({
                                 {errors.ebcost.message}
                             </p>
                         )}
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-gray-300 mb-1">Charges</label>
+                        <input
+                            type="number"
+                            {...register('charges', { valueAsNumber: true })}
+                            className="w-full p-2 bg-gray-700 text-white rounded"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="block text-sm text-gray-300 mb-1">Charge Interval</label>
+                        <select
+                            {...register('chargeInterval')}
+                            className="w-full p-2 bg-gray-700 text-white rounded"
+                        >
+                            <option value="NONE">One-time only</option>
+                            <option value="PHASE">Per Phase</option>
+                            <option value="GAME">Per Game</option>
+                        </select>
                     </div>
 
                     {/* Power Level */}
