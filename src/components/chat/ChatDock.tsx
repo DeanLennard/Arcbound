@@ -155,7 +155,6 @@ export default function ChatDock() {
 
                     // join socket rooms
                     safe.forEach(c => socket.emit("joinChat", c._id));
-                    sorted.map(c => socket.emit("joinChat", c._id));
                 })
                 .catch(console.error);
         };
@@ -329,10 +328,20 @@ export default function ChatDock() {
                         {activeChats.map((chat) => (
                             <div key={chat._id.toString()} className="relative">
                                 <ChatWindow
-                                    key={chat._id.toString()}
                                     chat={chat}
                                     onClose={() => closeChat(chat._id.toString())}
                                     currentUserId={currentUserId}
+                                    onChatUpdated={(updated) => {
+                                        // update in activeChats
+                                        setActiveChats(prev =>
+                                            prev.map(c => c._id === updated._id ? updated : c)
+                                        );
+
+                                        // update in main chat list
+                                        setChats(prev =>
+                                            prev.map(c => c._id === updated._id ? updated : c)
+                                        );
+                                    }}
                                 />
                             </div>
                         ))}

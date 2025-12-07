@@ -58,6 +58,7 @@ interface Props {
     chat: FrontendChat;
     onClose: () => void;
     currentUserId: string;
+    onChatUpdated: (chat: FrontendChat) => void;
 }
 
 interface TenorGifResult {
@@ -68,7 +69,7 @@ interface TenorGifResult {
     };
 }
 
-export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
+export default function ChatWindow({ chat, onClose, currentUserId, onChatUpdated }: Props) {
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -859,7 +860,7 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                         });
                                         if (updateRes.ok) {
                                             const { chat: updated } = await updateRes.json();
-                                            chat.groupImage = updated.groupImage; // Mutation but works for now
+                                            onChatUpdated(updated);
                                             setMembers(updated.members);
                                             window.dispatchEvent(new Event('refreshChats'));
                                         } else {
