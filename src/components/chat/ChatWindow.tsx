@@ -875,8 +875,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                         {/* Members List */}
                         <h3 className="text-md font-semibold mb-2">Members:</h3>
                         <ul className="mb-3 max-h-40 overflow-y-auto">
-                            {members.map(member => (
-                                    <li key={member._id.toString()} className="flex items-center gap-2 mb-1">
+                            {members.map(member => {
+                                const id = typeof member === "string" ? member : member._id;
+
+                                return (
+                                    <li key={String(id)} className="flex items-center gap-2 mb-1">
                                         <Image
                                             src={member.profileImage || '/placeholder.jpg'}
                                             alt={member.characterName}
@@ -897,12 +900,12 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                                         `/api/chats/${chat._id}/remove-member`,
                                                         {
                                                             method: 'POST',
-                                                            headers: { 'Content-Type': 'application/json' },
-                                                            body: JSON.stringify({ userId: member._id })
+                                                            headers: {'Content-Type': 'application/json'},
+                                                            body: JSON.stringify({userId: member._id})
                                                         }
                                                     );
                                                     if (!res.ok) throw new Error();
-                                                    const { members: updated } = await res.json();
+                                                    const {members: updated} = await res.json();
                                                     setMembers(updated);
                                                     window.dispatchEvent(new Event('refreshChats'));
 
@@ -920,7 +923,8 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                             Remove
                                         </button>
                                     </li>
-                                ))}
+                                )
+                            })}
                         </ul>
 
                         {/* Add New Member */}

@@ -32,7 +32,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 id,
                 { $set: updates },
                 { new: true }
-            );
+            ).populate("members", "_id characterName profileImage");
 
             if (!updatedChat) {
                 return res.status(404).json({ error: 'Chat not found.' });
