@@ -44,13 +44,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
             // Build "safe" serialised chats
             const safeChats = chats.map(chat => ({
-                ...chat,
-                _id: chat._id.toString(),  // now strongly typed
-                members: chat.members.map((m: LeanMember) => ({
-                    ...m,
+                _id: chat._id.toString(),
+                groupName: chat.groupName || null,
+                isGroup: Boolean(chat.isGroup),
+                members: chat.members.map((m: any) => ({
                     _id: m._id.toString(),
-                    profileImage: m.profileImage || '/placeholder.jpg'
+                    characterName: m.characterName || "",
+                    profileImage: m.profileImage || "/placeholder.jpg"
                 })),
+                updatedAt: chat.updatedAt,
+                createdAt: chat.createdAt,
+                unreadCount: chat.unreadCount ?? 0
             }));
 
             // Compute unread counts
