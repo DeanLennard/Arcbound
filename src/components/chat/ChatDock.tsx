@@ -7,13 +7,30 @@ import socket from '@/socket/socket';
 import NewChatForm from './NewChatForm';
 import { useSession } from 'next-auth/react';
 import Image from "next/image";
-import type { Chat } from '@/types/chat';
+import type { FrontendChat } from '@/types/chat';
+
+type RawMember = {
+    _id: string | { toString(): string };
+    characterName?: string;
+    profileImage?: string;
+};
+
+type RawChat = {
+    _id: string | { toString(): string };
+    groupName?: string;
+    groupImage?: string;
+    isGroup?: boolean;
+    createdAt: string | Date;
+    updatedAt: string | Date;
+    unreadCount?: number | string;
+    members?: RawMember[];
+};
 
 export default function ChatDock() {
     const { data: session, status } = useSession();
 
-    const [chats, setChats] = useState<Chat[]>([]);
-    const [activeChats, setActiveChats] = useState<Chat[]>([]);
+    const [chats, setChats] = useState<FrontendChat[]>([]);
+    const [activeChats, setActiveChats] = useState<FrontendChat[]>([]);
     const [showNewChatModal, setShowNewChatModal] = useState(false);
     const [isMinimised, setIsMinimised] = useState(false);
     const [mutedChats, setMutedChats] = useState<Set<string>>(new Set())
@@ -87,6 +104,39 @@ export default function ChatDock() {
         };
     }, []);
 
+    const sanitiseChat = (chat: RawChat): FrontendChat => {
+        const created = typeof chat.createdAt === "string"
+            ? chat.createdAt
+            : chat.createdAt.toISOString();
+
+        const updated = typeof chat.updatedAt === "string"
+            ? chat.updatedAt
+            : chat.updatedAt.toISOString();
+
+        return {
+            _id: chat._id.toString(),
+            groupName: chat.groupName ?? null,
+            groupImage: chat.groupImage ?? null,
+            isGroup: Boolean(chat.isGroup),
+
+            createdAt: created,
+            updatedAt: updated,
+
+            unreadCount:
+                typeof chat.unreadCount === "number"
+                    ? chat.unreadCount
+                    : chat.unreadCount === "5+"
+                        ? "5+"
+                        : 0,
+
+            members: (chat.members ?? []).map(m => ({
+                _id: m._id.toString(),
+                characterName: m.characterName ?? "",
+                profileImage: m.profileImage ?? "/placeholder.jpg",
+            }))
+        };
+    };
+
     // 3) Fetch chats + setup refresh & socket once
     useEffect(() => {
         if (!session || session.user.role === 'none') return;
@@ -99,12 +149,13 @@ export default function ChatDock() {
                         console.error('Bad /api/chats response', data);
                         return setChats([]);
                     }
-                    const sorted: Chat[] = [...data.chats].sort((a, b) =>
-                        new Date(b.updatedAt || b.createdAt).getTime() -
-                        new Date(a.updatedAt || a.createdAt).getTime()
-                    );
-                    setChats(sorted);
-                    sorted.forEach(c => socket.emit('joinChat', c._id));
+                    const sorted: RawChat[] = data.chats;
+                    const safe = sorted.map(sanitiseChat);
+                    setChats(safe);
+
+                    // join socket rooms
+                    safe.forEach(c => socket.emit("joinChat", c._id));
+                    sorted.map(c => socket.emit("joinChat", c._id));
                 })
                 .catch(console.error);
         };
@@ -116,7 +167,7 @@ export default function ChatDock() {
         };
     }, [session, status]);
 
-    const openChat = (chat: Chat) => {
+    const openChat = (chat: FrontendChat) => {
         if (!activeChats.find(c => c._id === chat._id)) {
             setActiveChats(prev => [...prev, chat]);
         }
@@ -150,16 +201,18 @@ export default function ChatDock() {
                                 <NewChatForm
                                     onClose={() => setShowNewChatModal(false)}
                                     onChatCreated={(newChat) => {
-                                        setChats((prev) => {
-                                            const exists = prev.find(chat => chat._id.toString() === newChat._id.toString());
-                                            if (exists) return prev; // Don’t duplicate
-                                            return [...prev, newChat];
+                                        const safe = sanitiseChat(newChat as RawChat);
+
+                                        setChats(prev => {
+                                            const exists = prev.find(chat => chat._id === safe._id);
+                                            if (exists) return prev;
+                                            return [...prev, safe];
                                         });
 
-                                        setActiveChats((prev) => {
-                                            const exists = prev.find(chat => chat._id.toString() === newChat._id.toString());
+                                        setActiveChats(prev => {
+                                            const exists = prev.find(chat => chat._id === safe._id);
                                             if (exists) return prev;
-                                            return [...prev, newChat];
+                                            return [...prev, safe];
                                         });
 
                                         setShowNewChatModal(false);
