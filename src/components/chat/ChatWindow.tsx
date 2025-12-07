@@ -427,6 +427,11 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
         }
     }
 
+    function SafeLinkify({ text }: { text: unknown }) {
+        const safe = typeof text === "string" ? text : String(text ?? "");
+        return <Linkify options={{ target: "_blank", rel: "noopener" }}>{safe}</Linkify>;
+    }
+
     return (
         <div
             className={`bg-gray-800 p-2 flex flex-col rounded shadow-lg overflow-x-hidden ${
@@ -545,44 +550,31 @@ export default function ChatWindow({ chat, onClose, currentUserId }: Props) {
                                         </a>
                                     ) : (
                                         <>
-                                            {editingId === msg._id ? (
-                                                <>
-                                                    <textarea
-                                                        value={draft}
-                                                        onChange={e => setDraft(e.target.value)}
-                                                        className="w-full p-1 rounded bg-gray-600 text-white"
-                                                    />
-                                                    <div className="mt-2 flex justify-end gap-2">
-                                                        <button
-                                                            onClick={() => saveEdit(msg._id)}
-                                                            className="px-2 py-1 bg-green-600 text-white rounded hover:bg-blue-700"
-                                                        >
-                                                            Save
-                                                        </button>
-
-                                                        <button
-                                                            onClick={() => setEditingId(null)}
-                                                            className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
-                                                        >
-                                                            Cancel
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                typeof msg.content === "string" ? (
-                                                    <Linkify
-                                                        options={{
-                                                            target: "_blank",
-                                                            rel: "noopener",
-                                                            className: "text-blue-400 underline"
-                                                        }}
+                                        {editingId === msg._id
+                                            ? <>
+                                                <textarea
+                                                    value={draft}
+                                                    onChange={e => setDraft(e.target.value)}
+                                                    className="w-full p-1 rounded bg-gray-600 text-white"
+                                                />
+                                                <div className="mt-2 flex justify-end gap-2">
+                                                    <button
+                                                        onClick={() => saveEdit(msg._id)}
+                                                        className="px-2 py-1 bg-green-600 text-white rounded hover:bg-blue-700"
                                                     >
-                                                        {msg.content}
-                                                    </Linkify>
-                                                ) : (
-                                                    <span>{String(msg.content ?? "")}</span>
-                                                )
-                                            )}
+                                                        Save
+                                                    </button>
+
+                                                    <button
+                                                        onClick={() => setEditingId(null)}
+                                                        className="px-2 py-1 bg-gray-600 text-white rounded hover:bg-gray-700"
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </>
+                                            : <SafeLinkify text={msg.content} />
+                                        }
                                         </>
                                     )}
                                     {/* reactions + edit, right-aligned */}
