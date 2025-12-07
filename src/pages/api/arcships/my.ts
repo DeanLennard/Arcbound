@@ -11,6 +11,18 @@ export interface ShipSummary {
     name: string
 }
 
+interface LeanArcship {
+    _id: string;
+    name: string;
+    xSector?: number;
+    ySector?: number;
+    flagUrl?: string;
+
+    // fields needed for range calc
+    sense?: { base: number; mod: number };
+    targetRangeMod?: number;
+}
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method !== 'GET') {
         res.setHeader('Allow', 'GET')
@@ -41,14 +53,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // 3️⃣ fetch them in one go
     const ships = await Arcship
         .find({ _id: { $in: Array.from(allIds) } })
-        .select('_id name xSector ySector flagUrl')
+        .select('_id name xSector ySector flagUrl sense targetRangeMod')
         .sort({ name: 1 })
-        .lean<ShipSummary[]>()
+        .lean<LeanArcship[]>();
 
     // Compute sense totals & range
     const shipsWithRange = ships.map(s => {
-        const arcship = s as any; // since lean()
-        const senseTotal = (arcship.sense?.base ?? 0) + (arcship.sense?.mod ?? 0);
+        const senseTotal = (s.sense?.base ?? 0) + (s.sense?.mod ?? 0);
 
         const baseRangeHexes =
             senseTotal <= 1 ? 0 :
@@ -56,7 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     senseTotal <= 7 ? 2 :
                         senseTotal <= 9 ? 3 : 5;
 
-        const totalRangeHexes = baseRangeHexes + (arcship.targetRangeMod ?? 0);
+        const totalRangeHexes = baseRangeHexes + (s.targetRangeMod ?? 0);
 
         return {
             ...s,
