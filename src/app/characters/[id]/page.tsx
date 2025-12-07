@@ -284,7 +284,7 @@ export default async function CharacterPage({
                                         </span>
                                     )}
                                     <p className="text-gray-200 mt-1">{rel.description}</p>
-                                    {isAdmin && (
+                                    {isAdmin && rel.charges > 0 && (
                                         <UseChargeButton assetId={String(rel._id)} />
                                     )}
                                 </li>
@@ -364,7 +364,7 @@ export default async function CharacterPage({
                                     </span>
                                     )}
                                     <div className="text-gray-200 mt-1">{rel.description}</div>
-                                    {isAdmin && (
+                                    {isAdmin && rel.charges > 0 && (
                                         <UseChargeButton assetId={String(rel._id)} />
                                     )}
                                 </li>
