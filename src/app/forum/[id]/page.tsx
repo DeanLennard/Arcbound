@@ -38,6 +38,7 @@ interface Post {
 async function fetchPost(id: string): Promise<{ post: Post | null, forbidden?: boolean }> {
     const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL}/api/admin/posts/${id}`, {
         method: 'GET',
+        cache: "no-store",
         // Add credentials if needed
     });
 
@@ -69,18 +70,22 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
     useEffect(() => {
         const loadPost = async () => {
-            const { id } = await params;
-            const result = await fetchPost(id);
+            try {
+                const { id } = await params;
+                const result = await fetchPost(id);
 
-            if (result.forbidden) {
-                setForbidden(true);
-            } else if (!result.post) {
-                notFound();
-            } else {
-                setPost(result.post);
+                if (result.forbidden) {
+                    setForbidden(true);
+                } else if (!result.post) {
+                    notFound();
+                } else {
+                    setPost(result.post);
+                }
+
+                setLoading(false);
+            } catch {
+                window.location.reload(); // fallback
             }
-
-            setLoading(false);
         };
         loadPost();
     }, [params]);
