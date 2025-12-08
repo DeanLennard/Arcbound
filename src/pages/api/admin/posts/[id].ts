@@ -1,4 +1,4 @@
-// src/pages/api/admin/posts/[[id]].ts
+// src/pages/api/admin/posts/[id].ts
 import { dbConnect } from '@/lib/mongodb';
 import Post, { PostDocument } from '@/models/Post';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -79,8 +79,18 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         };
 
         return res.status(200).json({ post: transformedPost });
+    } else if (req.method === 'DELETE') {
+        if (session.user.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin only' });
+        }
+
+        const deleted = await Post.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ error: 'Post not found' });
+
+        return res.status(200).json({ success: true });
+
     }
 
-    res.setHeader('Allow', ['GET']);
+    res.setHeader('Allow', ['GET', 'DELETE']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
 }
