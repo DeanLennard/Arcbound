@@ -1,4 +1,4 @@
-// src/app/forum/[[id]]/page.tsx
+// src/app/forum/[id]/page.tsx
 'use client';
 import React, { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
@@ -84,7 +84,8 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
                 setLoading(false);
             } catch {
-                window.location.reload(); // fallback
+                setLoading(false);
+                setPost(null);
             }
         };
         loadPost();

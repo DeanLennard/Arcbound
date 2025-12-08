@@ -1,5 +1,10 @@
 // public/sw.js
 
+// Disable all fetch caching
+self.addEventListener("fetch", (event) => {
+    event.respondWith(fetch(event.request));
+});
+
 self.addEventListener('push', async event => {
     let data = {}
     try { data = event.data.json() } catch(_) {}
@@ -21,7 +26,6 @@ self.addEventListener('push', async event => {
         )
     )
 });
-
 
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
