@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[[id]]/AddModuleModal.tsx
+// src/app/(dashboard)/admin/arcships/[id]/AddModuleModal.tsx
 'use client';
 import React from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
@@ -9,6 +9,9 @@ interface FormValues {
     description: string;
     state: 'Active' | 'Inactive';
     level: 'SPARK' | 'SURGE' | 'FLUX' | 'BREAK' | 'ASCENDANCE';
+    charges?: number;
+    maxCharges?: number;
+    chargeInterval: 'NONE' | 'PHASE' | 'GAME';
 }
 
 export interface Module {
@@ -18,6 +21,9 @@ export interface Module {
     state: 'Active' | 'Inactive';
     level: 'SPARK' | 'SURGE' | 'FLUX' | 'BREAK' | 'ASCENDANCE';
     attachedTo: string;
+    charges?: number;
+    maxCharges?: number;
+    chargeInterval?: 'NONE' | 'PHASE' | 'GAME';
 }
 
 export default function EditModuleModal({
@@ -42,6 +48,9 @@ export default function EditModuleModal({
             description: module.description,
             state: module.state,
             level: module.level,
+            charges: module.charges ?? 0,
+            maxCharges: module.maxCharges ?? 0,
+            chargeInterval: module.chargeInterval ?? 'NONE',
         },
     });
 
@@ -52,6 +61,9 @@ export default function EditModuleModal({
             description: module.description,
             state: module.state,
             level: module.level,
+            charges: module.charges ?? 0,
+            maxCharges: module.maxCharges ?? 0,
+            chargeInterval: module.chargeInterval ?? 'NONE',
         });
     }, [module, reset]);
 
@@ -127,6 +139,36 @@ export default function EditModuleModal({
                     >
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Max Charges</label>
+                    <input
+                        type="number"
+                        {...register("maxCharges")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Starting Charges</label>
+                    <input
+                        type="number"
+                        {...register("charges")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Charge Interval</label>
+                    <select
+                        {...register("chargeInterval")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    >
+                        <option value="NONE">None</option>
+                        <option value="PHASE">Per Phase</option>
+                        <option value="GAME">Per Game</option>
                     </select>
                 </div>
 

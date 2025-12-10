@@ -476,6 +476,11 @@ export default async function ArcshipPage(
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {mod.level}
                                 </span>
+                                {mod.maxCharges && mod.maxCharges > 0 && (
+                                    <span className="ml-2 text-xs px-1 py-0.5 bg-purple-600 rounded">
+                                        {mod.charges}/{mod.maxCharges} charges
+                                    </span>
+                                )}
                                 <p className="text-sm break-smart">{mod.description}</p>
                             </li>
                         ))}

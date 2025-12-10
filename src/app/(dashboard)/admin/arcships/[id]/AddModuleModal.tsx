@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[[id]]/AddModuleModal.tsx
+// src/app/(dashboard)/admin/arcships/[id]/AddModuleModal.tsx
 'use client';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { mutate }                 from 'swr';
@@ -8,6 +8,9 @@ interface FormValues {
     description: string;
     state:       'Active' | 'Inactive';
     level:       'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
+    charges?: number;
+    maxCharges?: number;
+    chargeInterval: 'NONE' | 'PHASE' | 'GAME';
 }
 
 export default function AddModuleModal({
@@ -24,6 +27,9 @@ export default function AddModuleModal({
             description: '',
             state: 'Active',
             level: 'SPARK',
+            charges: 0,
+            maxCharges: 0,
+            chargeInterval: 'NONE',
         }
     });
 
@@ -93,6 +99,36 @@ export default function AddModuleModal({
                     >
                         <option value="Active">Active</option>
                         <option value="Inactive">Inactive</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Max Charges</label>
+                    <input
+                        type="number"
+                        {...register("maxCharges")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Starting Charges</label>
+                    <input
+                        type="number"
+                        {...register("charges")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Charge Interval</label>
+                    <select
+                        {...register("chargeInterval")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    >
+                        <option value="NONE">None</option>
+                        <option value="PHASE">Per Phase</option>
+                        <option value="GAME">Per Game</option>
                     </select>
                 </div>
 
