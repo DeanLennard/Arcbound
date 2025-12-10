@@ -22,7 +22,7 @@ import ArcshipActions from '@/components/ArcshipActions'
 import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
 import AddPhaseResourcesButton from '@/components/AddPhaseResourcesButton';
 import ArcshipEffectsList from "@/components/ArcshipEffectsList";
-import UseModuleChargeButton from "@/components/UseModuleChargeButton";
+import ArcshipModulesList from "@/components/ArcshipModulesList";
 
 /**  All of ArcshipDocument *plus* the things you populated… */
 type PopulatedArcship =
@@ -463,56 +463,19 @@ export default async function ArcshipPage(
                 {/* 1) Modules */}
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Modules</h2>
-                    <ul className="space-y-2 text-gray-100">
-                        {ship.modules.map(mod => (
-                            <li
-                                key={String(mod._id)}
-                                className={`
-                                    p-2 rounded
-                                    ${mod.state === 'Active'   ? 'bg-green-600 text-white'
-                                        : mod.state === 'Inactive' ? 'bg-red-600 text-white'
-                                        : 'bg-gray-800 text-gray-100'}
-                                `}
-                            >
-                                <div className="flex justify-between items-start">
-                                    <div className="flex-1 pr-2">
-                                        <strong>{mod.name}</strong>
-
-                                        <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
-                                            {mod.level}
-                                        </span>
-
-                                        {mod.maxCharges && mod.maxCharges > 0 && (
-                                            <span
-                                                className={`ml-2 text-xs px-1 py-0.5 rounded ${
-                                                    mod.charges === 0 ? 'bg-red-900' : 'bg-purple-700'
-                                                }`}
-                                            >
-                                                {mod.charges}/{mod.maxCharges} charges
-                                            </span>
-                                        )}
-
-                                        <p className="text-sm break-smart">{mod.description}</p>
-
-                                        {mod.chargeInterval && (
-                                            <div className="text-xs mt-1">
-                                                Interval: <strong>{mod.chargeInterval}</strong>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {isAdmin && mod.maxCharges && mod.maxCharges > 0 && (
-                                        <UseModuleChargeButton
-                                            moduleId={String(mod._id)}
-                                            onUsed={(newCharges) => {
-                                                mod.charges = newCharges;
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            </li>
-                        ))}
-                    </ul>
+                    <ArcshipModulesList
+                        modules={ship.modules.map(m => ({
+                            _id: String(m._id),
+                            name: m.name,
+                            description: m.description,
+                            state: m.state,
+                            level: m.level,
+                            charges: m.charges ?? 0,
+                            maxCharges: m.maxCharges ?? 0,
+                            chargeInterval: m.chargeInterval ?? 'NONE'
+                        }))}
+                        isAdmin={isAdmin}
+                    />
                 </section>
 
                 {/* 2) Effects */}
