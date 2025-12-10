@@ -22,6 +22,7 @@ import ArcshipActions from '@/components/ArcshipActions'
 import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
 import AddPhaseResourcesButton from '@/components/AddPhaseResourcesButton';
 import ArcshipEffectsList from "@/components/ArcshipEffectsList";
+import UseModuleChargeButton from "@/components/UseModuleChargeButton";
 
 /**  All of ArcshipDocument *plus* the things you populated… */
 type PopulatedArcship =
@@ -464,24 +465,51 @@ export default async function ArcshipPage(
                     <h2 className="text-2xl font-semibold mb-2">Modules</h2>
                     <ul className="space-y-2 text-gray-100">
                         {ship.modules.map(mod => (
-                            <li key={String(mod._id)}
+                            <li
+                                key={String(mod._id)}
                                 className={`
                                     p-2 rounded
                                     ${mod.state === 'Active'   ? 'bg-green-600 text-white'
-                                    : mod.state === 'Inactive' ? 'bg-red-600   text-white'
-                                    : 'bg-gray-800 text-gray-100'}
+                                        : mod.state === 'Inactive' ? 'bg-red-600 text-white'
+                                        : 'bg-gray-800 text-gray-100'}
                                 `}
                             >
-                                <strong>{mod.name}</strong>
-                                <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
-                                    {mod.level}
-                                </span>
-                                {mod.maxCharges && mod.maxCharges > 0 && (
-                                    <span className="ml-2 text-xs px-1 py-0.5 bg-purple-600 rounded">
-                                        {mod.charges}/{mod.maxCharges} charges
-                                    </span>
-                                )}
-                                <p className="text-sm break-smart">{mod.description}</p>
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1 pr-2">
+                                        <strong>{mod.name}</strong>
+
+                                        <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                            {mod.level}
+                                        </span>
+
+                                        {mod.maxCharges && mod.maxCharges > 0 && (
+                                            <span
+                                                className={`ml-2 text-xs px-1 py-0.5 rounded ${
+                                                    mod.charges === 0 ? 'bg-red-900' : 'bg-purple-700'
+                                                }`}
+                                            >
+                                                {mod.charges}/{mod.maxCharges} charges
+                                            </span>
+                                        )}
+
+                                        <p className="text-sm break-smart">{mod.description}</p>
+
+                                        {mod.chargeInterval && (
+                                            <div className="text-xs mt-1">
+                                                Interval: <strong>{mod.chargeInterval}</strong>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {isAdmin && mod.maxCharges && mod.maxCharges > 0 && (
+                                        <UseModuleChargeButton
+                                            moduleId={String(mod._id)}
+                                            onUsed={(newCharges) => {
+                                                mod.charges = newCharges;
+                                            }}
+                                        />
+                                    )}
+                                </div>
                             </li>
                         ))}
                     </ul>
