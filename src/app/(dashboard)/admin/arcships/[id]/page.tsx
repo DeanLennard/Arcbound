@@ -470,6 +470,9 @@ export default function AdminArcshipDetail() {
                                         `}
                                                                     >
                                         {m.charges}/{m.maxCharges} charges
+                                        {m.charges === 0 && ' — NO CHARGES'}
+                                        {m.chargeInterval === 'PHASE' && m.charges !== 0 && ' per phase'}
+                                        {m.chargeInterval === 'GAME' && m.charges !== 0 && ' per game'}
                                     </span>
                                 )}
                                 <p className="text-sm">{m.description}</p>
@@ -556,6 +559,9 @@ export default function AdminArcshipDetail() {
                                         `}
                                                                     >
                                         {ef.charges}/{ef.maxCharges} charges
+                                        {ef.charges === 0 && ' — NO CHARGES'}
+                                        {ef.chargeInterval === 'PHASE' && ef.charges !== 0 && ' per phase'}
+                                        {ef.chargeInterval === 'GAME' && ef.charges !== 0 && ' per game'}
                                     </span>
                                 )}
                                 <p className="text-sm">{ef.description}</p>
