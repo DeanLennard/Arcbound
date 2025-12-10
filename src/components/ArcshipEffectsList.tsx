@@ -85,18 +85,13 @@ export default function ArcshipEffectsList({
 
                                 <p className="text-sm break-smart">{fx.description}</p>
 
-                                <div className="mt-1 text-xs">
-                                    Interval:{' '}
-                                    <strong>{fx.chargeInterval ?? 'NONE'}</strong>
-                                </div>
+                                {isAdmin && hasCharges && (
+                                    <UseEffectChargeButton
+                                        effectId={id}
+                                        onUsed={newCharges => refreshCharge(id, newCharges)}
+                                    />
+                                )}
                             </div>
-
-                            {isAdmin && hasCharges && (
-                                <UseEffectChargeButton
-                                    effectId={id}
-                                    onUsed={newCharges => refreshCharge(id, newCharges)}
-                                />
-                            )}
                         </div>
                     </li>
                 );

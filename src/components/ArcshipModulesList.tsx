@@ -70,21 +70,15 @@ export default function ArcshipModulesList({
 
                             <p className="text-sm break-smart">{mod.description}</p>
 
-                            {mod.chargeInterval && (
-                                <div className="text-xs mt-1">
-                                    Interval: <strong>{mod.chargeInterval}</strong>
-                                </div>
+                            {isAdmin && mod.maxCharges && (
+                                <UseModuleChargeButton
+                                    moduleId={mod._id}
+                                    onUsed={(newCharges) =>
+                                        refreshCharge(mod._id, newCharges)
+                                    }
+                                />
                             )}
                         </div>
-
-                        {isAdmin && mod.maxCharges && (
-                            <UseModuleChargeButton
-                                moduleId={mod._id}
-                                onUsed={(newCharges) =>
-                                    refreshCharge(mod._id, newCharges)
-                                }
-                            />
-                        )}
                     </div>
                 </li>
             ))}
