@@ -53,7 +53,7 @@ export default function ArcshipModulesList({
                 >
                     <div className="flex justify-between items-start">
                         <div className="flex-1 pr-2">
-                            <strong className="block text-lg mb-2">
+                            <strong className="block text-lg">
                                 {mod.name}
                             </strong>
 
