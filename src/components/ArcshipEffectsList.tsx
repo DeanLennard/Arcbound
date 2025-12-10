@@ -44,9 +44,7 @@ export default function ArcshipEffectsList({
                 const id = idToString(fx._id);
 
                 const hasCharges =
-                    typeof fx.maxCharges === 'number' &&
-                    typeof fx.charges === 'number' &&
-                    fx.maxCharges > 0;
+                    Number(fx.maxCharges) > 0 && typeof fx.charges === 'number';
 
                 const noChargesLeft = hasCharges && fx.charges === 0;
 

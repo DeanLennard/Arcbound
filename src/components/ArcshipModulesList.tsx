@@ -32,7 +32,15 @@ export default function ArcshipModulesList({
 
     return (
         <ul className="space-y-2 text-gray-100">
-            {list.map(mod => (
+            {list.map(mod => {
+                const hasCharges =
+                    typeof mod.maxCharges === 'number' &&
+                    mod.maxCharges > 0 &&
+                    typeof mod.charges === 'number';
+
+                const noChargesLeft = hasCharges && mod.charges === 0;
+
+                return (
                 <li
                     key={mod._id}
                     className={`p-2 rounded ${
@@ -62,15 +70,15 @@ export default function ArcshipModulesList({
                                     }`}
                                 >
                                     {mod.charges}/{mod.maxCharges} charges
-                                    {mod.charges === 0 && ' — NO CHARGES'}
-                                    {mod.chargeInterval === 'PHASE' && mod.charges !== 0 && ' per phase'}
-                                    {mod.chargeInterval === 'GAME' && mod.charges !== 0 && ' per game'}
+                                    {noChargesLeft && ' — NO CHARGES'}
+                                    {mod.chargeInterval === 'PHASE' && !noChargesLeft  && ' per phase'}
+                                    {mod.chargeInterval === 'GAME' && !noChargesLeft  && ' per game'}
                                 </span>
                             ) : null}
 
                             <p className="text-sm break-smart">{mod.description}</p>
 
-                            {isAdmin && mod.maxCharges && (
+                            {isAdmin && hasCharges && (
                                 <UseModuleChargeButton
                                     moduleId={mod._id}
                                     onUsed={(newCharges) =>
@@ -81,7 +89,8 @@ export default function ArcshipModulesList({
                         </div>
                     </div>
                 </li>
-            ))}
+                );
+            })}
         </ul>
     );
 }
