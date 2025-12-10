@@ -75,6 +75,9 @@ export default function ArcshipEffectsList({
                                         }`}
                                     >
                                         {fx.charges}/{fx.maxCharges} charges
+                                        {fx.charges === 0 && ' — NO CHARGES'}
+                                        {fx.chargeInterval === 'PHASE' && fx.charges !== 0 && ' per phase'}
+                                        {fx.chargeInterval === 'GAME' && fx.charges !== 0 && ' per game'}
                                     </span>
                                 )}
 

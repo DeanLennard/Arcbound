@@ -45,6 +45,9 @@ export default function AssetList({
                             }`}
                         >
                             {(rel.currentCharges ?? rel.charges)}/{rel.charges} charges
+                            {rel.currentCharges === 0 && ' — NO CHARGES'}
+                            {rel.chargeInterval === 'PHASE' && rel.currentCharges !== 0 && ' per phase'}
+                            {rel.chargeInterval === 'GAME' && rel.currentCharges !== 0 && ' per game'}
                         </span>
                     )}
 

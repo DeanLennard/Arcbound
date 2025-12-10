@@ -60,6 +60,9 @@ export default function ArcshipModulesList({
                                     }`}
                                 >
                                     {mod.charges}/{mod.maxCharges} charges
+                                    {mod.charges === 0 && ' — NO CHARGES'}
+                                    {mod.chargeInterval === 'PHASE' && mod.charges !== 0 && ' per phase'}
+                                    {mod.chargeInterval === 'GAME' && mod.charges !== 0 && ' per game'}
                                 </span>
                             ) : null}
 

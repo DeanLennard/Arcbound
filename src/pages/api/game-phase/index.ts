@@ -5,6 +5,8 @@ import authOptions                           from '@/lib/authOptions'
 import { dbConnect }                         from '@/lib/mongodb'
 import GamePhase, { GamePhaseDoc }           from '@/models/GamePhase'
 import CharacterAsset from '@/models/CharacterAsset'
+import Module from '@/models/Module'
+import Effect from '@/models/Effect'
 
 export default async function handler(
     req: NextApiRequest,
@@ -53,6 +55,22 @@ export default async function handler(
                             currentCharges: '$charges'
                         }
                     }
+                ]
+            )
+
+            // ARCship MODULES
+            await Module.updateMany(
+                { chargeInterval: 'PHASE' },
+                [
+                    { $set: { charges: '$maxCharges' } }
+                ]
+            )
+
+            // ARCship EFFECTS
+            await Effect.updateMany(
+                { chargeInterval: 'PHASE' },
+                [
+                    { $set: { charges: '$maxCharges' } }
                 ]
             )
 
