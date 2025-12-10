@@ -45,15 +45,17 @@ export default function ArcshipModulesList({
                 >
                     <div className="flex justify-between items-start">
                         <div className="flex-1 pr-2">
-                            <strong>{mod.name}</strong>
+                            <strong className="block text-indigo-300 text-lg mb-2">
+                                {mod.name}
+                            </strong>
 
-                            <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                            <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                 {mod.level}
                             </span>
 
                             {mod.maxCharges ? (
                                 <span
-                                    className={`ml-2 text-xs px-1 py-0.5 rounded ${
+                                    className={`inline-block ml-2 text-xs px-1 py-0.5 rounded ${
                                         mod.charges === 0
                                             ? 'bg-red-900'
                                             : 'bg-purple-700'

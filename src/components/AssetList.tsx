@@ -38,7 +38,7 @@ export default function AssetList({
                     {/* Charges Badge */}
                     {typeof rel.charges === "number" && rel.charges > 0 && (
                         <span
-                            className={`ml-2 text-xs px-1 py-0.5 rounded ${
+                            className={`inline-block ml-2 text-xs px-1 py-0.5 rounded ${
                                 (rel.currentCharges ?? rel.charges) === 0
                                     ? "bg-red-700 text-white"
                                     : "bg-purple-600 text-white"

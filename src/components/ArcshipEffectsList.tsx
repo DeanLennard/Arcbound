@@ -63,14 +63,16 @@ export default function ArcshipEffectsList({
                     >
                         <div className="flex justify-between items-start">
                             <div className="flex-1 pr-2">
-                                <strong>{fx.name}</strong>
-                                <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                <strong className="block text-lg mb-2">
+                                    {fx.name}
+                                </strong>
+                                <span className="inline-block ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {fx.level}
                                 </span>
 
                                 {hasCharges && (
                                     <span
-                                        className={`ml-2 text-xs px-1 py-0.5 rounded ${
+                                        className={`inline-block ml-2 text-xs px-1 py-0.5 rounded ${
                                             noChargesLeft ? 'bg-red-900' : 'bg-purple-700'
                                         }`}
                                     >
