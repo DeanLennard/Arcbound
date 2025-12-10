@@ -1,4 +1,4 @@
-// pages/api/effects/[[id]].ts
+// pages/api/effects/[id].ts
 import type { NextApiRequest, NextApiResponse } from 'next'
 import { dbConnect } from '@/lib/mongodb'
 import Effect from '@/models/Effect'
@@ -8,12 +8,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     await dbConnect()
 
     if (req.method === 'PUT') {
-        const { name, description, kind, level } = req.body
+        const { name, description, kind, level, charges, maxCharges, chargeInterval } = req.body
 
         const updated = await Effect
             .findByIdAndUpdate(
                 id,
-                { name, description, kind, level },    // <-- sets these fields
+                { name, description, kind, level, charges, maxCharges, chargeInterval },    // <-- sets these fields
                 { new: true }
             )
             .lean()

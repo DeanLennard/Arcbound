@@ -3,6 +3,7 @@ import mongoose, { Document, Types } from 'mongoose';
 
 export type EffectKind = 'Positive'|'Neutral'|'Negative';
 export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
+export type ChargeInterval = 'NONE' | 'PHASE' | 'GAME';
 
 export interface EffectDoc extends Document {
     name: string;
@@ -11,6 +12,9 @@ export interface EffectDoc extends Document {
     level: PowerLevel;
     // now an array
     ships: Types.ObjectId[];
+    charges?: number;
+    maxCharges?: number;
+    chargeInterval?: ChargeInterval;
 }
 
 const EffectSchema = new mongoose.Schema<EffectDoc>({
@@ -19,6 +23,9 @@ const EffectSchema = new mongoose.Schema<EffectDoc>({
     kind:        { type: String, enum: ['Positive','Neutral','Negative'], default: 'Neutral' },
     level:        { type: String, enum: ['SPARK','SURGE','FLUX', 'BREAK', 'ASCENDANCE'], default: 'SPARK' },
     ships:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' }],
+    charges:        { type: Number, default: null },
+    maxCharges:     { type: Number, default: null },
+    chargeInterval: { type: String, enum: ['NONE','PHASE','GAME'], default: 'NONE' }
 }, { timestamps: true });
 
 export default mongoose.models.Effect || mongoose.model<EffectDoc>('Effect', EffectSchema);

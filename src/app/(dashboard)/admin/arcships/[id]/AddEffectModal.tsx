@@ -1,4 +1,4 @@
-// src/app/(dashboard)/admin/arcships/[[id]]/AddEffectModal.tsx
+// src/app/(dashboard)/admin/arcships/[id]/AddEffectModal.tsx
 'use client'
 import { useForm, SubmitHandler } from 'react-hook-form'
 import { mutate } from 'swr'
@@ -8,6 +8,9 @@ interface FormValues {
     description: string
     kind: 'Positive' | 'Neutral' | 'Negative'
     level: 'SPARK' | 'SURGE' | 'FLUX' | 'BREAK' | 'ASCENDANCE'
+    charges?: number;
+    maxCharges?: number;
+    chargeInterval: 'NONE' | 'PHASE' | 'GAME';
 }
 
 export default function AddEffectModal({
@@ -33,6 +36,9 @@ export default function AddEffectModal({
                 kind: vals.kind,
                 level: vals.level,
                 ships: [arcshipId],
+                charges: vals.charges ? Number(vals.charges) : null,
+                maxCharges: vals.maxCharges ? Number(vals.maxCharges) : null,
+                chargeInterval: vals.chargeInterval,
             }),
         })
 
@@ -101,6 +107,38 @@ export default function AddEffectModal({
                         <option value="Negative">Negative</option>
                         </select>
                     {errors.kind && <p className="text-red-400 text-sm">Required</p>}
+                </div>
+
+                {/* Charge Interval */}
+                <div>
+                    <label className="block text-sm text-gray-300">Charges (optional)</label>
+                    <input
+                        type="number"
+                        {...register("charges")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Max Charges</label>
+                    <input
+                        type="number"
+                        {...register("maxCharges")}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                    />
+                </div>
+
+                <div>
+                    <label className="block text-sm text-gray-300">Charge Interval</label>
+                    <select
+                        {...register('chargeInterval')}
+                        className="mt-1 w-full p-2 bg-gray-700 text-white rounded"
+                        defaultValue="NONE"
+                    >
+                        <option value="NONE">None</option>
+                        <option value="PHASE">Per Phase</option>
+                        <option value="GAME">Per Game</option>
+                    </select>
                 </div>
 
                 {/* Actions */}
