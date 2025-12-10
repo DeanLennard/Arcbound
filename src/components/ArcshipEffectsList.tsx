@@ -2,13 +2,15 @@
 'use client';
 
 import React from 'react';
+import type { Types } from 'mongoose';
+import type { PowerLevel } from '@/models/Effect';
 import UseEffectChargeButton from '@/components/UseEffectChargeButton';
 
 // Fully typed based on EffectDocument fields you actually use:
 export interface ArcshipEffect {
-    _id: string;
+    _id: string | Types.ObjectId;
     name: string;
-    level: number;
+    level: PowerLevel;
     description: string;
     kind: 'Positive' | 'Negative' | 'Neutral';
     maxCharges?: number;
@@ -25,6 +27,9 @@ export default function ArcshipEffectsList({
 }) {
     const [list, setList] = React.useState<ArcshipEffect[]>(effects);
 
+    const idToString = (id: string | Types.ObjectId): string =>
+        typeof id === 'string' ? id : id.toString();
+
     const refreshCharge = (id: string, newCharges: number) => {
         setList(prev =>
             prev.map(e =>
@@ -36,6 +41,8 @@ export default function ArcshipEffectsList({
     return (
         <ul className="space-y-2">
             {list.map(fx => {
+                const id = idToString(fx._id);
+
                 const hasCharges =
                     typeof fx.maxCharges === 'number' &&
                     typeof fx.charges === 'number' &&
@@ -45,7 +52,7 @@ export default function ArcshipEffectsList({
 
                 return (
                     <li
-                        key={fx._id}
+                        key={id}
                         className={`p-2 rounded ${
                             fx.kind === 'Positive'
                                 ? 'bg-green-600 text-white'
@@ -81,8 +88,8 @@ export default function ArcshipEffectsList({
 
                             {isAdmin && hasCharges && (
                                 <UseEffectChargeButton
-                                    effectId={fx._id}
-                                    onUsed={newCharges => refreshCharge(fx._id, newCharges)}
+                                    effectId={id}
+                                    onUsed={newCharges => refreshCharge(id, newCharges)}
                                 />
                             )}
                         </div>

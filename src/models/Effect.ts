@@ -6,6 +6,7 @@ export type PowerLevel = 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE';
 export type ChargeInterval = 'NONE' | 'PHASE' | 'GAME';
 
 export interface EffectDoc extends Document {
+    _id: Types.ObjectId | string;
     name: string;
     description: string;
     kind: EffectKind;
@@ -23,8 +24,8 @@ const EffectSchema = new mongoose.Schema<EffectDoc>({
     kind:        { type: String, enum: ['Positive','Neutral','Negative'], default: 'Neutral' },
     level:        { type: String, enum: ['SPARK','SURGE','FLUX', 'BREAK', 'ASCENDANCE'], default: 'SPARK' },
     ships:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'Arcship' }],
-    charges:        { type: Number, default: null },
-    maxCharges:     { type: Number, default: null },
+    charges:        { type: Number, default: 0 },
+    maxCharges:     { type: Number, default: 0 },
     chargeInterval: { type: String, enum: ['NONE','PHASE','GAME'], default: 'NONE' }
 }, { timestamps: true });
 
