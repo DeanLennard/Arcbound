@@ -21,6 +21,7 @@ import type { EventLogDoc as EventLogDocument }    from '@/models/EventLog'
 import ArcshipActions from '@/components/ArcshipActions'
 import {prepareHtmlForFrontend} from "@/lib/prepareHtmlForFrontend";
 import AddPhaseResourcesButton from '@/components/AddPhaseResourcesButton';
+import UseEffectChargeButton from "@/components/UseEffectChargeButton";
 
 /**  All of ArcshipDocument *plus* the things you populated… */
 type PopulatedArcship =
@@ -485,26 +486,66 @@ export default async function ArcshipPage(
                 <section>
                     <h2 className="text-2xl font-semibold mb-2">Effects</h2>
                     <ul className="space-y-2">
-                        {ship.effects.map(fx => (
-                            <li key={String(fx._id)}
-                                className={`
-                                    p-2 rounded 
-                                    ${fx.kind === 'Positive' ? 'bg-green-600 text-white'
-                                    : fx.kind === 'Negative'   ? 'bg-red-600   text-white'
-                                    : 'bg-gray-600 text-gray-100'}
-                                `}
-                            >
-                                <strong>{fx.name}</strong>
-                                <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
-                                    {fx.level}
-                                </span>
-                                <p className="text-sm break-smart">{fx.description}</p>
-                                <div className="mt-1 text-xs">
-                                    Status:{' '}
-                                    <span>{fx.kind}</span>
-                                </div>
-                            </li>
-                        ))}
+                        {ship.effects.map(fx => {
+                            const hasCharges =
+                                typeof fx.maxCharges === 'number' &&
+                                typeof fx.charges === 'number' &&
+                                fx.maxCharges > 0;
+
+                            const noChargesLeft = hasCharges && fx.charges === 0;
+
+                            return (
+                                <li
+                                    key={String(fx._id)}
+                                    className={`
+                                        p-2 rounded 
+                                        ${fx.kind === 'Positive' ? 'bg-green-600 text-white'
+                                            : fx.kind === 'Negative' ? 'bg-red-600 text-white'
+                                            : 'bg-gray-600 text-gray-100'}
+                                    `}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1 pr-2">
+                                            <strong>{fx.name}</strong>
+                                            <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
+                                                {fx.level}
+                                            </span>
+
+                                            {/* CHARGE BADGE */}
+                                            {hasCharges && (
+                                                <span
+                                                    className={`ml-2 text-xs px-1 py-0.5 rounded 
+                                                        ${noChargesLeft ? 'bg-red-900' : 'bg-purple-700'}
+                                                    `}
+                                                >
+                                                    {fx.charges}/{fx.maxCharges} charges
+                                                </span>
+                                            )}
+
+                                            <p className="text-sm break-smart">{fx.description}</p>
+
+                                            <div className="mt-1 text-xs">
+                                                Interval:{' '}
+                                                <strong>{fx.chargeInterval || 'NONE'}</strong>
+                                            </div>
+                                        </div>
+
+                                        {/* ADMIN USE-CHARGE BUTTON */}
+                                        {isAdmin && hasCharges && (
+                                            <UseEffectChargeButton
+                                                effectId={String(fx._id)}
+                                                onUsed={() => {
+                                                    // refresh page data
+                                                    // nextjs server components need a refresh
+                                                    // simplest: force reload
+                                                    location.reload()
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                </li>
+                            );
+                        })}
                     </ul>
                 </section>
 
