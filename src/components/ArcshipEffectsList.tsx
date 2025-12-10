@@ -81,7 +81,7 @@ export default function ArcshipEffectsList({
                                     </span>
                                 )}
 
-                                <p className="text-sm break-smart">{fx.description}</p>
+                                <p className="mt-1 text-sm break-smart">{fx.description}</p>
 
                                 {isAdmin && hasCharges && (
                                     <UseEffectChargeButton

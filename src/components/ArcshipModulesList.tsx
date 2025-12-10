@@ -76,7 +76,7 @@ export default function ArcshipModulesList({
                                 </span>
                             ) : null}
 
-                            <p className="text-sm break-smart">{mod.description}</p>
+                            <p className="mt-1 text-sm break-smart">{mod.description}</p>
 
                             {isAdmin && hasCharges && (
                                 <UseModuleChargeButton
