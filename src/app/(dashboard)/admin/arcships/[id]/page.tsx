@@ -107,6 +107,9 @@ interface ModuleDoc {
     state: 'Active' | 'Inactive'
     level: 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
     attachedTo: string;
+    charges?: number
+    maxCharges?: number
+    chargeInterval?: 'NONE' | 'PHASE' | 'GAME'
 }
 interface EffectDoc {
     _id: string
@@ -114,6 +117,9 @@ interface EffectDoc {
     description: string
     kind: 'Positive'|'Neutral'|'Negative'
     level: 'SPARK'|'SURGE'|'FLUX'|'BREAK'|'ASCENDANCE'
+    charges?: number
+    maxCharges?: number
+    chargeInterval?: 'NONE' | 'PHASE' | 'GAME'
 }
 interface DiplomacyDoc {
     _id: string
@@ -456,9 +462,32 @@ export default function AdminArcshipDetail() {
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {m.level}
                                 </span>
+                                {m.maxCharges && (
+                                    <span
+                                        className={`
+                                            ml-2 text-xs px-1 py-0.5 rounded
+                                            ${m.charges === 0 ? 'bg-red-700 text-white' : 'bg-purple-600 text-white'}
+                                        `}
+                                                                    >
+                                        {m.charges}/{m.maxCharges} charges
+                                    </span>
+                                )}
                                 <p className="text-sm">{m.description}</p>
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                {m.maxCharges && m.maxCharges > 0 && (
+                                    <button
+                                        className="btn-sm bg-yellow-600 text-white px-2 py-1 rounded"
+                                        onClick={async () => {
+                                            await fetch(`/api/modules/${m._id}/use-charge`, {
+                                                method: 'POST'
+                                            });
+                                            mutate(`/api/modules?attachedTo=${id}`);
+                                        }}
+                                    >
+                                        Use Charge
+                                    </button>
+                                )}
                                 <button
                                     className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
                                     onClick={() => {
@@ -519,6 +548,16 @@ export default function AdminArcshipDetail() {
                                 <span className="ml-2 text-xs px-1 py-0.5 bg-indigo-600 rounded">
                                     {ef.level}
                                 </span>
+                                {ef.maxCharges && (
+                                    <span
+                                        className={`
+                                            ml-2 text-xs px-1 py-0.5 rounded
+                                            ${ef.charges === 0 ? 'bg-red-700 text-white' : 'bg-purple-600 text-white'}
+                                        `}
+                                                                    >
+                                        {ef.charges}/{ef.maxCharges} charges
+                                    </span>
+                                )}
                                 <p className="text-sm">{ef.description}</p>
                                 <div className="mt-1 text-xs">
                                     Status:{' '}
@@ -526,6 +565,19 @@ export default function AdminArcshipDetail() {
                                 </div>
                             </div>
                             <div className="flex-none flex space-x-1 whitespace-nowrap">
+                                {ef.maxCharges && ef.maxCharges > 0 && (
+                                    <button
+                                        className="btn-sm bg-yellow-600 text-white px-2 py-1 rounded"
+                                        onClick={async () => {
+                                            await fetch(`/api/effects/${ef._id}/use-charge`, {
+                                                method: 'POST'
+                                            });
+                                            mutate(`/api/modules?attachedTo=${id}`);
+                                        }}
+                                    >
+                                        Use Charge
+                                    </button>
+                                )}
                                 <button
                                     className="btn-sm bg-blue-600 text-white px-2 py-1 rounded"
                                     onClick={() => {
