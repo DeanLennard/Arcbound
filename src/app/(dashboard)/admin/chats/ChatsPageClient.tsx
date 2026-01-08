@@ -65,7 +65,7 @@ export default function ChatsPageClient() {
             <h1 className="text-2xl font-bold mb-4">Manage Chats</h1>
             <div className="grid grid-cols-1 gap-4">
                 {chats.map(chat => {
-                    const groupSrc = safeImageSrc(chat.groupImage);
+                    const groupSrc = safeImageSrc(chat.groupImage) ?? "/uploads/placeholder.png";
 
                     return (
                         <div
@@ -82,6 +82,9 @@ export default function ChatsPageClient() {
                                         height={40}
                                         className="rounded-full"
                                         unoptimized
+                                        onError={(e) => {
+                                            (e.currentTarget as HTMLImageElement).src = "/uploads/placeholder.png";
+                                        }}
                                     />
                                 )}
 

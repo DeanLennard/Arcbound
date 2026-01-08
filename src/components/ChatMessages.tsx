@@ -125,7 +125,7 @@ export default function ChatMessages({ chat }: Props) {
                 <div key={msg._id} className="mb-2">
                     <div className="flex items-center gap-2">
                         {(() => {
-                            const avatarSrc = safeImageSrc(msg.senderId.profileImage);
+                            const avatarSrc = safeImageSrc(msg.senderId.profileImage) ?? "/uploads/placeholder.png";
                             return avatarSrc ? (
                                 <Image
                                     src={avatarSrc}
@@ -134,6 +134,9 @@ export default function ChatMessages({ chat }: Props) {
                                     height={24}
                                     className="rounded-full"
                                     unoptimized
+                                    onError={(e) => {
+                                        (e.currentTarget as HTMLImageElement).src = "/uploads/placeholder.png";
+                                    }}
                                 />
                             ) : null;
                         })()}
@@ -145,7 +148,7 @@ export default function ChatMessages({ chat }: Props) {
                     <p className="ml-8 break-smart">
                         {isImageUrl(msg.content) ? (
                             (() => {
-                                const contentImgSrc = safeImageSrc(msg.content);
+                                const contentImgSrc = safeImageSrc(msg.content) ?? "/uploads/placeholder.png";
                                 return contentImgSrc ? (
                                     <Image
                                         src={contentImgSrc}
@@ -154,6 +157,9 @@ export default function ChatMessages({ chat }: Props) {
                                         height={200}
                                         unoptimized
                                         className="rounded"
+                                        onError={(e) => {
+                                            (e.currentTarget as HTMLImageElement).src = "/uploads/placeholder.png";
+                                        }}
                                     />
                                 ) : (
                                     // fallback: show text if it looked like an image but src is invalid
