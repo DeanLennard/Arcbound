@@ -102,12 +102,15 @@ export default function ChatsPageClient() {
                 })}
             </div>
             {hasMore && <div ref={loaderRef} className="text-center p-4">Loading more chats...</div>}
-
             {selectedChat && (
                 <Modal onClose={() => setSelectedChat(null)}>
-                    <ChatMessages chat={selectedChat} />
+                    <pre className="text-xs overflow-auto">
+                        {JSON.stringify(selectedChat, null, 2)}
+                    </pre>
+
                 </Modal>
             )}
         </div>
     );
+    //<ChatMessages chat={selectedChat} />
 }
