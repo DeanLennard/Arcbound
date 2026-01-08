@@ -13,9 +13,9 @@ interface Chat {
     members: Array<{ _id: string; characterName: string; profileImage: string }>;
     groupName?: string;
     groupImage?: string;
-    createdAt: Date;
-    updatedAt?: Date;
-    lastMessageAt?: Date;
+    createdAt: string;
+    updatedAt?: string;
+    lastMessageAt?: string;
 }
 
 export default function ChatsPageClient() {
@@ -75,15 +75,14 @@ export default function ChatsPageClient() {
                         >
                             <div className="flex items-center gap-2">
                                 {groupSrc && (
-                                    <Image
+                                    <img
                                         src={groupSrc}
                                         alt={chat.groupName || "Group"}
                                         width={40}
                                         height={40}
                                         className="rounded-full"
-                                        unoptimized
                                         onError={(e) => {
-                                            (e.currentTarget as HTMLImageElement).src = "/uploads/placeholder.png";
+                                            e.currentTarget.src = "/uploads/placeholder.png";
                                         }}
                                     />
                                 )}

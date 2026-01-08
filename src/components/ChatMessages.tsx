@@ -127,38 +127,36 @@ export default function ChatMessages({ chat }: Props) {
                         {(() => {
                             const avatarSrc = safeImageSrc(msg.senderId.profileImage) ?? "/uploads/placeholder.png";
                             return avatarSrc ? (
-                                <Image
+                                <img
                                     src={avatarSrc}
                                     alt={msg.senderId.characterName}
                                     width={24}
                                     height={24}
                                     className="rounded-full"
-                                    unoptimized
                                     onError={(e) => {
-                                        (e.currentTarget as HTMLImageElement).src = "/uploads/placeholder.png";
+                                        e.currentTarget.src = "/uploads/placeholder.png";
                                     }}
                                 />
                             ) : null;
                         })()}
                         <span className="font-bold">{msg.senderId.characterName}</span>
                         <span className="text-xs text-gray-400">
-              {new Date(msg.createdAt).toLocaleString()}
-            </span>
+                            {new Date(msg.createdAt).toLocaleString()}
+                        </span>
                     </div>
                     <p className="ml-8 break-smart">
                         {isImageUrl(msg.content) ? (
                             (() => {
                                 const contentImgSrc = safeImageSrc(msg.content) ?? "/uploads/placeholder.png";
                                 return contentImgSrc ? (
-                                    <Image
+                                    <img
                                         src={contentImgSrc}
                                         alt="uploaded image"
                                         width={200}
                                         height={200}
-                                        unoptimized
                                         className="rounded"
                                         onError={(e) => {
-                                            (e.currentTarget as HTMLImageElement).src = "/uploads/placeholder.png";
+                                            e.currentTarget.src = "/uploads/placeholder.png";
                                         }}
                                     />
                                 ) : (
