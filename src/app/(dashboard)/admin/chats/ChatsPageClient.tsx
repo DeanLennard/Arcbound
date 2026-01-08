@@ -1,7 +1,6 @@
 // src/app/(dashboard)/admin/chats/ChatsPageClient.tsx
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import Image from "next/image";
 import Modal from "@/components/Modal";
 import ChatMessages from "@/components/ChatMessages";
 import {formatTimestamp} from "@/lib/formatTimestamp";

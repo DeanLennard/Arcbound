@@ -1,7 +1,6 @@
 // components/ChatMessages.tsx
 "use client";
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import Image from "next/image";
 import Linkify from "linkify-react";
 import { safeImageSrc } from "@/lib/safeImageSrc";
 
