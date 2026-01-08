@@ -5,6 +5,7 @@ import Image from "next/image";
 import Modal from "@/components/Modal";
 import ChatMessages from "@/components/ChatMessages";
 import {formatTimestamp} from "@/lib/formatTimestamp";
+import { safeImageSrc } from "@/lib/safeImageSrc";
 
 interface Chat {
     _id: string;
@@ -63,35 +64,40 @@ export default function ChatsPageClient() {
         <div className="max-w-5xl mx-auto p-4">
             <h1 className="text-2xl font-bold mb-4">Manage Chats</h1>
             <div className="grid grid-cols-1 gap-4">
-                {chats.map(chat => (
-                    <div
-                        key={chat._id}
-                        onClick={() => setSelectedChat(chat)}
-                        className="p-4 border rounded cursor-pointer hover:bg-gray-700"
-                    >
-                        <div className="flex items-center gap-2">
-                            {chat.groupImage && (
-                                <Image
-                                    src={chat.groupImage}
-                                    alt={chat.groupName || "Group"}
-                                    width={40}
-                                    height={40}
-                                    className="rounded-full"
-                                />
-                            )}
-                            <div>
-                                <p className="font-bold">
-                                    {chat.isGroup
-                                        ? chat.groupName
-                                        : chat.members.map(m => m.characterName).join(", ")}
-                                </p>
-                                <p className="text-xs text-gray-400">
-                                    {formatTimestamp((chat.updatedAt || chat.createdAt).toString())}
-                                </p>
+                {chats.map(chat => {
+                    const groupSrc = safeImageSrc(chat.groupImage);
+
+                    return (
+                        <div
+                            key={chat._id}
+                            onClick={() => setSelectedChat(chat)}
+                            className="p-4 border rounded cursor-pointer hover:bg-gray-700"
+                        >
+                            <div className="flex items-center gap-2">
+                                {groupSrc && (
+                                    <Image
+                                        src={groupSrc}
+                                        alt={chat.groupName || "Group"}
+                                        width={40}
+                                        height={40}
+                                        className="rounded-full"
+                                    />
+                                )}
+
+                                <div>
+                                    <p className="font-bold">
+                                        {chat.isGroup
+                                            ? chat.groupName
+                                            : chat.members.map(m => m.characterName).join(", ")}
+                                    </p>
+                                    <p className="text-xs text-gray-400">
+                                        {formatTimestamp((chat.updatedAt || chat.createdAt).toString())}
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
             {hasMore && <div ref={loaderRef} className="text-center p-4">Loading more chats...</div>}
 

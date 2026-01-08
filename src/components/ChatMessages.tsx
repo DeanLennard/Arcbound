@@ -1,7 +1,9 @@
+// components/ChatMessages.tsx
 "use client";
 import React, {useState, useEffect, useRef, useCallback} from "react";
 import Image from "next/image";
 import Linkify from "linkify-react";
+import { safeImageSrc } from "@/lib/safeImageSrc";
 
 interface Props {
     chat: {
@@ -105,7 +107,9 @@ export default function ChatMessages({ chat }: Props) {
 
     const isImageUrl = (content: string) =>
         /^\/uploads\/.+\.(jpg|jpeg|png|gif|webp)$/i.test(content) ||
-        /^https:\/\/media\.tenor\.com\/.+\.(gif|mp4|webm)$/i.test(content);
+        /^https:\/\/media\.tenor\.com\/.+\.gif$/i.test(content);
+    const isVideoUrl = (content: string) =>
+        /^https:\/\/media\.tenor\.com\/.+\.(mp4|webm)$/i.test(content);
     const isFileUrl = (content: string) =>
         /^\/uploads\/.+\.(pdf|docx?|xlsx?|zip|rar|txt|csv)$/i.test(content);
     const isLinkUrl = (content: string) =>
@@ -120,15 +124,18 @@ export default function ChatMessages({ chat }: Props) {
             {messages.map(msg => (
                 <div key={msg._id} className="mb-2">
                     <div className="flex items-center gap-2">
-                        {msg.senderId.profileImage && (
-                            <Image
-                                src={msg.senderId.profileImage}
-                                alt={msg.senderId.characterName}
-                                width={24}
-                                height={24}
-                                className="rounded-full"
-                            />
-                        )}
+                        {(() => {
+                            const avatarSrc = safeImageSrc(msg.senderId.profileImage);
+                            return avatarSrc ? (
+                                <Image
+                                    src={avatarSrc}
+                                    alt={msg.senderId.characterName}
+                                    width={24}
+                                    height={24}
+                                    className="rounded-full"
+                                />
+                            ) : null;
+                        })()}
                         <span className="font-bold">{msg.senderId.characterName}</span>
                         <span className="text-xs text-gray-400">
               {new Date(msg.createdAt).toLocaleString()}
@@ -136,14 +143,24 @@ export default function ChatMessages({ chat }: Props) {
                     </div>
                     <p className="ml-8 break-smart">
                         {isImageUrl(msg.content) ? (
-                            <Image
-                                src={msg.content}
-                                alt="uploaded image"
-                                width={200}
-                                height={200}
-                                unoptimized
-                                className="rounded"
-                            />
+                            (() => {
+                                const contentImgSrc = safeImageSrc(msg.content);
+                                return contentImgSrc ? (
+                                    <Image
+                                        src={contentImgSrc}
+                                        alt="uploaded image"
+                                        width={200}
+                                        height={200}
+                                        unoptimized
+                                        className="rounded"
+                                    />
+                                ) : (
+                                    // fallback: show text if it looked like an image but src is invalid
+                                    msg.content
+                                );
+                            })()
+                        ) : isVideoUrl(msg.content) ? (
+                            <video src={msg.content} controls className="rounded max-w-[260px]" />
                         ) : isFileUrl(msg.content) ? (
                             <a
                                 href={msg.content}
