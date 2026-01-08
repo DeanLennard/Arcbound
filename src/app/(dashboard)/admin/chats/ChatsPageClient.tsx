@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Modal from "@/components/Modal";
-import ChatMessages from "@/components/ChatMessages";
+//import ChatMessages from "@/components/ChatMessages";
 import {formatTimestamp} from "@/lib/formatTimestamp";
 import { safeImageSrc } from "@/lib/safeImageSrc";
 
