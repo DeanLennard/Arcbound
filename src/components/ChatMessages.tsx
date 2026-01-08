@@ -133,6 +133,7 @@ export default function ChatMessages({ chat }: Props) {
                                     width={24}
                                     height={24}
                                     className="rounded-full"
+                                    unoptimized
                                 />
                             ) : null;
                         })()}
