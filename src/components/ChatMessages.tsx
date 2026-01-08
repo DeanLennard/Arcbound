@@ -1,7 +1,7 @@
 // components/ChatMessages.tsx
 "use client";
 import React, {useState, useEffect, useRef, useCallback} from "react";
-import Linkify from "linkify-react";
+//import Linkify from "linkify-react";
 import { safeImageSrc } from "@/lib/safeImageSrc";
 
 interface Props {
@@ -179,15 +179,14 @@ export default function ChatMessages({ chat }: Props) {
                                 📎 Download File
                             </a>
                         ) : isLinkUrl(msg.content) ? (
-                            <Linkify
-                                options={{
-                                    target: "_blank",
-                                    rel: "noopener noreferrer",
-                                    className: "text-blue-400 underline",
-                                }}
+                            <a
+                                href={msg.content}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-400 underline"
                             >
                                 {msg.content}
-                            </Linkify>
+                            </a>
                         ) : (
                             msg.content
                         )}
