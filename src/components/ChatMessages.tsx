@@ -30,38 +30,37 @@ export default function ChatMessages({ chat }: Props) {
     const prevScrollHeightRef = useRef(0);
 
     const loadMessages = useCallback(async (before?: string) => {
-        if (!containerRef.current) return;
-        setLoading(true);
+        try {
+            if (!containerRef.current) return;
+            setLoading(true);
 
-        // if this is a "load more", capture the current scrollHeight
-        if (before) {
-            prevScrollHeightRef.current = containerRef.current.scrollHeight;
+            if (before) prevScrollHeightRef.current = containerRef.current.scrollHeight;
+
+            const url = `/api/chats/${chat._id}/messages?limit=20${before ? `&before=${before}` : ""}`;
+            const res = await fetch(url);
+
+            if (!res.ok) {
+                console.error("Failed to load messages:", res.status, await res.text());
+                setHasMore(false);
+                return;
+            }
+
+            const data = await res.json();
+
+            setMessages(prev => {
+                const all = before ? [...data.messages, ...prev] : [...data.messages];
+                const unique = all.filter((m, i, arr) => arr.findIndex(x => x._id === m._id) === i);
+                unique.sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt));
+                return unique;
+            });
+
+            setHasMore(data.messages.length > 0);
+        } catch (err) {
+            console.error("loadMessages crashed:", err);
+            setHasMore(false);
+        } finally {
+            setLoading(false);
         }
-
-        const url = `/api/chats/${chat._id}/messages?limit=20${
-            before ? `&before=${before}` : ""
-        }`;
-        const res = await fetch(url);
-        const data = await res.json();
-
-        setMessages(prev => {
-            // prepend older messages if `before`, otherwise replace entirely
-            const all = before
-                ? [...data.messages, ...prev]
-                : [...data.messages];
-            // dedupe & sort
-            const unique = all.filter(
-                (m, i, arr) => arr.findIndex(x => x._id === m._id) === i
-            );
-            unique.sort(
-                (a, b) =>
-                    new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-            );
-            return unique;
-        });
-
-        setHasMore(data.messages.length > 0);
-        setLoading(false);
     }, [chat._id]);
 
     // initial load
@@ -176,22 +175,15 @@ export default function ChatMessages({ chat }: Props) {
                                 📎 Download File
                             </a>
                         ) : isLinkUrl(msg.content) ? (
-                            <a
-                                href={msg.content}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-blue-400 underline"
+                            <Linkify
+                                options={{
+                                    target: "_blank",
+                                    rel: "noopener noreferrer",
+                                    className: "text-blue-400 underline",
+                                }}
                             >
-                                <Linkify
-                                    options={{
-                                        target: '_blank',
-                                        rel: 'noopener',
-                                        className: 'text-blue-400 underline'
-                                    }}
-                                >
-                                    {msg.content}
-                                </Linkify>
-                            </a>
+                                {msg.content}
+                            </Linkify>
                         ) : (
                             msg.content
                         )}

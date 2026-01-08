@@ -2,7 +2,7 @@
 "use client";
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Modal from "@/components/Modal";
-//import ChatMessages from "@/components/ChatMessages";
+import ChatMessages from "@/components/ChatMessages";
 import {formatTimestamp} from "@/lib/formatTimestamp";
 import { safeImageSrc } from "@/lib/safeImageSrc";
 
@@ -102,15 +102,12 @@ export default function ChatsPageClient() {
                 })}
             </div>
             {hasMore && <div ref={loaderRef} className="text-center p-4">Loading more chats...</div>}
+
             {selectedChat && (
                 <Modal onClose={() => setSelectedChat(null)}>
-                    <pre className="text-xs overflow-auto">
-                        {JSON.stringify(selectedChat, null, 2)}
-                    </pre>
-
+                    <ChatMessages chat={selectedChat} />
                 </Modal>
             )}
         </div>
     );
-    //<ChatMessages chat={selectedChat} />
 }
