@@ -89,6 +89,10 @@ export default function ChatMessages({ chat }: Props) {
         }
     }, [messages]);
 
+    useEffect(() => {
+        console.log("Object.assign type:", typeof Object.assign, Object.assign);
+    }, []);
+
     // when user scrolls
     const handleScroll = () => {
         const c = containerRef.current;
